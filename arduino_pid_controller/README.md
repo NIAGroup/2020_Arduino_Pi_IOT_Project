@@ -35,7 +35,7 @@ _PID Controller - A proportional–integral–derivative controller (PID control
 3. The Arduino should be able to both receive commands from a raspberry pi & return results over a bluetooth connection using the hc-05 bluetooth module.
 > NOTE: The main result would be the time needed to balance the ping-pong ball.
 4. The Control System should be able to balance the ping-pong ball from any starting point of the ping-pong ball along the balance beam and from any starting position of the balance beam (i.e. starting at an angle that is not 0 degrees; parallel to the base).
-5. The Control System should be able to accept PID parameter values (Kp, Ki, Kd) sent to it from the Raspberry Pi. 
+5. The Control System should be able to accept PID parameter values (K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>) sent to it from the Raspberry Pi. 
 6. Upon power up, the balance beam should have a default start position. 
 7. The Arduino should be able to set specific balance beam position/angles to start at (i.e. -20 degrees or 30 degrees).
 8. The Arduino should have a general response message for verifying bluetooth communication with the Raspberry Pi. (i.e. Pi sends: "?", Arduino response: "!")
