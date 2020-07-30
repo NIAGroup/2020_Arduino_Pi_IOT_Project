@@ -11,6 +11,18 @@ _PID Controller - A proportional–integral–derivative controller (PID control
 
 #### Objective - _To balance a ping-pong ball in the center of a beam using an arduino & communicating the results to a raspberry pi via a Bluetooth connection_ 
 
+### Control System Breakdown
+* P [Process] - The Ping-Pong Ball position
+* S<sub>p</sub> [Setpoint position] - Arduino programmed desired middle position
+* F<sub>p</sub> [Feedback position] - Ultrasonic Distance Sensor real position based on distance reading
+* E [Error]- E = S<sub>p</sub> - F<sub>p</sub>
+> NOTE : Error is the difference between the desired ping-pong ball position (S<sub>p</sub>) and the actual ping-pong ball position measured by the sensor (F<sub>p</sub>).
+* PID_p = K<sub>p</sub> * E
+* PID_i = PID_i + K<sub>i</sub> * E
+> NOTE : The integral is based on the sum of error over time. So at t<sub>0</sub> the will be the integral constanct * the error, but this will grow and decrease gradually over time as the error changes.
+* PID_d = K<sub>d</sub> * (E<sub>c</sub> - E<sub>p</sub> /Δt)
+> NOTE : For the derivitave calculation we consider the ping-pong ball velocity. Which is the change in position (displacement) divided by the change in time. `Δx/Δt`, where Δx is the current Error (E<sub>c</sub>) - the previous error (E<sub>p</sub>). 
+
 ### Major Components
 * Arduino Uno 
 * HC-05 Bluetooth Module
