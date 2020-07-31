@@ -1,0 +1,50 @@
+
+.navbar{
+padding: 0rem 0rem;
+}
+.nav-item.active,.nav-item:hover{
+	border: 1px solid #323644;
+}
+
+li.nav-item{
+	margin-right: 3px;
+}
+.nav-link{
+	padding: 5px 5px;
+}
+
+.btn{
+	border-radius: 0%;
+}
+
+.jumbotron{
+    margin-bottom: 0;
+}
+
+.carousel-control-prev-icon{
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23323644' viewBox='0 0 8 8'%3E%3Cpath d='M5.25 0l-4 4 4 4 1.5-1.5-2.5-2.5 2.5-2.5-1.5-1.5z'/%3E%3C/svg%3E") !important;
+}
+
+.carousel-control-next-icon {
+    background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23323644' viewBox='0 0 8 8'%3E%3Cpath d='M2.75 0l-1.5 1.5 2.5 2.5-2.5 2.5 1.5 1.5 4-4-4-4z'/%3E%3C/svg%3E") !important;
+}
+
+.carousel-indicators li {
+    background-color: #23323644;
+}
+.carousel-indicators .active {
+    background-color: #323644;
+}
+
+ul li a{
+	padding: 5px 10px;
+}
+
+.pt-4,.py-4{
+padding-top:.5rem!important;
+}
+
+.col-sm-4{
+margin:auto;
+text-align:center;
+}
