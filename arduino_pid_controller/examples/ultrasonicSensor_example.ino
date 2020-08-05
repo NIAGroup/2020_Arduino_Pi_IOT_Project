@@ -34,7 +34,7 @@ byte led_intensity_val;           // The maximum value of a byte is 255, which t
  * For more information about how the sensor works : https://randomnerdtutorials.com/complete-guide-for-ultrasonic-sensor-hc-sr04/
 */      
 const byte trigPin = 4;         // Trigger pin assigned to pin 4. 
-const byte echoPin = 3;         // Echo pin assigned to pin 3.
+const byte echoPin = 5;         // Echo pin assigned to pin 5.
 
 long duration;
 float distance_in_centimeters, distance_in_inches;
