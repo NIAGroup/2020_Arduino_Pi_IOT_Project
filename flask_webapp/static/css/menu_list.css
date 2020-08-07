@@ -1,0 +1,10 @@
+.closebtn {
+  float: right;
+}
+
+.closebtnCross {
+  float: right;
+  color: rgb(197, 17, 17);
+  font-size: 35px;
+  cursor: pointer;
+}
