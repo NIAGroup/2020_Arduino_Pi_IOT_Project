@@ -1,4 +1,6 @@
 /* Source: https://freefrontend.com/css-tables/ */
+
+/* Output Table*/
 .container {
   width: 100%;
 }
@@ -26,4 +28,49 @@ tbody tr:hover {
 }
 tbody td {
   position: relative;
+}
+
+/* Form Table */
+.container_form .responsive-table li {
+  border-radius: 3px;
+  padding: 25px 30px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 25px;
+}
+.responsive-table .table-header {
+  background-color: #95A5A6;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  word-wrap: break-word;
+}
+.responsive-table .table-row {
+  background-color: #ffffff;
+  box-shadow: 0px 0px 9px 9px rgba(0,0,0,0.1);
+}
+.responsive-table .col-1 {
+  flex-basis: 25%;
+}
+.responsive-table .col-2 {
+  flex-basis: 25%;
+}
+.responsive-table .col-3 {
+  flex-basis: 25%;
+}
+.responsive-table .col-4 {
+  flex-basis: 25%;
+}
+@media all and (max-width: 767px) {
+  .responsive-table .table-header {
+    display: none;
+  }
+  .responsive-table li {
+    display: block;
+  }
+  .responsive-table .col {
+    flex-basis: 100%; 
+    display: flex;
+    padding: 10px 0;
+  }
 }

@@ -15,80 +15,123 @@
   <title>PID IOT Interface </title>  
 </head>
 <body>
-    <div class="w3-container">
-      <h2>PID IOT Project</h2>
-    
-      <div class="w3-row">
-        <a href="javascript:void(0)" onclick="openSelection(event, 'Scan');">
-          <div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-red w3-border-red w3-border-red col-xs-6">Scan</div>
-        </a>
-        <a href="javascript:void(0)" onclick="openSelection(event, 'Configure');">
-          <div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-red w3-border-red w3-border-red col-xs-6">Configure</div>
-        </a>
-      </div>
-    
-      <div id="Scan" class="w3-container selection" style="display:none">
-        <div class="container-fluid">
+    <section class="menu_bar">
+      <div class="w3-container">
+        <h2>PID IOT Project</h2>
+        <div class="w3-row">
+          <a href="javascript:void(0)" onclick="openSelection(event, 'Scan');">
+            <div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-red w3-border-red w3-border-red col-xs-6">Scan</div>
+          </a>
+          <a href="javascript:void(0)" onclick="openSelection(event, 'Configure');">
+            <div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-red w3-border-red w3-border-red col-xs-6">Configure</div>
+          </a>
+        </div>
+        <div id="Scan" class="w3-container selection" style="display:none">
+          <div class="container-fluid">
+            <div class = "row">
+            <span onclick="closeMenu();" class="closebtnCross">x</span>
+            </div>
+            <div class="row">
+              <div class="col-xs-3">
+                <a href="#" class="thumbnail">
+                  <img src="..\static\img\arduino_icon.png" alt="Arduino icon">
+                </a>
+                <p style="text-align:center;">127.0.0.1</p>
+              </div>
+              <div class="col-xs-3">
+                <a href="#" class="thumbnail">
+                  <img src="..\static\img\arduino_icon.png" alt="Arduino icon">
+                </a>
+                <p style="text-align:center;">127.0.0.2</p>
+              </div>
+              <div class="col-xs-3">
+                <a href="#" class="thumbnail">
+                  <img src="..\static\img\arduino_icon.png" alt="Arduino icon">
+                </a>
+                <p style="text-align:center;">127.0.0.3</p>
+              </div>
+              <div class="col-xs-3">
+                <a href="#" class="thumbnail">
+                  <img src="..\static\img\arduino.png" alt="Arduino icon">
+                </a>
+                <p style="text-align:center;">127.0.0.4</p>
+              </div>
+            </div>
+            <div class="row">
+              <button type="button" class="btn btn-success">Connect</button>
+            </div>
+          </div>
+        </div>
+        <div id="Configure" class="w3-container selection" style="display:none">
           <div class = "row">
-           <span onclick="closeMenu();" class="closebtnCross">x</span>
+            <span onclick="closeMenu();" class="closebtnCross">x</span>
           </div>
-          <div class="row">
-            <div class="col-xs-3">
-              <a href="#" class="thumbnail">
-                <img src="..\static\img\arduino_icon.png" alt="Arduino icon">
-              </a>
-              <p style="text-align:center;">127.0.0.1</p>
-            </div>
-            <div class="col-xs-3">
-              <a href="#" class="thumbnail">
-                <img src="..\static\img\arduino_icon.png" alt="Arduino icon">
-              </a>
-              <p style="text-align:center;">127.0.0.2</p>
-            </div>
-            <div class="col-xs-3">
-              <a href="#" class="thumbnail">
-                <img src="..\static\img\arduino_icon.png" alt="Arduino icon">
-              </a>
-              <p style="text-align:center;">127.0.0.3</p>
-            </div>
-            <div class="col-xs-3">
-              <a href="#" class="thumbnail">
-                <img src="..\static\img\arduino.png" alt="Arduino icon">
-              </a>
-              <p style="text-align:center;">127.0.0.4</p>
-            </div>
-          </div>
-          <div class="row">
-            <button type="button" class="btn btn-success">Connect</button>
+          <div class = "row">
+            <h3>This is Configure Section</h3>
           </div>
         </div>
       </div>
+    </section>
     
-      <div id="Configure" class="w3-container selection" style="display:none">
-        <div class = "row">
-           <span onclick="closeMenu();" class="closebtnCross">x</span>
-        </div>
-        <div class = "row">
-          <h3>This is Configure Section</h3>
-        </div>
-      </div>
-    </div>
-  
     <section class="mission_control">
       <form>
-        <label for="kp"> Proportional Constant (K<sub>p</sub>) </label>
-        <input id="kp" name="Proportional Constant (Kp)" type="number" step="any" required placeholder="10">
-        
-        <label for="ki"> Integral Constant (K<sub>i</sub>) </label>
-        <input  id="ki" name="Integral Constant (Ki)" type="number" step="any" required placeholder="10">
-        
-        <label for="kd"> Derivative Constant (K<sub>d</sub>) </label>
-        <input id="kd" name="Derivative Constant (Kd)" type="number" step="any" required placeholder="10"> 
-  
-        <label for="angle"> Balance Beam Start Angle </label>
-        <input id="angle" name="Balance Beam Start Angle" type="number" step="any" required placeholder="45"> 
-        
-        <button id="runBtn" type="submit" class="btn btn-primary" onclick="changeRunButtonColor()"> Run Test </button>         
+        <div class="container_form">
+          <ul class="responsive-table">
+            <div class="container-fluid">
+              <div class="row">
+                <li class="table-header">
+                  <div class="col-xs-3">
+                    <label for="kp"> 
+                      <div class="col col-1"> Proportional Constant (K<sub>p</sub>) </div>
+                    </label>
+                  </div>
+                  <div class="col-xs-3">
+                    <label for="ki"> 
+                      <div class="col col-2"> Integral Constant (K<sub>i</sub>) </div>
+                    </label>
+                  </div>
+                  <div class="col-xs-3">
+                    <label for="kd"> 
+                      <div class="col col-3"> Derivative Constant (K<sub>d</sub>) </div>
+                    </label>
+                  </div>
+                  <div class="col-xs-3">
+                    <label for="angle"> 
+                      <div class="col col-4"> Balance Beam Start Angle </div>
+                    </label>
+                </li>
+              </div>
+              <div class="row">
+                <li class="table-row">
+                  <div class="col-xs-3">
+                    <input id="kp" name="Proportional Constant (Kp)" type="number" step="any" required placeholder="10">
+                      <div class="col col-1" data-label="Proportional Constant"></div>
+                    </input>
+                  </div>
+                  <div class="col-xs-3">
+                    <input  id="ki" name="Integral Constant (Ki)" type="number" step="any" required placeholder="10">
+                      <div class="col col-2" data-label="Integral Constant"></div>
+                    </input>  
+                  </div>
+                  <div class="col-xs-3">       
+                    <input id="kd" name="Derivative Constant (Kd)" type="number" step="any" required placeholder="10">
+                      <div class="col col-3" data-label="Derivative Constant "></div>
+                    </input>
+                  </div>
+                  <div class="col-xs-3">
+                    <input id="angle" name="Balance Beam Start Angle" type="number" step="any" required placeholder="45">
+                      <div class="col col-4" data-label="Balance Beam Start Angle"></div>
+                    </input>
+                  </div>
+                </li>
+              </div>
+              <div class="row">
+                <button id="runBtn" type="submit" class="btn btn-primary" onclick="changeRunButtonColor()"> Run Test </button>
+              </div>
+            </div>
+          </ul>
+        </div>        
+             
       </form>
     </section>
 
