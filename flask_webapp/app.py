@@ -13,7 +13,15 @@ api = Api(app)
 # create route that renders index.html template
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("homepage.html")
+
+@app.route("/home2")
+def home2():
+    return render_template("homepage_index_2.html")
+
+@app.route("/projects")
+def projects():
+    return render_template("projects.html")
 
 api.add_resource(Quote, '/quote')
 api.add_resource(HelloWorld, '/greeting')
