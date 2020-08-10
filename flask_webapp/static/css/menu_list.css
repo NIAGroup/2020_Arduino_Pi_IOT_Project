@@ -1,5 +1,6 @@
 body {
   font-family: 'lato', sans-serif;
+  font-weight: 100;
 }
 
 .closebtn {
@@ -20,11 +21,9 @@ body {
 }
 
 .output{
- 
   justify-content: center;
 }
-
-
+/*
 tr:nth-child(odd) {
   background-color: #eee;
 }
@@ -39,3 +38,4 @@ td {
   text-align: left;
   padding: 0.5em 1em;
 }
+*/

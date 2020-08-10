@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
   <link rel="stylesheet" href="..\static\css\menu_list.css">
+  <link rel="stylesheet" href="..\static\css\table_style.css">
   <script src="..\static\js\menu_list.js"></script>
   <title>PID IOT Interface </title>  
 </head>
@@ -105,43 +106,49 @@
             </div>
             <div class="col-xs-6">
               <div class="table-responsive">
-                <table class="table">
-                  <tr>
-                    <th>PID Values [K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>]</th>
-                    <th>Start Angle</th>
-                    <th>Balance Time (s)</th>
-                    <th>Date(mm/dd/yyyy)</th>
-                    <th>Time(hr/mm/ss)</th>
-                  </tr>
-                  <tr>
-                    <td>10,12,14</td>
-                    <td>45</td>
-                    <td>3.5</td>
-                    <td>11/11/2011</td>
-                    <td>13/54/06</td>
-                  </tr>
-                  <tr>
-                    <td>10,13,20</td>
-                    <td>50</td>
-                    <td>4</td>
-                    <td>11/11/2011</td>
-                    <td>13/57/01</td>
-                  </tr>
-                  <tr>
-                    <td>10,13,20</td>
-                    <td>50</td>
-                    <td>4</td>
-                    <td>11/11/2011</td>
-                    <td>13/57/01</td>
-                  </tr>
-                  <tr>
-                    <td>10,13,20</td>
-                    <td>50</td>
-                    <td>4</td>
-                    <td>11/11/2011</td>
-                    <td>13/57/01</td>
-                  </tr>
-                </table>
+                <div class="container">
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>PID Values (K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>)</th>
+                        <th>Start Angle</th>
+                        <th>Balance Time (s)</th>
+                        <th>Date (mm/dd/yyyy)</th>
+                        <th>Time (hh.mm.ss)</th>
+                      </tr>
+                    </thead>
+                    </tbody>
+                      <tr>
+                        <td>10,12,14</td>
+                        <td>45</td>
+                        <td>3.5</td>
+                        <td>11/11/2011</td>
+                        <td>13.54.06</td>
+                      </tr>
+                      <tr>
+                        <td>10,13,20</td>
+                        <td>50</td>
+                        <td>4</td>
+                        <td>11/11/2011</td>
+                        <td>13.57.01</td>
+                      </tr>
+                      <tr>
+                        <td>10,13,20</td>
+                        <td>50</td>
+                        <td>4</td>
+                        <td>11/11/2011</td>
+                        <td>13.57.01</td>
+                      </tr>
+                      <tr>
+                        <td>10,13,20</td>
+                        <td>50</td>
+                        <td>4</td>
+                        <td>11/11/2011</td>
+                        <td>13.57.01</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           </div>
