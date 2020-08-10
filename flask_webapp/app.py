@@ -28,4 +28,9 @@ api.add_resource(HelloWorld, '/greeting')
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    # setting the host to 0.0.0.0 makes the pi act as a server, 
+    # this allows users to get to the site by typing in the pi's
+    # local ip address. 
+    # NOTE : When running the webapp you must use "sudo" for super user
+    # rights to run as a server.
+    app.run(host="0.0.0.0",port=5000, debug=True)
