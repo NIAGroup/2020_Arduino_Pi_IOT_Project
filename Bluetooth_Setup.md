@@ -1,25 +1,15 @@
 ## Python Bluetooth Setup - _python 3.7_
 
-1. Install pybluez
-    python 3.7 -m pip install pybluez
+1. Install pybluez   
+`sudo python 3.7 -m pip install pybluez`
 > NOTE : This will only allow simple python programming for bluetooth classic, but not BLE (bluetooth Low Energy Devices)
 2. Run the following install command:  
 `sudo apt-get install libbluetooth-dev`   
 > NOTE : As of the current date _(July 30, 2020)_ there is an issue with the BLE portion of the pybluez library, so this must be installed before the necessary additional python libraries can be installed. 
 3. Install gattlib:
 ```
-pip3 download gattlib
+sudo python3.7 -m pip install gattlib
 ```
-> NOTE : this next few lines will depend on what version is downladed after the previous command. Be sure to do a quic `ls` to make sure you enter the correct version in the commands that follow.
-```
-tar xvzf ./gattlib-0.20200122.tar.gz
-cd gattlib-0.20200122/
-sed -ie 's/boost_python-py37/boost_python-py3/' setup.py
-```
-> NOTE: If you are using a different version of python 3, be sure to specify it correctly in the path seen in the command above.
-```
-pip3 install .
-```   
 
 4. Normally accessing the Bluetooth stack is reserved for root; to allow non-root access to the Bluetooth stack we can give Python 3 and hcitool the missing capabilities to access the Bluetooth stack.:
 ```
