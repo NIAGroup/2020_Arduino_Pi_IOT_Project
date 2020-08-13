@@ -1,0 +1,16 @@
+# These owners will be the default owners for everything in
+# the repo. Unless a later match takes precedence,
+*       @fsjames @Injoh @jmpichar @NerdboyQ @adonaygyb
+
+# Arduino code reviewers (C, C++)
+*.c     @Injoh @NerdboyQ
+*.cpp     @Injoh @NerdboyQ
+*.h
+
+# Flask back end reviewers (py)
+*.py    @jmpichar @NerdboyQ @adonaygyb
+
+# Web-UI front-end reviewers(css, js, html)
+*.html  @fsjames @adonaygyb
+*.jss   @fsjames @adonaygyb
+*.css   @fsjames @adonaygyb
