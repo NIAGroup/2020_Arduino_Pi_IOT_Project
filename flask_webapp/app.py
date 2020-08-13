@@ -13,11 +13,24 @@ api = Api(app)
 # create route that renders index.html template
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("homepage.html")
+
+@app.route("/home2")
+def home2():
+    return render_template("homepage_index_2.html")
+
+@app.route("/projects")
+def projects():
+    return render_template("projects.html")
 
 api.add_resource(Quote, '/quote')
 api.add_resource(HelloWorld, '/greeting')
 
 
 if __name__ == '__main__':
-    app.run(port=5000, debug=True)
+    # setting the host to 0.0.0.0 makes the pi act as a server, 
+    # this allows users to get to the site by typing in the pi's
+    # local ip address. 
+    # NOTE : When running the webapp you must use "sudo" for super user
+    # rights to run as a server.
+    app.run(host="0.0.0.0",port=5000, debug=True)
