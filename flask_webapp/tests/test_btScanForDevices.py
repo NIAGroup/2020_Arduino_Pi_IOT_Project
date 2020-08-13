@@ -27,3 +27,4 @@ def scanForBTDevices():
   json_devices = json.dumps(bt_devices, indent=4)
   print(json_devices)
 
+scanForBTDevices()
