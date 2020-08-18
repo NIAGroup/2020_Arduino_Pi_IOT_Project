@@ -59,29 +59,36 @@ NOTE: A user can use both arguments or just one.
 """
 def getArguments():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--bdaddr',help='Please provide an address for your bluetooth device')
-    parser.add_argument('--msg',help='Please provide a byte message to be sent')
+    parser.add_argument('--bdaddr',type=str,help='Please provide an address for your bluetooth device')
+    parser.add_argument('--msg',type=int,help='Please provide a byte message to be sent')
     args = parser.parse_args()
-    bdaddr = str(args.bdaddr)
-    msg_byte = str(args.msg)
-    if bdaddr == 'None':
+    bdaddr = args.bdaddr
+    msg_byte = args.msg
+    if bdaddr == None:
         bdaddr = "00:35:FF:0D:41:9B"
-    if msg_byte == 'None':
+    if msg_byte == None:
         msg_byte = 254
     else:
-        msg_byte = int(msg_byte)
+        msg_byte = msg_byte
     return bdaddr,msg_byte
 
 """
 The Bluetooth address is usually found during the scanning process
 Because the data is sent byte by byte, each single byte that is sent
 has a value range of 0-255.
+
+The arguments passed in will be checked for the correct formatting as well,
+but this will have to be updated later to match the communication standard
+for an array of bytes.
 """
 bdaddr, msg_byte = getArguments()
 if (msg_byte > -1 and msg_byte < 256):
-    print(f"bdaddr : {bdaddr}")
-    print(f"msg_byte : {msg_byte}")
-    #status = sendMsg(bdaddr,msg_byte)
-    #print(status)
+    if bdaddr.count(":") == 5 and len(bdaddr) == 17:
+        print(f"bdaddr : {bdaddr}")
+        print(f"msg_byte : {msg_byte}")
+        status = sendMsg(bdaddr,msg_byte)
+        print(status)
+    else:
+        print("The bluetooth address is not formatted correctly.\nPlease try again following syntax 'xx:xx:xx:xx:xx:xx'")
 else:
     print("The message byte must be between 0 and 255.\nPlease provide a valid message byte value.")
