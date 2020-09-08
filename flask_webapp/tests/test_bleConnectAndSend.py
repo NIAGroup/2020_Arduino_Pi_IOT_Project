@@ -31,12 +31,15 @@ def sendMsg(bdaddr,msg_byte):
         service for the HM-10 ble module on the arduino, and write it with
         the characteristic object.
         """
+        print("gettng services")
         services = list(dev.services)
+        print("getting characteristics")
         characteristic = services[len(services)-1].getCharacteristics()[0]
 
         # Below we actually write the message, and convert it to a byte to be sent.
-        characteristic.write(bytes([msg_byte]))
-        print("Sending message:",msg_byte)
+        print("sending message:",msg_byte)
+        characteristic.write(bytes([int(msg_byte,16)]))
+        print("message sent")
 
         """
         Once communication is complete, a good practice is to disconnect as
@@ -60,16 +63,16 @@ NOTE: A user can use both arguments or just one.
 def getArguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bdaddr',type=str,help='Please provide an address for your bluetooth device')
-    parser.add_argument('--msg',type=int,help='Please provide a byte message to be sent')
+    parser.add_argument('--msg',type=str,help='Please provide a byte message to be sent')
     args = parser.parse_args()
     bdaddr = args.bdaddr
     msg_byte = args.msg
     if bdaddr == None:
         bdaddr = "00:35:FF:0D:41:9B"
     if msg_byte == None:
-        msg_byte = 254
+        msg_byte = hex(int("96",16))   # sets the servo to 90 degrees
     else:
-        msg_byte = msg_byte
+        msg_byte = hex(int(msg_byte,16))
     return bdaddr,msg_byte
 
 """
@@ -82,7 +85,9 @@ but this will have to be updated later to match the communication standard
 for an array of bytes.
 """
 bdaddr, msg_byte = getArguments()
-if (msg_byte > -1 and msg_byte < 256):
+print(msg_byte)
+
+if (int(msg_byte,16) > 0 and int(msg_byte,16) < 256):
     if bdaddr.count(":") == 5 and len(bdaddr) == 17:
         print(f"bdaddr : {bdaddr}")
         print(f"msg_byte : {msg_byte}")
