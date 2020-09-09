@@ -81,5 +81,20 @@ class BtDevContainer(object):
         # Todo: Figure out a way to propagate error message
         return retVal
 
+    def get_device(self, name):
+        """
+        :brief get_device(name): returns a bluetooth device objects.
+        :description: This function takes a name string of the desired device, checks if object instance
+                    exists (checks for key-value exceptions) and returns either object or None with message.
+        :param name: string value of the device name.
+        :return: Bt_Device or Bt_Ble_Device device instance on success; None on failure.
+        """
+        try:
+            return self._bt_name_dev_dict[name]
+        except KeyError:
+            print(f"Device name: {name} is not found. Returning None")
+
+        return None
+
 
 
