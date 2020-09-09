@@ -1,7 +1,7 @@
 import bluetooth
 from bluetooth.ble import DiscoveryService
 from bluepy import *
-from device import Bt_Device, Bt_Device
+from device import Bt_Ble_Device, Bt_Device
 
 class BtDevContainer(object):
     """
@@ -60,7 +60,7 @@ class BtDevContainer(object):
         """
         if self._bt_name_dev_dict:
             for name in self._bt_name_dev_dict.keys():
-                if "arduino" not in name: # Todo: Find out device name
+                if "arduino" not in name.lower(): # Todo: Find out device name
                     self._bt_name_dev_dict.pop(name)
         else:
             print("No bluetooth devices discovered. _bt_devices_ dictionary empty.")
