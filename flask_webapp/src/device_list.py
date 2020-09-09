@@ -1,6 +1,5 @@
 import bluetooth
 from bluetooth.ble import DiscoveryService
-from bluepy import *
 from device import Bt_Ble_Device, Bt_Device
 
 class BtDevContainer(object):
@@ -25,7 +24,8 @@ class BtDevContainer(object):
         devices = bluetooth.discover_devices(lookup_names=True)
         for device in devices:
             addr, name = device
-            self._bt_name_dev_dict[name] = Bt_Device(addr)
+            if self._is_verified_bt_dev(name):
+                self._bt_name_dev_dict[name] = Bt_Device(addr)
 
     def _scan_for_bt_ble_devices(self):
         """
@@ -36,7 +36,18 @@ class BtDevContainer(object):
         service = DiscoveryService()
         devices = service.discover(2)
         for addr, name in zip(devices.keys(), devices.values()):
-            self._bt_name_dev_dict[name] = Bt_Ble_Device(addr)
+            if self._is_verified_bt_dev(name):
+                self._bt_name_dev_dict[name] = Bt_Ble_Device(addr)
+
+    def _is_verified_bt_dev(self, name):
+        """
+        :brief _is_verified_bt_dev(name): verify the dev object is desired device under test.
+        :description: This function will be used for issuing a test to identify desired arduino devices
+            in the bluetooth range.
+        :param name: name of the device that appeared in a bluetooth scan.
+        :return: True on verified device, False on every other component.
+        """
+        return "arduino" in name.lower()
 
     def scan(self):
         """
@@ -47,23 +58,9 @@ class BtDevContainer(object):
         """
         self._scan_for_bt_ble_devices()
         self._scan_for_bt_regular_devices()
-        self.verify_scanned_device()
         active_dev_list = self._bt_name_dev_dict.keys()
         print(f"Discovered {len(active_dev_list)} valid bluetooth devics.")
         return active_dev_list
-
-    def verify_scanned_device(self):
-        """
-        :brief verify_scanned_device: iterate through scanned lists and verify it's device under test.
-        :description: This function will be used for issuing a test to identify desired arduino devices
-            in the bluetooth range.
-        """
-        if self._bt_name_dev_dict:
-            for name in self._bt_name_dev_dict.keys():
-                if "arduino" not in name.lower(): # Todo: Find out device name
-                    self._bt_name_dev_dict.pop(name)
-        else:
-            print("No bluetooth devices discovered. _bt_devices_ dictionary empty.")
 
     def send_bluetooth_msg(self, name, msg_name):
         """

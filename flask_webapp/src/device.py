@@ -1,4 +1,5 @@
 from messages import *
+from bluepy import *
 
 class Bt_Ble_Device(object):
     """
@@ -11,7 +12,7 @@ class Bt_Ble_Device(object):
         """
         self._addr = addr
         self._dev = btle.Peripheral(addr)
-        self._services = list(self._dev._services)
+        self._services = list(self._dev.services)
         self._characteristic = self._services[len(self._services) - 1].getCharacteristics()[0]
 
     def __del__(self):
