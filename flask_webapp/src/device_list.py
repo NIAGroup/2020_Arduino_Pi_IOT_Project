@@ -58,7 +58,7 @@ class BtDevContainer(object):
         """
         self._scan_for_bt_ble_devices()
         self._scan_for_bt_regular_devices()
-        active_dev_list = self._bt_name_dev_dict.keys()
+        active_dev_list = list(self._bt_name_dev_dict.keys())
         print(f"Discovered {len(active_dev_list)} valid bluetooth devics.")
         return active_dev_list
 
