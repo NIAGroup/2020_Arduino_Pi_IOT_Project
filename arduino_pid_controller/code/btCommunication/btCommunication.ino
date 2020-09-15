@@ -30,23 +30,30 @@
  */
  
 #include <SoftwareSerial.h> 
+#include <Servo.h>
+
+const byte servoPin = 6;    // Servo pin assigned as pin 6 [servos require a PWM pin].
+Servo servo;                // To create a servo instance, we use the Servo class from Servo.h.
 
 // Using the SoftwareSerial Library, the Digital IO pins 2 & 3 are repurposed as Soft Serial Pins
 // NOTE : For wiring the TX pin of the target device/module is connected to the assigned RX pin of the
 // Microcontroller, and the RX pin of the target device/module is connected to the assigned TX pin of
 // the Microcontroller.  
 SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX 
-char bt_msg;    // The bluetooth messagge will be received one byte a time, which can be represented as a character (char) 
-int LED1 = 11;   // The LED1 pin assigned to pin 11.
-int LED2 = 12;   // The LED1 pin assigned to pin 12.
+byte bt_msg;    // The bluetooth messagge will be received one byte a time, which can be represented as a character (char) 
+const byte led1_pin = 11;   // The led1_pin assigned to pin 11.
+const byte led2_pin = 12;   // The led2_pin assigned to pin 12.
 
 // Every Arduino sketch requires at least a setup loop for initializing I/O pins and serial ports
 // and a main function called "loop" that will loop indefinitely while the board is powered.
 void setup() 
 {   
- Serial.begin(9600);       // The default baudrate for the HC-05 is 38400.  
+ Serial.begin(9600);       // The default baudrate for the HC-05 is 38400, and 9600 for the HM-10 
  BT_Module.begin(9600);       // If the baudrate is incorrect the messages will not be read/displayed correctly.
- pinMode(LED, OUTPUT);      // The led pin gets setup as an output pin. 
+ pinMode(led1_pin, OUTPUT);      // The led pin gets setup as an output pin. 
+ pinMode(led2_pin, OUTPUT);
+ servo.attach(servoPin);
+ 
  //Serial.println("Ready to connect\nDefualt password is 1234 or 000"); 
 } 
 void loop() 
@@ -56,31 +63,71 @@ void loop()
  // incoming message before we handle any actions. 
  if (BT_Module.available() > 0)
  { 
-     readBT_Msg();
+     //readBT_Msg();
+     Serial.print("new msg: ");
+     bt_msg = BT_Module.read();
+     Serial.println(bt_msg, HEX);
+     byte upper_nibble = bt_msg & 0b11110000;  // Masking lower 4 bits to focus on the upper 4 bits
+     byte lower_nibble = bt_msg & 0b00001111;
+     upper_nibble = upper_nibble >> 4;
+     // Serial.println(upper_nibble, HEX);
+     // Serial.println(lower_nibble, HEX);
+     if (upper_nibble == 9)
+     {
+       switch(lower_nibble)
+       {
+        case 12:
+         Serial.println("Servo Sanity Check: 180 degrees");
+         servo.write(180); 
+         break;
+        case 8:
+         Serial.println("Servo Sanity Check: 150 degrees");
+         servo.write(150); 
+         break;
+        case 4:
+         Serial.println("Servo Sanity Check: 120 degrees");
+         servo.write(120);
+         break; 
+        case 0:
+         Serial.println("Servo Sanity Check: 90 degrees");
+         servo.write(90); 
+         break;
+        case 1:
+         Serial.println("Servo Sanity Check: 60 degrees");
+         servo.write(60); 
+         break;
+        case 2:
+         Serial.println("Servo Sanity Check: 30 degrees");
+         servo.write(30); 
+         break;
+        case 3:
+         Serial.println("Servo Sanity Check: 0 degrees");
+         servo.write(0); 
+         break;
+        case 6:
+          Serial.println("Servo Sanity Check: Sweep");       
+          for(byte pos = 0; pos<=180;pos+=30)
+          {
+           servo.write(pos); 
+           delay(1000);
+          }
+          for(byte pos = 150; pos>0;pos-=30)
+          {
+           servo.write(pos);
+            delay(1000);
+          }
+          servo.write(0);
+         break;
+       }
+     }
+     digitalWrite(led1_pin, HIGH);
+     delay(1500);
  }
  else
  {
-   digitalWrite(led_pin1, OFF);
-   digitalWrite(led_pin2, OFF); 
+   digitalWrite(led1_pin, LOW);
+   digitalWrite(led2_pin, LOW); 
  }
 
 }  
-
-void readBT_Msg(){
-  bt_msg = BT_Module.read();      // Here we read the incoming message as a byte represented as a char
-  Serial.println(bt_msg, HEX);         // The incoming message will be printed in the Arduino IDE Serial Monitor -  CTRL+SHIFT+M
-  
-  // If the message is a 1, the LED will be turned on.
-  for (bt_msg == '1') 
-   { 
-     digitalWrite(LED, HIGH); 
-     Serial.println("LED On"); 
-   }
-   // If the message is a 0, the LED will be turned off. 
-   else if (bt_msg == '0') 
-   { 
-     digitalWrite(LED, LOW); 
-     Serial.println("LED Off"); 
-   } 
-}
 
