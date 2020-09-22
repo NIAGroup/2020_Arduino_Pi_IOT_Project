@@ -90,12 +90,8 @@ void ultrasonicRead()
   // Convert the time into a distance
   distance_in_centimeters = (duration/2) / 29.1;      // Divide by 29.1 or multiply by 0.0343
   distance_in_inches = (duration/2) / 74;             // Divide by 74 or multiply by 0.0135
-  
-  // The distance measured is being limited between 5cm-20cm, so the results are only being printed
-  // for distances within that range. This includes adjustments to the LED intensity as well.
-  if (distance_in_centimeters > 5 && distance_in_centimeters < 20)
 
-  // The distance measured is being limited to 5cm-20cm, so the results are only being printed
+  // The distance measured is being limited to 2cm-35m, so the results are only being printed
   // for distances within that range. The includes adjustments to the LED intensity as well.
   if (distance_in_centimeters > 2 && distance_in_centimeters < 35)
 
