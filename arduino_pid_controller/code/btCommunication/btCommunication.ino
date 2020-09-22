@@ -40,6 +40,7 @@ Servo servo;                // To create a servo instance, we use the Servo clas
 // Microcontroller, and the RX pin of the target device/module is connected to the assigned TX pin of
 // the Microcontroller.  
 SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX 
+byte bt_request[8], bt_response[8];
 byte bt_msg;    // The bluetooth messagge will be received one byte a time, which can be represented as a character (char) 
 const byte led1_pin = 11;   // The led1_pin assigned to pin 11.
 const byte led2_pin = 12;   // The led2_pin assigned to pin 12.
@@ -63,9 +64,37 @@ void loop()
  // incoming message before we handle any actions. 
  if (BT_Module.available() > 0)
  { 
-     //readBT_Msg();
-     Serial.print("new msg: ");
-     bt_msg = BT_Module.read();
+     // I believe the way the messages are being sent with the ble code, the messages
+     // are being received in 4 byte array lengths. So a second loop is added to ensure
+     // no dummy bytes ("0xFF") are processed.
+     for(byte i = 0;i<4;i++){
+       if(i == 0)
+       {
+         bt_msg = BT_Module.read();
+         bt_request[i] = bt_msg;
+       }
+       else
+       {
+         bt_request[i] = BT_Module.read();
+       }
+       Serial.print(bt_request[i],HEX);
+       Serial.print(":");
+     }
+     delay(50);
+     if (BT_Module.available() > 0)
+     {
+       for(byte i = 4;i<8;i++){
+         bt_request[i] = BT_Module.read();
+         Serial.print(bt_request[i],HEX);
+         if(i < 7)
+         {
+           Serial.print(":");
+         }
+       }
+     }
+     
+     Serial.println("");
+     Serial.print("command_byte: ");
      Serial.println(bt_msg, HEX);
      byte upper_nibble = bt_msg & 0b11110000;  // Masking lower 4 bits to focus on the upper 4 bits
      byte lower_nibble = bt_msg & 0b00001111;
