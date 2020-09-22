@@ -1,6 +1,6 @@
 /*
  * Author :  Princton Brennan, Injoh M. Tanwani
- * Edition:  09-20-20
+ * Date:  09-20-20
  * Purpose : Beginner's Example for sensor reading & PWM writing 
  * Requirements : 1 LED, Ultrasonic Distance Sensor (model - HC-SR04), & an Arduino   
  * 
