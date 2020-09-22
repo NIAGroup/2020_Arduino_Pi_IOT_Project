@@ -38,7 +38,14 @@ def sendMsg(bdaddr,msg_byte):
 
         # Below we actually write the message, and convert it to a byte to be sent.
         print("sending message:",msg_byte)
-        characteristic.write(bytes([int(msg_byte,16)]))
+        full_msg = [msg_byte,"f1","f2","f3","f4","f5","f6","f7"]
+        print("full message:", ":".join(full_msg))
+        #characteristic.write(bytes([int(full_msg,16)]))
+        for b in range (0,8):
+        #    full_msg = int(b,16)
+            
+            characteristic.write(bytes([int(full_msg[b],16)]))
+        #characteristic.write(full_msg)
         print("message sent")
 
         """

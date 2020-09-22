@@ -76,7 +76,7 @@ void ultrasonicRead()
   
   // The distance measured is being limited to 5cm-20cm, so the results are only being printed
   // for distances within that range. The includes adjustments to the LED intensity as well.
-  if (distance_in_centimeters > 5 && distance_in_centimeters < 20)
+  if (distance_in_centimeters > 2 && distance_in_centimeters < 35)
   {
     Serial.print(distance_in_inches);
     Serial.print("in, ");
@@ -91,7 +91,7 @@ void ultrasonicRead()
     //
     // For this example it was adjusted to be the inverse:
     // [value to be mapped] = map([value to read/compare], [min read value], [max read value], [max write value], [min write value])
-    led_intensity_val = map(distance_in_centimeters, 5, 20, 128 , 0);
+    led_intensity_val = map(distance_in_centimeters, 5, 30, 128 , 0);
     Serial.print(", led intensity: ");
     Serial.print(led_intensity_val);
     Serial.println();
@@ -102,5 +102,6 @@ void ultrasonicRead()
   else{
     Serial.println("Too far or too close. Please adjust your ditance...");
   }
+  delay(100);
 }
 
