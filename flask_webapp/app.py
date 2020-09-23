@@ -1,5 +1,5 @@
 from flask import Flask, jsonify, request, redirect, render_template
-from src.device import Bt_Ble_Device
+from src.device_list import BtDevContainer
 app = Flask(__name__)
 
 @app.route("/")

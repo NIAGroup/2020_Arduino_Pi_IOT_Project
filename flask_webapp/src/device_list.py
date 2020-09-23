@@ -1,6 +1,6 @@
 import bluetooth
 from bluetooth.ble import DiscoveryService
-from device import Bt_Ble_Device, Bt_Device
+from src.device import Bt_Ble_Device, Bt_Device
 
 class BtDevContainer(object):
     """
