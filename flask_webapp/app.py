@@ -1,10 +1,10 @@
 from flask import Flask, jsonify, request, redirect, render_template
-from device.device_list import BtDevContainer
+from src.device_list import BtDevContainer
 app = Flask(__name__)
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    return render_template("index_new.html")
 
 
 if __name__ == '__main__':

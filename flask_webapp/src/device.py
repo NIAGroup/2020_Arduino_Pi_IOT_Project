@@ -1,4 +1,4 @@
-from messages import *
+from src.messages import *
 from bluepy import *
 
 class Bt_Ble_Device(object):
