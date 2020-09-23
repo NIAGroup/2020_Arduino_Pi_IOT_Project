@@ -31,7 +31,9 @@
  
 #include <SoftwareSerial.h> 
 #include <Servo.h>
+#include "BT_Communication_Standard.h"
 
+BTComm_Standard btStandard; 
 const byte servoPin = 6;    // Servo pin assigned as pin 6 [servos require a PWM pin].
 Servo servo;                // To create a servo instance, we use the Servo class from Servo.h.
 
@@ -41,7 +43,7 @@ Servo servo;                // To create a servo instance, we use the Servo clas
 // the Microcontroller.  
 SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX 
 byte bt_request[8], bt_response[8];
-byte bt_msg;    // The bluetooth messagge will be received one byte a time, which can be represented as a character (char) 
+byte command_byte;    // The bluetooth messagge will be received one byte a time, which can be represented as a character (char) 
 const byte led1_pin = 11;   // The led1_pin assigned to pin 11.
 const byte led2_pin = 12;   // The led2_pin assigned to pin 12.
 
@@ -68,15 +70,7 @@ void loop()
      // are being received in 4 byte array lengths. So a second loop is added to ensure
      // no dummy bytes ("0xFF") are processed.
      for(byte i = 0;i<4;i++){
-       if(i == 0)
-       {
-         bt_msg = BT_Module.read();
-         bt_request[i] = bt_msg;
-       }
-       else
-       {
-         bt_request[i] = BT_Module.read();
-       }
+       bt_request[i] = BT_Module.read();
        Serial.print(bt_request[i],HEX);
        Serial.print(":");
      }
@@ -95,12 +89,20 @@ void loop()
      
      Serial.println("");
      Serial.print("command_byte: ");
-     Serial.println(bt_msg, HEX);
+     command_byte = btStandard.Process_Request(bt_request);
+     Serial.println(command_byte, HEX);
+     if(btStandard.checkRequestType(command_byte)){
+       Serial.println("This is sanity check");
+     }
+     else{
+       Serial.println("This is not a sanity check");
+     }
+     /*
      byte upper_nibble = bt_msg & 0b11110000;  // Masking lower 4 bits to focus on the upper 4 bits
      byte lower_nibble = bt_msg & 0b00001111;
      upper_nibble = upper_nibble >> 4;
-     // Serial.println(upper_nibble, HEX);
-     // Serial.println(lower_nibble, HEX);
+     
+     
      if (upper_nibble == 9)
      {
        switch(lower_nibble)
@@ -149,6 +151,7 @@ void loop()
          break;
        }
      }
+     */
      digitalWrite(led1_pin, HIGH);
      delay(1500);
  }
