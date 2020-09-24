@@ -33,7 +33,7 @@
 #include <Servo.h>
 #include "BT_Communication_Standard.h"
 
-BTComm_Standard btStandard; 
+BTComm_Standard btcs; 
 const byte servoPin = 6;    // Servo pin assigned as pin 6 [servos require a PWM pin].
 Servo servo;                // To create a servo instance, we use the Servo class from Servo.h.
 
@@ -42,8 +42,8 @@ Servo servo;                // To create a servo instance, we use the Servo clas
 // Microcontroller, and the RX pin of the target device/module is connected to the assigned TX pin of
 // the Microcontroller.  
 SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX 
-byte bt_request[8], bt_response[8];
-byte command_byte;    // The bluetooth messagge will be received one byte a time, which can be represented as a character (char) 
+byte bt_raw_request[8], bt_response[8];
+msg_byte command_byte;    // The bluetooth messagge will be received one byte a time, which can be represented as a character (char) 
 const byte led1_pin = 11;   // The led1_pin assigned to pin 11.
 const byte led2_pin = 12;   // The led2_pin assigned to pin 12.
 
@@ -70,16 +70,16 @@ void loop()
      // are being received in 4 byte array lengths. So a second loop is added to ensure
      // no dummy bytes ("0xFF") are processed.
      for(byte i = 0;i<4;i++){
-       bt_request[i] = BT_Module.read();
-       Serial.print(bt_request[i],HEX);
+       bt_raw_request[i] = BT_Module.read();
+       Serial.print(bt_raw_request[i],HEX);
        Serial.print(":");
      }
      delay(50);
      if (BT_Module.available() > 0)
      {
        for(byte i = 4;i<8;i++){
-         bt_request[i] = BT_Module.read();
-         Serial.print(bt_request[i],HEX);
+         bt_raw_request[i] = BT_Module.read();
+         Serial.print(bt_raw_request[i],HEX);
          if(i < 7)
          {
            Serial.print(":");
@@ -89,21 +89,23 @@ void loop()
      
      Serial.println("");
      Serial.print("command_byte: ");
-     command_byte = btStandard.Process_Request(bt_request);
-     Serial.println(command_byte, HEX);
-     if(btStandard.checkRequestType(command_byte)){
+     FullBtMsg request;
+     //command_byte = btcs.Process_Request(bt_request).full_byte;
+     //const msg_byte mb = btcs.Process_Request(bt_request);
+     //command_byte = btcs.Process_Request(bt_request);;
+     request = btcs.Process_Request(bt_raw_request,sizeof(bt_raw_request));
+     Serial.println(request.command_byte.full_byte, HEX);
+     Serial.print("status_byte: ");
+     Serial.println(request.status_byte.full_byte, HEX);
+     
+     if(btcs.checkRequestType(request.command_byte.full_byte)){
        Serial.println("This is sanity check");
      }
      else{
        Serial.println("This is not a sanity check");
      }
-     /*
-     byte upper_nibble = bt_msg & 0b11110000;  // Masking lower 4 bits to focus on the upper 4 bits
-     byte lower_nibble = bt_msg & 0b00001111;
-     upper_nibble = upper_nibble >> 4;
      
-     
-     if (upper_nibble == 9)
+     /*if (upper_nibble == 9)
      {
        switch(lower_nibble)
        {
