@@ -100,60 +100,24 @@ void loop()
      
      if(btcs.checkRequestType(request.command_byte.full_byte)){
        Serial.println("This is sanity check");
+       // The following code is specific to the Servo Sanity check
+       if(request.command_byte.upper_nibble == 9){
+         byte n = 0;
+         while(request.command_byte.lower_nibble != btcs.ServoLookupTbl[n].cmd){
+          n++; 
+         }
+         if(n < 8){
+           Serial.print(btcs.ServoLookupTbl[n].cmd);
+           Serial.print(":");
+           Serial.println(btcs.ServoLookupTbl[n].pos);
+           setServoPosition(btcs.ServoLookupTbl[n].pos);
+         }
+       }
      }
      else{
        Serial.println("This is not a sanity check");
      }
      
-     /*if (upper_nibble == 9)
-     {
-       switch(lower_nibble)
-       {
-        case 12:
-         Serial.println("Servo Sanity Check: 180 degrees");
-         servo.write(180); 
-         break;
-        case 8:
-         Serial.println("Servo Sanity Check: 150 degrees");
-         servo.write(150); 
-         break;
-        case 4:
-         Serial.println("Servo Sanity Check: 120 degrees");
-         servo.write(120);
-         break; 
-        case 0:
-         Serial.println("Servo Sanity Check: 90 degrees");
-         servo.write(90); 
-         break;
-        case 1:
-         Serial.println("Servo Sanity Check: 60 degrees");
-         servo.write(60); 
-         break;
-        case 2:
-         Serial.println("Servo Sanity Check: 30 degrees");
-         servo.write(30); 
-         break;
-        case 3:
-         Serial.println("Servo Sanity Check: 0 degrees");
-         servo.write(0); 
-         break;
-        case 6:
-          Serial.println("Servo Sanity Check: Sweep");       
-          for(byte pos = 0; pos<=180;pos+=30)
-          {
-           servo.write(pos); 
-           delay(1000);
-          }
-          for(byte pos = 150; pos>0;pos-=30)
-          {
-           servo.write(pos);
-            delay(1000);
-          }
-          servo.write(0);
-         break;
-       }
-     }
-     */
      digitalWrite(led1_pin, HIGH);
      delay(1500);
  }
@@ -165,3 +129,24 @@ void loop()
 
 }  
 
+void setServoPosition(byte pos){
+  // This first condition is for setting the servo position
+  if(pos < 181){
+    servo.write(pos);
+    delay(100); 
+  }
+  // This next condition is for running a full servo position sweepa
+  else{
+    for(byte t = 0; t<2; t++){
+      for(byte r = 0; r<180; r+=30){
+        servo.write(r);
+        delay(1000); 
+      }
+      
+      for(byte r = 180; r>0; r-=30){
+        servo.write(r);
+        delay(1000); 
+      }
+    }
+  }
+}

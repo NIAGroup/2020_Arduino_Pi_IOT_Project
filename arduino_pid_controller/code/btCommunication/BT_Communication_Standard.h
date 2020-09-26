@@ -36,23 +36,25 @@ struct ServoCommand {
  byte pos; 
 };
 
-struct ServoLookupTbl {
- const ServoCommand angle_90 = {0b0000,90};
- const ServoCommand angle_60 = {0b0000,60};
- const ServoCommand angle_30 = {0b0000,30};
- const ServoCommand angle_0 = {0b0000,0};  // center position on servo
- const ServoCommand angle_120 = {0b0000,120};
- const ServoCommand angle_150 = {0b0000,150};
- const ServoCommand angle_180 = {0b0000,180};
-};
     
 class BTComm_Standard {
   public:
+    ServoCommand ServoLookupTbl[8] = {
+       {0b0011,0},    //  Hex: 0x3; degrees : 0
+       {0b0010,30},   //  Hex: 0x2; degrees : 30
+       {0b0001,60},   //  Hex: 0x1; degrees : 60
+       {0b0000,90},   //  Hex: 0x0; degrees : 90, center position on servo
+       {0b0100,120},  //  Hex: 0x4; degrees : 120
+       {0b1000,150},  //  Hex: 0x8; degrees : 150
+       {0b1100,180},  //  Hex: 0xC; degrees : 180
+       {0b0110,200}   //  Hex: 0x6; sweep : moves the servo from 0 to 180 degrees & back twice
+      };
     BTComm_Standard();
-    //struct msg_byte out_byte;
     boolean isSanityCheck;
     FullBtMsg request;
     FullBtMsg response;
+    
+    
     // Constructor
     
     // Methods
