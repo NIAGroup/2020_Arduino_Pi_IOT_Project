@@ -99,20 +99,49 @@ void loop()
      Serial.println(request.status_byte.full_byte, HEX);
      
      if(btcs.checkRequestType(request.command_byte.full_byte)){
-       Serial.println("This is sanity check");
-       // The following code is specific to the Servo Sanity check
-       if(request.command_byte.upper_nibble == 9){
-         byte n = 0;
-         while(request.command_byte.lower_nibble != btcs.ServoLookupTbl[n].cmd){
-          n++; 
+       Serial.println("This is a sanity check");
+       
+       switch(request.command_byte.upper_nibble){
+         // BT Echo Sanity Check
+         case 8:
+           Serial.println("Running BT echo Sanity Check");
+           break;
+         
+         // Servo Position Sanity Check
+         case 9:
+         // NOTE: When declaring variables in case instructions
+         // you have to enclose all the instructions in curly braces.
+         // This is because the variable has no scope without the curly braces.
+         {
+           Serial.println("Servo Position Sanity Check");
+           byte n = 0;
+           while(request.command_byte.lower_nibble != btcs.ServoLookupTbl[n].cmd){
+            n++; 
+           }
+           if(n < 8){
+             Serial.print(btcs.ServoLookupTbl[n].cmd);
+             Serial.print(":");
+             Serial.println(btcs.ServoLookupTbl[n].pos);
+             setServoPosition(btcs.ServoLookupTbl[n].pos);
+           }
+           break;
          }
-         if(n < 8){
-           Serial.print(btcs.ServoLookupTbl[n].cmd);
-           Serial.print(":");
-           Serial.println(btcs.ServoLookupTbl[n].pos);
-           setServoPosition(btcs.ServoLookupTbl[n].pos);
-         }
+         
+         // Sensor Read Sanity Check
+         case 10:
+           Serial.println("Sensor Read Sanity Check");
+           break;
+         
+         // Tilt & Measure Sanity Check
+         case 11:
+           Serial.println("Running Tilt & Measure Sanity Check");
+           break;
+           
+         default:
+           Serial.println("Invalid Servo Command.");
+           break;
        }
+       
      }
      else{
        Serial.println("This is not a sanity check");
