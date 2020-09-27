@@ -56,7 +56,6 @@ void setup()
  pinMode(led1_pin, OUTPUT);      // The led pin gets setup as an output pin. 
  pinMode(led2_pin, OUTPUT);
  servo.attach(servoPin);
- 
  //Serial.println("Ready to connect\nDefualt password is 1234 or 000"); 
 } 
 void loop() 
@@ -102,12 +101,12 @@ void loop()
        Serial.println("This is a sanity check");
        
        switch(request.command_byte.upper_nibble){
-         // BT Echo Sanity Check
+         // BT Echo Sanity Check : Hex - 0x8
          case 8:
            Serial.println("Running BT echo Sanity Check");
            break;
          
-         // Servo Position Sanity Check
+         // Servo Position Sanity Check : Hex - 0x9
          case 9:
          // NOTE: When declaring variables in case instructions
          // you have to enclose all the instructions in curly braces.
@@ -127,12 +126,12 @@ void loop()
            break;
          }
          
-         // Sensor Read Sanity Check
+         // Sensor Read Sanity Check : Hex - 0xA
          case 10:
            Serial.println("Sensor Read Sanity Check");
            break;
          
-         // Tilt & Measure Sanity Check
+         // Tilt & Measure Sanity Check : Hex - 0xB
          case 11:
            Serial.println("Running Tilt & Measure Sanity Check");
            break;
@@ -146,8 +145,15 @@ void loop()
      else{
        Serial.println("This is not a sanity check");
      }
-     
+     byte response[8];
+     for(byte i = 0;i<8;i++){
+       response[i] = bt_raw_request[i];
+     }
+     response[7] = 0x80;
      digitalWrite(led1_pin, HIGH);
+     for(byte i = 0;i<8;i++){
+       BT_Module.write(response[i]);
+     }
      delay(1500);
  }
  else
