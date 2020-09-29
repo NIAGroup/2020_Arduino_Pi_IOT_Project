@@ -37,16 +37,17 @@
 // the Microcontroller.  
 SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX 
 char bt_msg;    // The bluetooth messagge will be received one byte a time, which can be represented as a character (char) 
-int LED = 11;   // The LED pin assigned to pin 11.
+int LED1 = 11;   // The LED1 pin assigned to pin 11.
+int LED2 = 12;   // The LED1 pin assigned to pin 12.
 
 // Every Arduino sketch requires at least a setup loop for initializing I/O pins and serial ports
 // and a main function called "loop" that will loop indefinitely while the board is powered.
 void setup() 
 {   
- Serial.begin(38400);       // The default baudrate for the HC-05 is 38400.  
- BT_Module.begin(38400);       // If the baudrate is incorrect the messages will not be read/displayed correctly.
+ Serial.begin(9600);       // The default baudrate for the HC-05 is 38400.  
+ BT_Module.begin(9600);       // If the baudrate is incorrect the messages will not be read/displayed correctly.
  pinMode(LED, OUTPUT);      // The led pin gets setup as an output pin. 
- Serial.println("Ready to connect\nDefualt password is 1234 or 000"); 
+ //Serial.println("Ready to connect\nDefualt password is 1234 or 000"); 
 } 
 void loop() 
 { 
@@ -57,15 +58,20 @@ void loop()
  { 
      readBT_Msg();
  }
+ else
+ {
+   digitalWrite(led_pin1, OFF);
+   digitalWrite(led_pin2, OFF); 
+ }
 
 }  
 
 void readBT_Msg(){
-    bt_msg = BT_Module.read();      // Here we read the incoming message as a byte represented as a char
-  Serial.println(bt_msg);         // The incoming message will be printed in the Arduino IDE Serial Monitor -  CTRL+SHIFT+M
+  bt_msg = BT_Module.read();      // Here we read the incoming message as a byte represented as a char
+  Serial.println(bt_msg, HEX);         // The incoming message will be printed in the Arduino IDE Serial Monitor -  CTRL+SHIFT+M
   
   // If the message is a 1, the LED will be turned on.
-  if (bt_msg == '1') 
+  for (bt_msg == '1') 
    { 
      digitalWrite(LED, HIGH); 
      Serial.println("LED On"); 
