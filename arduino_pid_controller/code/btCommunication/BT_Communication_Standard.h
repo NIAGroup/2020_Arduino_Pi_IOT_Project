@@ -7,21 +7,26 @@
   #include "WProgram.h"
 #endif
 
-struct msg_byte{
+union MsgByte{
   byte full_byte;
-  byte lower_nibble;
-  byte upper_nibble;
+  struct nibbles{
+    byte lower :4;
+    byte upper :4;
+  }nibbles;
 };
 
-struct FullBtMsg{
- msg_byte command_byte; // byte 0
- msg_byte detail_byte; // byte 1 
- msg_byte Kp_byte; // byte 2 
- msg_byte Ki_byte; // byte 3 
- msg_byte Kd_byte; // byte 4 
- msg_byte algo_byte; // byte 5 
- msg_byte overflow_byte; // byte 6
- msg_byte status_byte; // byte 7
+union FullBtMsg{
+  MsgByte full_msg[8];
+  struct specBytes{
+   MsgByte command_byte; // byte 0
+   MsgByte detail_byte;  // byte 1 
+   MsgByte algo_byte;    // byte 2 
+   MsgByte Kp_byte;      // byte 3 
+   MsgByte Ki_byte;      // byte 4 
+   MsgByte Kd_byte;      // byte 5 
+   MsgByte reserve_byte; // byte 6
+   MsgByte status_byte;  // byte 7
+  }specBytes;
 };
 
 struct SanityChecks {

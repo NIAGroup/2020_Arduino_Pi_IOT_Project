@@ -43,7 +43,6 @@ Servo servo;                // To create a servo instance, we use the Servo clas
 // the Microcontroller.  
 SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX 
 byte bt_raw_request[8], bt_response[8];
-msg_byte command_byte;    // The bluetooth messagge will be received one byte a time, which can be represented as a character (char) 
 const byte led1_pin = 11;   // The led1_pin assigned to pin 11.
 const byte led2_pin = 12;   // The led2_pin assigned to pin 12.
 
@@ -65,6 +64,7 @@ void loop()
  // incoming message before we handle any actions. 
  if (BT_Module.available() > 0)
  { 
+     Serial.println("-------------------------------------------------");
      // I believe the way the messages are being sent with the ble code, the messages
      // are being received in 4 byte array lengths. So a second loop is added to ensure
      // no dummy bytes ("0xFF") are processed.
@@ -88,19 +88,22 @@ void loop()
      
      Serial.println("");
      Serial.print("command_byte: ");
-     FullBtMsg request;
-     //command_byte = btcs.Process_Request(bt_request).full_byte;
-     //const msg_byte mb = btcs.Process_Request(bt_request);
-     //command_byte = btcs.Process_Request(bt_request);;
-     request = btcs.Process_Request(bt_raw_request,sizeof(bt_raw_request));
-     Serial.println(request.command_byte.full_byte, HEX);
-     Serial.print("status_byte: ");
-     Serial.println(request.status_byte.full_byte, HEX);
+     const FullBtMsg request = btcs.Process_Request(bt_raw_request,sizeof(bt_raw_request));
+     Serial.println(request.specBytes.command_byte.full_byte, HEX);
+     // Serial.print("status_byte: ");
+     // Serial.println(request.specBytes.status_byte.full_byte, HEX);
      
-     if(btcs.checkRequestType(request.command_byte.full_byte)){
+     if(btcs.checkRequestType(request.specBytes.command_byte.full_byte)){
        Serial.println("This is a sanity check");
-       
-       switch(request.command_byte.upper_nibble){
+       /* // Test Lines
+       Serial.print("full_byte: ");
+       Serial.print(request.command_byte.full_byte, HEX);
+       Serial.print(", upper: ");
+       Serial.print(request.command_byte.nibbles.upper, HEX);
+       Serial.print(", lower: ");
+       Serial.println(request.command_byte.nibbles.lower,HEX);
+       */
+       switch(request.specBytes.command_byte.nibbles.upper){
          // BT Echo Sanity Check : Hex - 0x8
          case 8:
            Serial.println("Running BT echo Sanity Check");
@@ -114,7 +117,7 @@ void loop()
          {
            Serial.println("Servo Position Sanity Check");
            byte n = 0;
-           while(request.command_byte.lower_nibble != btcs.ServoLookupTbl[n].cmd){
+           while(request.specBytes.command_byte.nibbles.lower != btcs.ServoLookupTbl[n].cmd){
             n++; 
            }
            if(n < 8){
