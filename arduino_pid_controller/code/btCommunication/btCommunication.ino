@@ -33,7 +33,7 @@
 #include <Servo.h>
 #include "BT_Communication_Standard.h"
 
-BTComm_Standard btStandard; 
+BTComm_Standard btcs; 
 const byte servoPin = 6;    // Servo pin assigned as pin 6 [servos require a PWM pin].
 Servo servo;                // To create a servo instance, we use the Servo class from Servo.h.
 
@@ -42,8 +42,7 @@ Servo servo;                // To create a servo instance, we use the Servo clas
 // Microcontroller, and the RX pin of the target device/module is connected to the assigned TX pin of
 // the Microcontroller.  
 SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX 
-byte bt_request[8], bt_response[8];
-byte command_byte;    // The bluetooth messagge will be received one byte a time, which can be represented as a character (char) 
+byte bt_raw_request[8], bt_response[8];
 const byte led1_pin = 11;   // The led1_pin assigned to pin 11.
 const byte led2_pin = 12;   // The led2_pin assigned to pin 12.
 
@@ -56,7 +55,6 @@ void setup()
  pinMode(led1_pin, OUTPUT);      // The led pin gets setup as an output pin. 
  pinMode(led2_pin, OUTPUT);
  servo.attach(servoPin);
- 
  //Serial.println("Ready to connect\nDefualt password is 1234 or 000"); 
 } 
 void loop() 
@@ -66,20 +64,21 @@ void loop()
  // incoming message before we handle any actions. 
  if (BT_Module.available() > 0)
  { 
+     Serial.println("-------------------------------------------------");
      // I believe the way the messages are being sent with the ble code, the messages
      // are being received in 4 byte array lengths. So a second loop is added to ensure
      // no dummy bytes ("0xFF") are processed.
      for(byte i = 0;i<4;i++){
-       bt_request[i] = BT_Module.read();
-       Serial.print(bt_request[i],HEX);
+       bt_raw_request[i] = BT_Module.read();
+       Serial.print(bt_raw_request[i],HEX);
        Serial.print(":");
      }
      delay(50);
      if (BT_Module.available() > 0)
      {
        for(byte i = 4;i<8;i++){
-         bt_request[i] = BT_Module.read();
-         Serial.print(bt_request[i],HEX);
+         bt_raw_request[i] = BT_Module.read();
+         Serial.print(bt_raw_request[i],HEX);
          if(i < 7)
          {
            Serial.print(":");
@@ -89,70 +88,75 @@ void loop()
      
      Serial.println("");
      Serial.print("command_byte: ");
-     command_byte = btStandard.Process_Request(bt_request);
-     Serial.println(command_byte, HEX);
-     if(btStandard.checkRequestType(command_byte)){
-       Serial.println("This is sanity check");
+     const FullBtMsg request = btcs.Process_Request(bt_raw_request,sizeof(bt_raw_request));
+     Serial.println(request.specBytes.command_byte.full_byte, HEX);
+     // Serial.print("status_byte: ");
+     // Serial.println(request.specBytes.status_byte.full_byte, HEX);
+     
+     if(btcs.checkRequestType(request.specBytes.command_byte.full_byte)){
+       Serial.println("This is a sanity check");
+       /* // Test Lines
+       Serial.print("full_byte: ");
+       Serial.print(request.command_byte.full_byte, HEX);
+       Serial.print(", upper: ");
+       Serial.print(request.command_byte.nibbles.upper, HEX);
+       Serial.print(", lower: ");
+       Serial.println(request.command_byte.nibbles.lower,HEX);
+       */
+       switch(request.specBytes.command_byte.nibbles.upper){
+         // BT Echo Sanity Check : Hex - 0x8
+         case 8:
+           Serial.println("Running BT echo Sanity Check");
+           break;
+         
+         // Servo Position Sanity Check : Hex - 0x9
+         case 9:
+         // NOTE: When declaring variables in case instructions
+         // you have to enclose all the instructions in curly braces.
+         // This is because the variable has no scope without the curly braces.
+         {
+           Serial.println("Servo Position Sanity Check");
+           byte n = 0;
+           while(request.specBytes.command_byte.nibbles.lower != btcs.ServoLookupTbl[n].cmd){
+            n++; 
+           }
+           if(n < 8){
+             Serial.print(btcs.ServoLookupTbl[n].cmd);
+             Serial.print(":");
+             Serial.println(btcs.ServoLookupTbl[n].pos);
+             setServoPosition(btcs.ServoLookupTbl[n].pos);
+           }
+           break;
+         }
+         
+         // Sensor Read Sanity Check : Hex - 0xA
+         case 10:
+           Serial.println("Sensor Read Sanity Check");
+           break;
+         
+         // Tilt & Measure Sanity Check : Hex - 0xB
+         case 11:
+           Serial.println("Running Tilt & Measure Sanity Check");
+           break;
+           
+         default:
+           Serial.println("Invalid Servo Command.");
+           break;
+       }
+       
      }
      else{
        Serial.println("This is not a sanity check");
      }
-     /*
-     byte upper_nibble = bt_msg & 0b11110000;  // Masking lower 4 bits to focus on the upper 4 bits
-     byte lower_nibble = bt_msg & 0b00001111;
-     upper_nibble = upper_nibble >> 4;
-     
-     
-     if (upper_nibble == 9)
-     {
-       switch(lower_nibble)
-       {
-        case 12:
-         Serial.println("Servo Sanity Check: 180 degrees");
-         servo.write(180); 
-         break;
-        case 8:
-         Serial.println("Servo Sanity Check: 150 degrees");
-         servo.write(150); 
-         break;
-        case 4:
-         Serial.println("Servo Sanity Check: 120 degrees");
-         servo.write(120);
-         break; 
-        case 0:
-         Serial.println("Servo Sanity Check: 90 degrees");
-         servo.write(90); 
-         break;
-        case 1:
-         Serial.println("Servo Sanity Check: 60 degrees");
-         servo.write(60); 
-         break;
-        case 2:
-         Serial.println("Servo Sanity Check: 30 degrees");
-         servo.write(30); 
-         break;
-        case 3:
-         Serial.println("Servo Sanity Check: 0 degrees");
-         servo.write(0); 
-         break;
-        case 6:
-          Serial.println("Servo Sanity Check: Sweep");       
-          for(byte pos = 0; pos<=180;pos+=30)
-          {
-           servo.write(pos); 
-           delay(1000);
-          }
-          for(byte pos = 150; pos>0;pos-=30)
-          {
-           servo.write(pos);
-            delay(1000);
-          }
-          servo.write(0);
-         break;
-       }
+     byte response[8];
+     for(byte i = 0;i<8;i++){
+       response[i] = bt_raw_request[i];
      }
-     */
+     response[7] = 0x80;
      digitalWrite(led1_pin, HIGH);
+     for(byte i = 0;i<8;i++){
+       BT_Module.write(response[i]);
+     }
      delay(1500);
  }
  else
@@ -163,3 +167,24 @@ void loop()
 
 }  
 
+void setServoPosition(byte pos){
+  // This first condition is for setting the servo position
+  if(pos < 181){
+    servo.write(pos);
+    delay(100); 
+  }
+  // This next condition is for running a full servo position sweepa
+  else{
+    for(byte t = 0; t<2; t++){
+      for(byte r = 0; r<180; r+=30){
+        servo.write(r);
+        delay(1000); 
+      }
+      
+      for(byte r = 180; r>0; r-=30){
+        servo.write(r);
+        delay(1000); 
+      }
+    }
+  }
+}
