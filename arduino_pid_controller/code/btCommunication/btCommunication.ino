@@ -42,9 +42,10 @@ Servo servo;                // To create a servo instance, we use the Servo clas
 // Microcontroller, and the RX pin of the target device/module is connected to the assigned TX pin of
 // the Microcontroller.  
 SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX 
+SoftwareSerial BT_ClassicModule(12, 13); // RX, TX
 byte bt_raw_request[8], bt_response[8];
-const byte led1_pin = 11;   // The led1_pin assigned to pin 11.
-const byte led2_pin = 12;   // The led2_pin assigned to pin 12.
+const byte blueLED_pin = 10;   // The led1_pin assigned to pin 10.
+const byte yellowLED_pin = 11;   // The led2_pin assigned to pin 11.
 
 // Every Arduino sketch requires at least a setup loop for initializing I/O pins and serial ports
 // and a main function called "loop" that will loop indefinitely while the board is powered.
@@ -52,13 +53,26 @@ void setup()
 {   
  Serial.begin(9600);       // The default baudrate for the HC-05 is 38400, and 9600 for the HM-10 
  BT_Module.begin(9600);       // If the baudrate is incorrect the messages will not be read/displayed correctly.
- pinMode(led1_pin, OUTPUT);      // The led pin gets setup as an output pin. 
- pinMode(led2_pin, OUTPUT);
+ BT_ClassicModule.begin(9600);
+ pinMode(blueLED_pin, OUTPUT);      // The led pin gets setup as an output pin. 
+ pinMode(yellowLED_pin, OUTPUT);
  servo.attach(servoPin);
  //Serial.println("Ready to connect\nDefualt password is 1234 or 000"); 
 } 
 void loop() 
 { 
+  
+ if(BT_ClassicModule.available() > 0){
+  Serial.println(BT_ClassicModule.read());
+  digitalWrite(blueLED_pin,HIGH); 
+  delay(1000);
+  for(byte i = 0; i<4;i++){
+    digitalWrite(yellowLED_pin,HIGH); 
+    delay(500);
+    digitalWrite(yellowLED_pin,LOW); 
+    delay(500);
+  }
+ }
  // While there is no incoming data, the Serial available function will return a 0,
  // but when it is receiving data it will no longer be 0. So we wait to read the
  // incoming message before we handle any actions. 
@@ -115,6 +129,7 @@ void loop()
          // you have to enclose all the instructions in curly braces.
          // This is because the variable has no scope without the curly braces.
          {
+           digitalWrite(yellowLED_pin,HIGH);
            Serial.println("Servo Position Sanity Check");
            byte n = 0;
            while(request.specBytes.command_byte.nibbles.lower != btcs.ServoLookupTbl[n].cmd){
@@ -153,7 +168,7 @@ void loop()
        response[i] = bt_raw_request[i];
      }
      response[7] = 0x80;
-     digitalWrite(led1_pin, HIGH);
+     digitalWrite(blueLED_pin, HIGH);
      for(byte i = 0;i<8;i++){
        BT_Module.write(response[i]);
      }
@@ -161,8 +176,8 @@ void loop()
  }
  else
  {
-   digitalWrite(led1_pin, LOW);
-   digitalWrite(led2_pin, LOW); 
+   digitalWrite(blueLED_pin, LOW);
+   digitalWrite(yellowLED_pin, LOW); 
  }
 
 }  
