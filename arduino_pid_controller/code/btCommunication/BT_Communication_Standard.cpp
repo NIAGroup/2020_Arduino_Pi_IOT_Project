@@ -1,23 +1,16 @@
 #include "BT_Communication_Standard.h"
 
 
-
 BTComm_Standard::BTComm_Standard(){
  // default code
 } 
 
-byte BTComm_Standard::Process_Request(byte pi_request[8]){
-  command_byte = pi_request[0];
-  //Serial.println("");
-  //Serial.print("command_byte: ");
-  //Serial.println(command_byte, HEX);
-  
-  /*
-  byte upper_nibble = command_byte & 0b11110000;  // Masking lower 4 bits to focus on the upper 4 bits
-  byte lower_nibble = command_byte & 0b00001111;
-  upper_nibble = upper_nibble >> 4;
-  */
-  return command_byte;
+FullBtMsg BTComm_Standard::Process_Request(byte pi_request[], byte length){
+  FullBtMsg request;
+  for(byte i = 0; i< length;i++){
+   request.full_msg[i].full_byte = pi_request[i]; 
+  }
+  return request;
 }
 
 boolean BTComm_Standard::checkRequestType(byte command_byte){
