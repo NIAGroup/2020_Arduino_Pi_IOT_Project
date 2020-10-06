@@ -29,7 +29,7 @@ def sendMsg(bdaddr,msg_byte):
             for b in data:
                 #print(hex(b))
                 response.append(b)
-            if(len(response) > 7):
+            if(len(response) > 7 or len(response) == 8):
                 break
         data = ":".join('{:02x}'.format(b) for b in response)
         print("notification : message received")
