@@ -36,7 +36,7 @@
 BTComm_Standard btcs; 
 const byte servoPin = 6;    // Servo pin assigned as pin 6 [servos require a PWM pin].
 Servo servo;                // To create a servo instance, we use the Servo class from Servo.h.
-
+boolean isDeviceBLE = false;
 // Using the SoftwareSerial Library, the Digital IO pins 2 & 3 are repurposed as Soft Serial Pins
 // NOTE : For wiring the TX pin of the target device/module is connected to the assigned RX pin of the
 // Microcontroller, and the RX pin of the target device/module is connected to the assigned TX pin of
@@ -53,35 +53,42 @@ void setup()
 {   
  Serial.begin(9600);       // The default baudrate for the HC-05 is 38400, and 9600 for the HM-10 
  BT_Module.begin(9600);       // If the baudrate is incorrect the messages will not be read/displayed correctly.
- BT_ClassicModule.begin(9600);
+ //BT_ClassicModule.begin(9600);
  pinMode(blueLED_pin, OUTPUT);      // The led pin gets setup as an output pin. 
  pinMode(yellowLED_pin, OUTPUT);
  servo.attach(servoPin);
- //Serial.println("Ready to connect\nDefualt password is 1234 or 000"); 
+ Serial.println("#########################################");
+ Serial.println("Ready to connect with a bluetooth device."); 
+ Serial.println("#########################################");
 } 
 void loop() 
 { 
-  
- if(BT_ClassicModule.available() > 0){
-  Serial.println(BT_ClassicModule.read());
-  digitalWrite(blueLED_pin,HIGH); 
-  delay(1000);
-  for(byte i = 0; i<4;i++){
-    digitalWrite(yellowLED_pin,HIGH); 
-    delay(500);
-    digitalWrite(yellowLED_pin,LOW); 
-    delay(500);
-  }
- }
  // While there is no incoming data, the Serial available function will return a 0,
  // but when it is receiving data it will no longer be 0. So we wait to read the
  // incoming message before we handle any actions. 
  if (BT_Module.available() > 0)
  { 
-     Serial.println("-------------------------------------------------");
+   Serial.println("----\tBT BLE Msg\t----");
+   handleIncomingRequest(true); 
+ }
+ else if (BT_ClassicModule.available() > 0)
+ { 
+   Serial.println("----\tBT non-BLE Msg\t----");
+   handleIncomingRequest(false);  
+ }
+ else
+ {
+   digitalWrite(blueLED_pin, LOW);
+   digitalWrite(yellowLED_pin, LOW); 
+ }
+
+}  
+void handleIncomingRequest(boolean isDeviceBLE){
+  Serial.println("-------------------------------------------------");
      // I believe the way the messages are being sent with the ble code, the messages
      // are being received in 4 byte array lengths. So a second loop is added to ensure
      // no dummy bytes ("0xFF") are processed.
+   if(isDeviceBLE){
      for(byte i = 0;i<4;i++){
        bt_raw_request[i] = BT_Module.read();
        Serial.print(bt_raw_request[i],HEX);
@@ -91,15 +98,26 @@ void loop()
      if (BT_Module.available() > 0)
      {
        for(byte i = 4;i<8;i++){
-         bt_raw_request[i] = BT_Module.read();
-         Serial.print(bt_raw_request[i],HEX);
-         if(i < 7)
-         {
-           Serial.print(":");
-         }
+           bt_raw_request[i] = BT_Module.read();
+           Serial.print(bt_raw_request[i],HEX);
+           if(i < 7)
+           {
+             Serial.print(":");
+           }
        }
      }
-     
+   }
+   else{
+     for(byte i = 0;i<8;i++){
+       bt_raw_request[i] = BT_ClassicModule.read();
+       Serial.print(bt_raw_request[i],HEX);
+       if(i < 7)
+       {
+         Serial.print(":");
+       }
+     }
+   }
+   
      Serial.println("");
      Serial.print("command_byte: ");
      const FullBtMsg request = btcs.Process_Request(bt_raw_request,sizeof(bt_raw_request));
@@ -170,17 +188,15 @@ void loop()
      response[7] = 0x80;
      digitalWrite(blueLED_pin, HIGH);
      for(byte i = 0;i<8;i++){
-       BT_Module.write(response[i]);
+       if(isDeviceBLE){
+         BT_Module.write(response[i]);
+       }
+       else{
+         BT_ClassicModule.write(response[i]);
+       }
      }
      delay(1500);
- }
- else
- {
-   digitalWrite(blueLED_pin, LOW);
-   digitalWrite(yellowLED_pin, LOW); 
- }
-
-}  
+}
 
 void setServoPosition(byte pos){
   // This first condition is for setting the servo position
