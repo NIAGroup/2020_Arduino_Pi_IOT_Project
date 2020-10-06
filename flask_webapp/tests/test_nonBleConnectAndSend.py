@@ -14,9 +14,9 @@ def sendMsg(bdaddr,msg_byte):
         port = 1
         sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
         sock.connect((bdaddr, port))
-
         print("Connected!")
         full_msg = [msg_byte,"f1","f2","f3","f4","f5","f6","f7"]
+        #print(dir(sock))
         print("request:", ":".join(full_msg))
         print("-"*50)
         print(f"request sent to: {bluetooth.lookup_name(bdaddr)}")
@@ -24,8 +24,11 @@ def sendMsg(bdaddr,msg_byte):
         for b in range (0,8): 
             sock.send(bytes([int(full_msg[b],16)]))
         response = []
+        sock.setblocking(0)
+        time.sleep(1)
+        sock.setblocking(1)
         while True:
-            data = sock.recv(1024)
+            data = sock.recv(8)
             for b in data:
                 #print(hex(b))
                 response.append(b)
@@ -35,6 +38,7 @@ def sendMsg(bdaddr,msg_byte):
         print("notification : message received")
         print(f"{data}")
         sock.close()
+        time.sleep(1)
         return "Success"
     except Exception:
         return "Failure to Connect"

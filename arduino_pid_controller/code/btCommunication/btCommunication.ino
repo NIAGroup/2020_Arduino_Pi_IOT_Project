@@ -53,7 +53,7 @@ void setup()
 {   
  Serial.begin(9600);       // The default baudrate for the HC-05 is 38400, and 9600 for the HM-10 
  BT_Module.begin(9600);       // If the baudrate is incorrect the messages will not be read/displayed correctly.
- //BT_ClassicModule.begin(9600);
+ BT_ClassicModule.begin(9600);
  pinMode(blueLED_pin, OUTPUT);      // The led pin gets setup as an output pin. 
  pinMode(yellowLED_pin, OUTPUT);
  servo.attach(servoPin);
