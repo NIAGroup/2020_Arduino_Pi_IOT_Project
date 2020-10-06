@@ -18,7 +18,7 @@ def scanForBTDevices():
           "devices_ble" : {0:{}}
   }
 
-  devices = bluetooth.discover_devices(lookup_names=True)
+  devices = bluetooth.discover_devices(duration=10,lookup_names=True)
   i = 0
   for dev in devices:
       x,y = dev
