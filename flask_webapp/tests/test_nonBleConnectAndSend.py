@@ -10,21 +10,34 @@ import time, argparse, sys, bluetooth
 def sendMsg(bdaddr,msg_byte):
     print("Connecting...")
     # Create the client socket
-    port = 1
-    sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
-    sock.connect((bdaddr, port))
+    try:
+        port = 1
+        sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
+        sock.connect((bdaddr, port))
 
-    print("Connected. Type something...")
-    while True:
-        #data = input()
-        #if not data:
-        #    break
+        print("Connected!")
         full_msg = [msg_byte,"f1","f2","f3","f4","f5","f6","f7"]
+        print("request:", ":".join(full_msg))
+        print("-"*50)
+        print(f"request sent to: {bluetooth.lookup_name(bdaddr)}")
+        print("-"*50)
         for b in range (0,8): 
             sock.send(bytes([int(full_msg[b],16)]))
-        break
-    sock.close()
-
+        response = []
+        while True:
+            data = sock.recv(1024)
+            for b in data:
+                #print(hex(b))
+                response.append(b)
+            if(len(response) > 7):
+                break
+        data = ":".join('{:02x}'.format(b) for b in response)
+        print("notification : message received")
+        print(f"{data}")
+        sock.close()
+        return "Success"
+    except Exception:
+        return "Failure to Connect"
 """
 In the function below, the arguments are collected and used to define the target bluetooth
 devices. This is with the expectation that the file is being called as a command line 
