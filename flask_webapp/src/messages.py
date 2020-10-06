@@ -1,4 +1,5 @@
 from ctypes import *
+from copy import deepcopy
 
 class Message(Structure):
     """
@@ -11,12 +12,13 @@ class Message(Structure):
         """
 
         """
+        name_pos = 0
         retStr = ""
         retStr += f"{type(self).__name__} \n".rjust(20)
-        for field_name, field_type in self._fields_:
-            if field_name == "reserved":
+        for field in self._fields_:
+            if field[name_pos] == "reserved":
                 continue    # skip all reserved fields from parsing
-            retStr += f"{field_name}                {getattr(self, field_name)} \n"
+            retStr += f"{field[name_pos]}\t\t\t{getattr(self, field[name_pos])} \n"
 
         return retStr
 
@@ -36,6 +38,15 @@ class Response_Message(Message):
         ("reserved",        c_uint8, 2),
     ]
 
+class Response_Message_Union(Union):
+    """
+
+    """
+    _fields_ = [
+        ("struct",          Response_Message),
+        ("bytes",           sizeof(Response_Message) * c_uint8),
+    ]
+
 class Request_Message(Message):
     """
 
@@ -49,31 +60,67 @@ class Sanity_Bt_Message(Request_Message):
     """
 
     """
-    _fields_ = Request_Message._fields_
+    _fields_ = deepcopy(Request_Message._fields_)
+
+class Sanity_Bt_Message_Union(Union):
+    """
+
+    """
+    _fields_ = [
+        ("struct",          Sanity_Bt_Message),
+        ("bytes",           sizeof(Sanity_Bt_Message) * c_uint8),
+    ]
 
 class Sanity_Servo_Message(Request_Message):
     """
 
     """
-    _fields_ = Request_Message._fields_
+    _fields_ = deepcopy(Request_Message._fields_)
+
+class Sanity_Servo_Message_Union(Union):
+    """
+
+    """
+    _fields_ = [
+        ("struct",          Sanity_Servo_Message),
+        ("bytes",           sizeof(Sanity_Servo_Message) * c_uint8),
+    ]
 
 class Sanity_Sensor_Message(Request_Message):
     """
 
     """
-    _fields_ = Request_Message._fields_
+    _fields_ = deepcopy(Request_Message._fields_)
+
+class Sanity_Sensor_Message_Union(Union):
+    """
+
+    """
+    _fields_ = [
+        ("struct",          Sanity_Sensor_Message),
+        ("bytes",           sizeof(Sanity_Sensor_Message) * c_uint8),
+    ]
 
 class Sanity_PID_Message(Request_Message):
     """
 
     """
-    _fields_ = Request_Message._fields_
+    _fields_ = deepcopy(Request_Message._fields_)
+
+class Sanity_PID_Message_Union(Union):
+    """
+
+    """
+    _fields_ = [
+        ("struct",          Sanity_PID_Message),
+        ("bytes",           sizeof(Sanity_PID_Message) * c_uint8),
+    ]
 
 class PID_Controller_Message(Request_Message):
     """
 
     """
-    _fields_ = Request_Message._fields_
+    _fields_ = deepcopy(Request_Message._fields_)
     _fields_ += [
         ("angle",           c_uint8),
         ("algorithm",       c_uint8),
@@ -82,3 +129,13 @@ class PID_Controller_Message(Request_Message):
         ("kd",              c_uint8),
         ("reserved",        c_uint8 * 2)
     ]
+
+class PID_Controller_Message_Union(Union):
+    """
+
+    """
+    _fields_ = [
+        ("struct",          PID_Controller_Message),
+        ("bytes",           sizeof(PID_Controller_Message) * c_uint8),
+    ]
+
