@@ -1,4 +1,4 @@
-from src.messages import *
+from messages import *
 from bluepy import *
 
 class Bt_Ble_Device(object):
@@ -37,9 +37,9 @@ class Bt_Ble_Device(object):
     def send_message(self, msgName):
         """
         """
-        msg_type = eval(f"{msgName}_Message")
+        msg_type = eval(f"{msgName}_Message_Union")
         msg_obj = msg_type()    # Todo: Probably need a try-except here
-        msg_bytes = msg_obj.bytes()  # Todo: Figure this out
+        msg_bytes = msg_obj.bytes  # Todo: Figure this out
         self._write(msg_bytes)
         self._read()
         return True
