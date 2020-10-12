@@ -1,3 +1,4 @@
+import __init__
 from src.messages import *
 from bluepy import *
 

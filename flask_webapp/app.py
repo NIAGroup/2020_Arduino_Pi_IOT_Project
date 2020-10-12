@@ -1,6 +1,13 @@
 from flask import Flask, jsonify, request, redirect, render_template
 import sys
 
+if sys.platform == 'win32':
+    print("Running on Windows OS. This is not supported yet.")
+    exit()
+
+from src.device_list import BtDevContainer
+Container = BtDevContainer()
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -9,15 +16,12 @@ def home():
 
 @app.route("/scan")
 def scan():
-    devices = None
     error = None
-
-    if sys.platform != 'win32':
-        from src.device_list import BtDevContainer
-        BtDevContainer()
-        devices = BtDevContainer.scan()
-    else:
-        error = "Running on Windows OS. Most likely won't have any devices discovered."
+    devices = None
+    try:
+        devices = Container.scan()
+    except Exception as e:
+        error = f"Runtime error has occurred. {e}"
         print(error)
     return render_template("index_new_scan.html", devices=devices, error=error)
 

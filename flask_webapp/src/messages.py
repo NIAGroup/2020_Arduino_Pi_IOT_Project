@@ -1,3 +1,4 @@
+import __init__
 from ctypes import *
 
 class Message(Structure):
