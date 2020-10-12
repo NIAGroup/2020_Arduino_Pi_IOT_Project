@@ -1,3 +1,4 @@
+import __init__
 import bluetooth
 from bluetooth.ble import DiscoveryService
 from src.device import Bt_Ble_Device, Bt_Device
@@ -57,7 +58,7 @@ class BtDevContainer(object):
         :return: list of device name strings.
         """
         self._scan_for_bt_ble_devices()
-        self._scan_for_bt_regular_devices()
+        #self._scan_for_bt_regular_devices()
         active_dev_list = list(self._bt_name_dev_dict.keys())
         print(f"Discovered {len(active_dev_list)} valid bluetooth devics.")
         return active_dev_list
