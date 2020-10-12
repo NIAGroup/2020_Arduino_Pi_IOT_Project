@@ -73,7 +73,6 @@ def sendMsg(bdaddr,msg_byte):
         #characteristic.write(bytes([int(full_msg,16)]))
         for b in range (0,8):
         #    full_msg = int(b,16)
-            
             characteristic.write(bytes([int(full_msg[b],16)]))
         #characteristic.write(full_msg)
         print("-"*50)
@@ -116,7 +115,7 @@ def getArguments():
     if bdaddr == None:
         bdaddr = "00:35:FF:0D:41:9B"
     if msg_byte == None:
-        msg_byte = hex(int("96",16))   # sets the servo to 90 degrees
+        msg_byte = hex(int("90",16))   # sets the servo to 90 degrees
     else:
         msg_byte = hex(int(msg_byte,16))
     return bdaddr,msg_byte
