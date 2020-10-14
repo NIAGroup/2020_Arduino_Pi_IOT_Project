@@ -16,14 +16,14 @@ def home():
 
 @app.route("/scan")
 def scan():
-    error = None
-    devices = None
+    retDict = {}
     try:
         devices = Container.scan()
+        retDict["scan_devs"] = devices
     except Exception as e:
-        error = f"Runtime error has occurred. {e}"
-        print(error)
-    return render_template("index_new_scan.html", devices=devices, error=error)
+        print(f"Runtime error has occurred. {e}")
+
+    return jsonify(retDict)
 
 if __name__ == '__main__':
     # setting the host to 0.0.0.0 makes the pi act as a server, 
