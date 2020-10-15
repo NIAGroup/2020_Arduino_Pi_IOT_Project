@@ -88,11 +88,7 @@
 
 			<div id="MyBTDevices" class="w3-container selection" style="display:none">
 			  <div class="container-fluid">
-				<div class = "row">
-				  <span onclick="closeMenu();" class="closebtnCross">x</span>
-				</div>
-
-			    <div class = "column spinners" style="text-align: center;">
+			    <div class = "column spinners" style="text-align: center; padding-top:15px">
 				  <h6>No Devices Connected...</h6> <!-- animated spinners -->
 				  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
 				  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
@@ -102,9 +98,6 @@
 			  </div>
 			</div>
 			<div id="Scan" class="w3-container selection" style="display:none">
-			  <div class = "row">
-				<span onclick="closeMenu();" class="closebtnCross">x</span>
-			  </div>
 			  <div class="row" id="scan_device_row"> </div>
 			  <div class="row">
 				<button id="connectBtn" type="submit" class="btn btn-primary" onclick="changeConnectButtonColor()"> Connect </button>

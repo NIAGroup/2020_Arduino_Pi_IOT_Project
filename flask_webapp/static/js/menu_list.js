@@ -1,43 +1,59 @@
+/**
+ * @file   This file is specific to the PID IOT project. It defines th functionality of drop-down menus.
+ * @author Adonay Berhe.
+ * @since  10.14.2020
+ */
+
 function openSelection(evt, selectionName) {
-  closeMenu();
-  document.getElementById(selectionName).style.display = "block";
-  evt.currentTarget.firstElementChild.className += "w3-border-red";
-  if (selectionName === "Scan"){
-    // Clear the row of previously scanned device images
-    clearScanDeviceRow();
+  if (document.getElementById(selectionName).style.display === "block"){
+    closeMenu();
+    return;
+  }
+  else{
+    closeMenu();
+    document.getElementById(selectionName).style.display = "block";
+    evt.currentTarget.firstElementChild.className += "w3-border-red";
+    if (selectionName === "Scan"){
+      // Clear the row of previously scanned device image columns
+      clearChildNodes("scan_device_row");
 
-    // Perform a scan and grab data from back-end
-    var url = "/scan";
-    d3.json(url).then((data_in) => {
-
-      if (data_in === null || data_in.scan_devs === undefined || data_in.scan_devs.length == 0) {
-        drawNoDeviceMessage();
-      }
-      else{
-        data_in.scan_devs.forEach(drawDevices);
-      }
-    });
+      // Perform a scan and grab data from back-end
+      var url = "/scan";
+      d3.json(url).then((data_in) => {
+        if (data_in === null || data_in.scan_devs === undefined || data_in.scan_devs.length == 0) {
+          drawNoDeviceMessage();
+        }
+        else{
+          data_in.scan_devs.forEach(drawDevices);
+        }
+      });
+    }
   }
 }
 
-function clearScanDeviceRow()
-{
-  var scan_dev_row = document.getElementById("scan_device_row");
+function clearChildNodes(elt_id){
+  var scan_dev_row = document.getElementById(elt_id);
   scan_dev_row.querySelectorAll('*').forEach(n => n.remove());
 }
 
 function drawNoDeviceMessage(){
   var no_dev_text = document.createTextNode("Couldn't Find any bluetooth devices.");
+
   var dev_header = document.createElement("h6");
+  dev_header.style = "text-align:center; padding-top:15px";
   dev_header.appendChild(no_dev_text);
+
+  var dev_column = document.createElement("div");
+  dev_column.setAttribute("class", "col");
+  dev_column.appendChild(dev_header);
+
   var scan_dev_row = document.getElementById("scan_device_row");
-  scan_dev_row.appendChild(dev_header);
+  scan_dev_row.appendChild(dev_column);
 }
 
 function drawDevices(name, index){
   var dev_image = document.createElement("img");
-  dev_image.src = "../static/img/arduino_icon_transparent.jpg";
-  //dev_image.setAttribute("src", "static\img\arduino_icon_transparent.jpg");
+  dev_image.setAttribute("src", "../static/img/arduino_icon_transparent.jpg");
   dev_image.setAttribute("alt", "Arduino icon");
 
   var dev_a_tag = document.createElement("a");
@@ -46,7 +62,7 @@ function drawDevices(name, index){
   dev_a_tag.appendChild(dev_image);
 
   var dev_paragraph = document.createElement("p");
-  dev_paragraph.setAttribute("style", "text-align:center;");
+  dev_paragraph.setAttribute("style", "text-align:center");
   var dev_name_text = document.createTextNode(name);
   dev_paragraph.appendChild(dev_name_text);
 
