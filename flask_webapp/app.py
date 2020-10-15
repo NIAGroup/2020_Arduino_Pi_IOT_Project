@@ -17,13 +17,12 @@ def home():
 @app.route("/scan")
 def scan():
     retDict = {}
-    """
     try:
         devices = Container.scan()
         retDict["scan_devs"] = devices
     except Exception as e:
         print(f"Runtime error has occurred. {e}")
-    """
+
     return jsonify(retDict)
 
 if __name__ == '__main__':
