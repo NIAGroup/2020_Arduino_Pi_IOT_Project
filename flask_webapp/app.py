@@ -1,13 +1,13 @@
 from flask import Flask, jsonify, request, redirect, render_template
 import sys
-"""
+
 if sys.platform == 'win32':
     print("Running on Windows OS. This is not supported yet.")
     exit()
 
 from src.device_list import BtDevContainer
 Container = BtDevContainer()
-"""
+
 app = Flask(__name__)
 
 @app.route("/")
