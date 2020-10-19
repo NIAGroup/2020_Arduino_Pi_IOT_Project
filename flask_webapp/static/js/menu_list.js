@@ -1,6 +1,6 @@
 /**
  * @file   This file is specific to the PID IOT project. It defines th functionality of drop-down menus.
- * @author Adonay Berhe.
+ * @author Adonay Berhe, Felicia James
  * @since  10.14.2020
  */
 
@@ -19,7 +19,7 @@ function openSelection(evt, selectionName) {
 
       // Perform a scan and grab data from back-end
       var url = "/scan";
-      d3.json(url).then((data_in) => {
+      d3.json(url, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
         if (data_in === null || data_in.scan_devs === undefined || data_in.scan_devs.length == 0) {
           drawNoDeviceMessage();
         }
@@ -58,7 +58,7 @@ function drawDevices(name, index){
 
   var dev_a_tag = document.createElement("a");
   dev_a_tag.setAttribute("class", "thumbnail");
-  dev_a_tag.setAttribute("onclick", "thumbnailSelect()");
+  dev_a_tag.setAttribute("onclick", "thumbnailSelect(this)");
   dev_a_tag.appendChild(dev_image);
 
   var dev_paragraph = document.createElement("p");
@@ -67,7 +67,8 @@ function drawDevices(name, index){
   dev_paragraph.appendChild(dev_name_text);
 
   var dev_column = document.createElement("div");
-  dev_column.setAttribute("class", "col");
+  dev_column.classList = "col scanDev";
+  dev_column.id = name;
   dev_column.appendChild(dev_a_tag);
   dev_column.appendChild(dev_paragraph);
 
@@ -109,6 +110,24 @@ function changeRunButtonColor(){
 }
 
 function changeConnectButtonColor(){
+  var devices = document.getElementsByClassName("scanDev");
+  var deviceNames = {"selectedDevices": []};
+  for (device of devices)
+  {
+    devChilda = device.getElementsByTagName('a')[0];
+    devChildp = device.getElementsByTagName('p')[0];
+    if (devChilda.classList.contains('active'))
+    {
+      deviceNames["selectedDevices"].push(devChildp.innerHTML);
+    }
+  }
+
+  var url = "/connect";
+  d3.json(url, {method: "POST", body: JSON.stringify(deviceNames),
+    headers: {"Content-type": "application/json; charset=UTF-8"}}).then((returnVal)=>{
+    console.log(JSON.stringify(returnVal));
+  });
+
   var btn;
   btn = document.getElementById("connectBtn");
   
@@ -126,28 +145,8 @@ function changeConnectButtonColor(){
   {
     btn.classList.add("btn-success");
   }
-  
 }
 
-function thumbnailSelect(){
-  var btnContainer;
-  btnContainer = document.getElementById("thumbnailBtn");
-  
-  var btns;
-  btns = btnContainer.getElementsByClassName("thumbnail");
-  
-  // Loop through the buttons and add the active class to the current/clicked button
-  for (var i = 0; i < btns.length; i++) {
-    btns[i].addEventListener("click", function() {
-      var current = document.getElementsByClassName("active");
-
-      // If there's no active class
-      if (current.length > 0) {
-        current[0].className = current[0].className.replace(" active", "");
-      }
-
-      // Add the active class to the current/clicked button
-      this.className += " active";
-    });
-	}
+function thumbnailSelect(element){
+  element.classList.toggle("active");
 }

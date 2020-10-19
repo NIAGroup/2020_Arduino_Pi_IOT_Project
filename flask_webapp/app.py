@@ -1,13 +1,13 @@
 from flask import Flask, jsonify, request, redirect, render_template
 import sys
-
+"""
 if sys.platform == 'win32':
     print("Running on Windows OS. This is not supported yet.")
     exit()
 
 from src.device_list import BtDevContainer
 Container = BtDevContainer()
-
+"""
 app = Flask(__name__)
 
 @app.route("/")
@@ -18,12 +18,20 @@ def home():
 def scan():
     retDict = {}
     try:
-        devices = Container.scan()
-        retDict["scan_devs"] = devices
+        #devices = Container.scan()
+        #retDict["scan_devs"] = devices
+        retDict["scan_devs"] = ['test1', 'test2', 'test3', 'test4']
     except Exception as e:
         print(f"Runtime error has occurred. {e}")
 
     return jsonify(retDict)
+
+@app.route("/connect", methods=['GET', 'POST'])
+def connect():
+    devices = request.get_json()
+    print(devices)
+    return jsonify({"selectedDevices": ["True", "True", "True", "True"]})
+
 
 if __name__ == '__main__':
     # setting the host to 0.0.0.0 makes the pi act as a server, 

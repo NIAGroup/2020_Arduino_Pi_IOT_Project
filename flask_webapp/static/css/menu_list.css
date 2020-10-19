@@ -19,3 +19,12 @@ body {
 .output{
   justify-content: center;
 }
+
+.thumbnail{
+  border-radius: 1rem;
+  border-width: medium;
+}
+
+#scan_device_row {
+  padding-top: 10px;
+}
