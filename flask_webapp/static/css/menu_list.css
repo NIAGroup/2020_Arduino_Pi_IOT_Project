@@ -28,3 +28,7 @@ body {
 #scan_device_row {
   padding-top: 10px;
 }
+
+.connected {
+  border-color: green;
+}

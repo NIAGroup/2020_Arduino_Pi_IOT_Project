@@ -109,43 +109,60 @@ function changeRunButtonColor(){
   
 }
 
-function changeConnectButtonColor(){
+function getSelectedDevices(){
   var devices = document.getElementsByClassName("scanDev");
-  var deviceNames = {"selectedDevices": []};
+  var selectedDevices = {};
   for (device of devices)
   {
     devChilda = device.getElementsByTagName('a')[0];
     devChildp = device.getElementsByTagName('p')[0];
     if (devChilda.classList.contains('active'))
     {
-      deviceNames["selectedDevices"].push(devChildp.innerHTML);
+      selectedDevices[devChildp.innerHTML] = [devChilda, devChildp];
     }
   }
 
+  return selectedDevices;
+}
+function triggerConnection(connectBtn){
+  var deviceNames = {};
+  var selectedDevices = getSelectedDevices();
+  if($.isEmptyObject(selectedDevices))
+  {
+    return;
+  }
+
+  deviceNames["selectedDevices"]  = Object.keys(selectedDevices);
+  var isConnected = false;
   var url = "/connect";
   d3.json(url, {method: "POST", body: JSON.stringify(deviceNames),
     headers: {"Content-type": "application/json; charset=UTF-8"}}).then((returnVal)=>{
-    console.log(JSON.stringify(returnVal));
-  });
+    var error = "";
 
-  var btn;
-  btn = document.getElementById("connectBtn");
-  
-  if(btn.classList.contains("btn-success"))
-  {
-    btn.classList.remove("btn-success");
-    btn.classList.add("btn-danger")
-  }
-  else if (btn.classList.contains("btn-danger"))
-  {
-    btn.classList.remove("btn-danger");
-    btn.classList.remove("btn-success");
-  }
-  else
-  {
-    btn.classList.add("btn-success");
-  }
+    Object.entries(returnVal).forEach(([devName, connectionStatus]) => {
+      if(connectionStatus === true && deviceNames["selectedDevices"].includes(devName))
+      {
+        selectedDevices[devName][0].classList.toggle("active");
+        selectedDevices[devName][0].classList.add("connected");
+        isConnected = true;
+      }
+      else
+      {
+        error = error.concat(devName, " ");
+      }
+    })
+    console.log(error.length);
+    if (error.length > 0)
+    {
+      alert("These devices were not able to connect. Check server logs [log location here...] for details.\n".concat(error));
+    }
+    if(isConnected)
+    {
+      connectBtn.classList.add("btn-success");
+    }
+  });
 }
+
 
 function thumbnailSelect(element){
   element.classList.toggle("active");

@@ -30,7 +30,7 @@ def scan():
 def connect():
     devices = request.get_json()
     print(devices)
-    return jsonify({"selectedDevices": ["True", "True", "True", "True"]})
+    return jsonify({"test2": True, "test3": True})
 
 
 if __name__ == '__main__':
