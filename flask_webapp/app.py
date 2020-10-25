@@ -1,13 +1,13 @@
 from flask import Flask, jsonify, request, redirect, render_template
 import sys
-"""
+
 if sys.platform == 'win32':
     print("Running on Windows OS. This is not supported yet.")
     exit()
 
 from src.device_list import BtDevContainer
 Container = BtDevContainer()
-"""
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -18,9 +18,9 @@ def home():
 def scan():
     retDict = {}
     try:
-        #devices = Container.scan()
-        #retDict["scan_devs"] = devices
-        retDict["scan_devs"] = ['test1', 'test2', 'test3', 'test4']
+        devices = Container.scan()
+        retDict["scan_devs"] = devices
+        #retDict["scan_devs"] = ['test1', 'test2', 'test3', 'test4']
     except Exception as e:
         print(f"Runtime error has occurred. {e}")
 
@@ -29,8 +29,15 @@ def scan():
 @app.route("/connect", methods=['GET', 'POST'])
 def connect():
     devices = request.get_json()
-    print(devices)
-    return jsonify({"test2": True, "test3": True})
+    retValue = {}
+    for device in devices["selectedDevices"]:
+        try:
+            retValue[device] = Container.get_device(device).connect()
+        except KeyError:
+            retValue[device] = False
+    #print(devices)
+    #return jsonify({"test2": True, "test3": True})
+    return jsonify(retValue)
 
 
 if __name__ == '__main__':
