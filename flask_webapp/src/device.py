@@ -15,7 +15,12 @@ from device_delegate import BtleDelegate
 
 class Bt_Ble_Device(object):
     """
-
+    Brief:
+        Bt_Ble_Device(): abstraction class for a bluetooth ble device
+    Description:
+        This class contains all the APIs a bluetooth connected LE device needs to implement.
+    Methods:
+        connect, send_message, _write, _read
     """
     def __init__(self, addr):
         """
@@ -47,7 +52,7 @@ class Bt_Ble_Device(object):
     def __del__(self):
         """
         Brief:
-            __del__(): Custom delete API
+            __del__(): Custom destructor API for the instance
         Description:
             This method first disconnects the bluetooth device then deletes ble peripheral device.
         """

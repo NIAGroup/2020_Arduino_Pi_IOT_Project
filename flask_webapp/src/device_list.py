@@ -25,6 +25,9 @@ class BtDevContainer(object):
     """
     def __init__(self):
         """
+        Brief:
+            __init__(): Initializer to bluetooth device container object.
+        Param(s):
 
         """
         self._bt_name_dev_dict = {}     # name -> device
@@ -121,13 +124,37 @@ class BtDevContainer(object):
         Param(s):
             name: string value of the device name.
         Return
-            Bt_Device or Bt_Ble_Device device instance on success; None on failure.
+            Bt_Device or Bt_Ble_Device device instance on success; Raise an exception upon error/failure.
         """
         try:
             return self._bt_name_dev_dict[name]
         except KeyError:
             print(f"Device name: {name} is not found. Raising exception.\n{KeyError}")
             raise KeyError
+        except Exception:
+            print(f"An unexpected exception occurred down the stack. Re-raising exception.")
+            raise Exception
 
+    def remove_device(self, name):
+        """
+        Brief:
+            remove_device(name): Removes a bluetooth device from _bt_name_dev_dict dictionary.
+        Description:
+            This function takes a name(string) of the desired device, disconnects the device, then deletes the device
+                instance from the managing dictionary.
+        Param(s):
+            name: string value of the device name.
+        Return:
+            True upon successful disconnection; Raise an exception upon error/failure.
+        """
+        try:
+            del self._bt_name_dev_dict[name]
+        except KeyError:
+            print(f"Device name: {name} is not found. Something most likely went wrong!\n{KeyError}")
+            raise KeyError
+        except Exception:
+            print(f"An unexpected exception occurred down the stack. Re-raising exception.")
+            raise Exception
 
+        return True
 
