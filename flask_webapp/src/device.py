@@ -9,8 +9,9 @@ Author:
     Adoany Berhe, Princton Brennan
 """
 import __init__
-from src.messages import *
-from src.device_delegate import BtleDelegate
+from bluepy import btle
+from messages import *
+from device_delegate import BtleDelegate
 
 class Bt_Ble_Device(object):
     """
@@ -42,7 +43,6 @@ class Bt_Ble_Device(object):
             print(f"Unexpected Error occurred upon connecting.\n {Exception}")
             return False
         return True
-
 
     def __del__(self):
         """
