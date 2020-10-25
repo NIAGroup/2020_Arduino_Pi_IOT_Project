@@ -12,10 +12,20 @@ app = Flask(__name__)
 
 @app.route("/")
 def home():
+    """
+    Brief:
+    Param(s):
+    Return:
+    """
     return render_template("index_new.html")
 
 @app.route("/scan")
 def scan():
+    """
+    Brief:
+    Param(s):
+    Return:
+    """
     retDict = {}
     try:
         devices = Container.scan()
@@ -28,17 +38,38 @@ def scan():
 
 @app.route("/connect", methods=['GET', 'POST'])
 def connect():
+    """
+    Brief:
+    Param(s):
+    Return:
+    """
     devices = request.get_json()
     retValue = {}
     for device in devices["selectedDevices"]:
         try:
             retValue[device] = Container.get_device(device).connect()
-        except KeyError:
+        except Exception:
             retValue[device] = False
+    return jsonify(retValue)
     #print(devices)
     #return jsonify({"test2": True, "test3": True})
-    return jsonify(retValue)
 
+@app.route("/disconnect", methods=['GET', 'POST'])
+def disconnect():
+    """
+    Brief:
+    Param(s):
+    Return:
+    """
+    devices = request.get_json()
+    retValue = {}
+    for device in devices["selectedDevices"]:
+        try:
+            Container.remove_device(device)
+            retValue[device] = True
+        except Exception:
+            retValue[device] = False
+    return jsonify(retValue)
 
 if __name__ == '__main__':
     # setting the host to 0.0.0.0 makes the pi act as a server, 
