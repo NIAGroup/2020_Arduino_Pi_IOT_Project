@@ -1,5 +1,6 @@
 import __init__
 from ctypes import Structure, Union, c_uint8, sizeof
+from copy import deepcopy
 
 class Message_Struct(Structure):
     """
@@ -14,10 +15,18 @@ class Message_Struct(Structure):
         """
         retStr = ""
         retStr += f"{type(self).__name__} \n".rjust(20)
+        
+        for super_field_name, super_field_type in super(type(self), self)._fields_:
+            if super_field_name == "reserved":
+               continue
+            else:
+                retStr += f"{super_field_name}           {getattr(self,super_field_name)}\n"
+
         for field_name, field_type in self._fields_:
             if field_name == "reserved":
                 continue    # skip all reserved fields from parsing
-            retStr += f"{field_name}                {getattr(self, field_name)} \n"
+            else:
+                retStr += f"{field_name}                {getattr(self, field_name)} \n"
 
         return retStr
 
@@ -32,7 +41,6 @@ class Response_Message(Message_Struct):
     """
 
     """
-    _pack_ = 1
     _fields_ = [
         ("status",          c_uint8),
         ("byte_0",          c_uint8, 1),
@@ -58,7 +66,6 @@ class Request_Message(Message_Struct):
     """
 
     """
-    _pack_ = 1
     _fields_ = [
         ("command",         c_uint8),
     ]
@@ -77,7 +84,7 @@ class Sanity_Bt_Message(Request_Message):
     """
 
     """
-    _fields_ = Request_Message._fields_
+    pass    
 
 class Sanity_Bt_Message_Union(Message_Union):
     """
@@ -90,7 +97,7 @@ class Sanity_Servo_Message(Request_Message):
     """
 
     """
-    _fields_ = Request_Message._fields_
+    pass
 
 class Sanity_Servo_Message_Union(Message_Union):
     """
@@ -103,7 +110,7 @@ class Sanity_Sensor_Message(Request_Message):
     """
 
     """
-    _fields_ = Request_Message._fields_
+    pass
 
 class Sanity_Sensor_Message_Union(Message_Union):
     """
@@ -116,7 +123,7 @@ class Sanity_PID_Message(Request_Message):
     """
 
     """
-    _fields_ = Request_Message._fields_
+    pass
 
 class Sanity_PID_Message_Union(Message_Union):
     """
@@ -129,8 +136,7 @@ class PID_Controller_Message(Request_Message):
     """
 
     """
-    _fields_ = Request_Message._fields_
-    _fields_ += [
+    _fields_ = [
         ("angle",           c_uint8),
         ("algorithm",       c_uint8),
         ("kp",              c_uint8),
