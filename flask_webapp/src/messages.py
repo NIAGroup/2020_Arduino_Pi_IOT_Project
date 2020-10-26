@@ -1,7 +1,7 @@
 import __init__
-from ctypes import *
+from ctypes import Structure, Union, c_uint8, sizeof
 
-class Message(Structure):
+class Message_Struct(Structure):
     """
 
     """
@@ -21,7 +21,14 @@ class Message(Structure):
 
         return retStr
 
-class Response_Message(Message):
+class Message_Union(Union):
+    """
+    
+    """
+    _pack_ = 1
+    _fields_ = []
+
+class Response_Message(Message_Struct):
     """
 
     """
@@ -37,7 +44,17 @@ class Response_Message(Message):
         ("reserved",        c_uint8, 2),
     ]
 
-class Request_Message(Message):
+class Response_Message_Union(Message_Union):
+    """
+
+    """
+    _fields_ = [
+        ("structure",       Response_Message),
+        ("bytes",           sizeof(Response_Message) * c_uint8)
+    ]
+
+
+class Request_Message(Message_Struct):
     """
 
     """
@@ -46,11 +63,28 @@ class Request_Message(Message):
         ("command",         c_uint8),
     ]
 
+class Request_Message_Union(Message_Union):
+    """
+
+    """
+    _fields_ = [
+        ("structure",       Request_Message),
+        ("bytes",           sizeof(Request_Message) * c_uint8)
+    ]
+
+
 class Sanity_Bt_Message(Request_Message):
     """
 
     """
     _fields_ = Request_Message._fields_
+
+class Sanity_Bt_Message_Union(Message_Union):
+    """
+
+    """
+    pass
+
 
 class Sanity_Servo_Message(Request_Message):
     """
@@ -58,17 +92,38 @@ class Sanity_Servo_Message(Request_Message):
     """
     _fields_ = Request_Message._fields_
 
+class Sanity_Servo_Message_Union(Message_Union):
+    """
+
+    """
+    pass
+
+
 class Sanity_Sensor_Message(Request_Message):
     """
 
     """
     _fields_ = Request_Message._fields_
 
+class Sanity_Sensor_Message_Union(Message_Union):
+    """
+
+    """
+    pass
+
+
 class Sanity_PID_Message(Request_Message):
     """
 
     """
     _fields_ = Request_Message._fields_
+
+class Sanity_PID_Message_Union(Message_Union):
+    """
+
+    """
+    pass
+
 
 class PID_Controller_Message(Request_Message):
     """
@@ -82,4 +137,13 @@ class PID_Controller_Message(Request_Message):
         ("ki",              c_uint8),
         ("kd",              c_uint8),
         ("reserved",        c_uint8 * 2)
+    ]
+
+class PID_Controller_Message_Union(Message_Union):
+    """
+
+    """
+    _fields_ = [
+        ("structure",       PID_Controller_Message),
+        ("bytes",           sizeof(PID_Controller_Message) * c_uint8)
     ]

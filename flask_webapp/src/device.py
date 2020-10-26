@@ -92,15 +92,18 @@ class Bt_Ble_Device(object):
     def send_message(self, msgName):
         """
         Brief:
-
+            send_message(msgName): generic message sending API.
         Description:
-
+            This function will be used to issue any request commands to a bluetooth peripheral device and parse/process
+                the response message payload.
+                Request command name (string) -> Response message (bytes)
         Param(s):
-
+            msg_name: bluetooth request message name(string) to be sent to the peripheral device.
         Return:
-
+             Response message bytes, None on failure.
         """
-        msg_type = eval(f"{msgName}_Message")
+        import pdb; pdb.set_trace()
+        msg_type = eval(f"{msgName}_Message_Union")
         msg_obj = msg_type()    # Todo: Probably need a try-except here
         msg_bytes = msg_obj.bytes()  # Todo: Figure this out
         self._write(msg_bytes)
