@@ -90,30 +90,6 @@ class BtDevContainer(object):
         print(f"Discovered {len(active_dev_list)} valid bluetooth devics.")
         return active_dev_list
 
-    def send_bluetooth_msg(self, name, msg_name):
-        """
-        Brief:
-            send_bluetooth_msg(addr, msg): generic message sending api.
-        Description:
-            This function will be used to issue any commands to the peripheral device and return
-                values if any.
-        Param:
-            name: bluetooth device name.
-        Param(s):
-            msg_name: bluetooth message name string to be sent to the peripheral device.
-        Return:
-             True on success, False on failure.
-        """
-        retVal = False
-        try:
-            retVal = self._bt_name_dev_dict[name].send_message(msg_name)
-        except ValueError as error:
-            print(f"Device {name} does not exist.")
-            retVal = False
-
-        # Todo: Figure out a way to propagate error message
-        return retVal
-
     def get_device(self, name):
         """
         Brief:
