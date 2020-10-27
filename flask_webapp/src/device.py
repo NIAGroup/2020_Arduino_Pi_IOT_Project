@@ -102,11 +102,11 @@ class Bt_Ble_Device(object):
         Return:
              Response message bytes, None on failure.
         """
-        import pdb; pdb.set_trace()
+        #import pdb; pdb.set_trace()
         msg_type = eval(f"{msgName}_Message_Union")
         msg_obj = msg_type()    # Todo: Probably need a try-except here
-        msg_obj.structure.command = 0x07
-        msg_bytes = bytearray(msg_obj.bytes)  # Todo: Figure this out
+        msg_obj.structure.command = 0x90
+        msg_bytes = msg_obj.bytes   # Todo: Figure this out
         self._write(msg_bytes)
         self._read()
         return True
