@@ -9,9 +9,9 @@ Author:
     Adoany Berhe, Princton Brennan
 """
 import __init__
-from bluepy import btle
+#from bluepy import btle
 from messages import *
-from device_delegate import BtleDelegate
+#from device_delegate import BtleDelegate
 
 class Bt_Ble_Device(object):
     """
@@ -30,6 +30,7 @@ class Bt_Ble_Device(object):
             addr: address of the device.
         """
         self._addr = addr
+        self._timeout = 10       # timeout value to receive a response in seconds
 
     def connect(self):
         """
@@ -80,14 +81,14 @@ class Bt_Ble_Device(object):
         Return:
 
         """
-        retVal = None
-        while True:
-            if self._dev.waitForNotifications(1.0):
-                if self._delegate.response:
-                    print(f"Read message received: {self._delegate.response}")
-                    retVal = self._delegate.response
-                    break
-        return retVal
+        if self._dev.waitForNotifications(self._timeout):
+            if self._delegate.response_message_data:
+                print(f"Message bytes received from handle {self._delegate.response_message_characteristic}: {self._delegate.response_message_data}")
+            else:
+                print(f"Received bytes from an unexpected service/characteristic handle: Expected {self._delegate._characteristic} "
+                      f"and received from handle {self._delegate.response_message_characteristic}")
+                print("Returning None!")
+        return self._delegate.response_message_data
 
     def send_message(self, msgName):
         """
@@ -102,13 +103,20 @@ class Bt_Ble_Device(object):
         Return:
              Response message bytes, None on failure.
         """
-        #import pdb; pdb.set_trace()
+        import pdb; pdb.set_trace()
         msg_type = eval(f"{msgName}_Message_Union")
         msg_obj = msg_type()    # Todo: Probably need a try-except here
         msg_obj.structure.command = 0x90
         msg_bytes = msg_obj.bytes   # Todo: Figure this out
         self._write(msg_bytes)
-        self._read()
+        ret_bytes = self._read()
+        if ret_bytes:
+            resp_msg_union = Response_Message_Union()
+            for byte_idx in range(len(resp_msg_union.bytes)):
+                resp_msg_union.bytes[byte_idx] = ret_bytes[byte_idx]
+
+            print(resp_msg_union.structure)
+
         return True
 
 class Bt_Device(object):
