@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 
-<html dir="ltr" lang="en-us">    
+<html dir="ltr" lang="en-us">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,7 +23,7 @@
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   <script src="..\static\js\menu_list.js"></script>
 
-  <title>NIA STEM Club | PID IOT Interface </title>  
+  <title>NIA STEM Club | PID IOT Interface </title>
 </head>
 <body>
     <!--Create responsive navigation bar that collapses at medium resolution i.e tablets-->
@@ -106,7 +106,7 @@
 		  </div>
 		</div>
     </section>
-    
+
     <section id="Input_Table">
 		<div class="container-fluid">
 			<div class="jumbotron img-shadow" style="background-color: #fffdfb; font-family: PT Serif;">
@@ -114,7 +114,7 @@
 					<h5>Input Table</h5>
 				</div>
 				<p class="lead">
-				Enter in the constants that you want to program onto the arduino in the table below 
+				Enter in the constants that you want to program onto the arduino in the table below
 				</p>
 				<table class="table table-hover table-dark" style="border-radius: .3rem">
 				  <thead>
@@ -146,14 +146,14 @@
 							<div class="form-group">
 							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea3"> </input>
 						  </div>
-						</form>			 
+						</form>
 					  </td>
 					  <td>
 						<form>
 							<div class="form-group">
 							<input type="number" class="form-control form-control-sm" placeholder="45" id="Textarea4"> </input>
 						  </div>
-						</form>			  
+						</form>
 					  </td>
 					</tr>
 				  </tbody>
@@ -230,7 +230,8 @@
 				<div class="col">
 				<!--<h5>Embedded Video</h5> -->
 				<div class="embed-responsive embed-responsive-4by3">
-                <iframe src="https://www.youtube.com/embed/JFTJ2SS4xyA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <!-- <iframe src="https://www.youtube.com/embed/JFTJ2SS4xyA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+                <img src="{{ url_for('video_feed') }}">
                 </div>
 				</div>
 				<div class="col">
@@ -342,12 +343,12 @@
                         <i class="fa fa-linkedin-square" style="font-size:48px;color:black"></i>
                     </a>
                 </div>
-                
+
                 <!-- Copyright -->
                 <div class="footer-copyright col-sm-4 " style="color: #323644">
                     NIA STEM Club, Copyright &copy; 2020
                 </div>
-                
+
                 <div class="col-sm-4">
                     <form class="input-group">
                         <input type="text" class="form-control form-control-sm" placeholder="john.doe@intel.com" aria-label="Your email" aria-describedby="basic-addon2">
@@ -356,7 +357,7 @@
                         </div>
                     </form>
                 </div>
-    
+
             </div>
         </div>
     </footer>
@@ -366,4 +367,3 @@
 
 </body>
 </html>
-
