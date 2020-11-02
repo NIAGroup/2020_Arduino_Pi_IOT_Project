@@ -16,10 +16,12 @@
   <link rel="stylesheet" type="text/css" href="../static/css/IOT_project.css"> <!--link to css style sheet -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT%20Serif"> <!--link to google fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <script src="..\static\js\menu_list.js"></script>
+  <script src="static/js/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.js"></script>
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+  <script src="..\static\js\menu_list.js"></script>
 
   <title>NIA STEM Club | PID IOT Interface </title>  
 </head>
@@ -71,64 +73,34 @@
 				<div class="col">
 					<a href="javascript:void(0)" onclick="openSelection(event, 'MyBTDevices');">
 						<div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-red col-xs-6">
-						<h5>My Bluetooth Devices</h5>
+						<h5>Connected Devices</h5>
 						</div>
 					</a>
 				</div>
 				<div class="col">
-					<a href="javascript:void(0)" onclick="openSelection(event, 'Configure');">
+					<a href="javascript:void(0)" onclick="openSelection(event, 'Scan');">
 						<div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-red w3-border-red w3-border-red col-xs-6">
 						<h5>Scan for Bluetooth Devices</h5>
 						</div>
 					</a>
 				</div>
 			</div>
+
 			<div id="MyBTDevices" class="w3-container selection" style="display:none">
 			  <div class="container-fluid">
-				<div class = "row">
-				<span onclick="closeMenu();" class="closebtnCross">x</span>
-				</div>
-				<div class="row">
-				  <div class="col">
-					<a id="thumbnailBtn" class="thumbnail" onclick="thumbnailSelect()">
-					  <img src="..\static\img\arduino_icon_transparent.jpg" alt="Arduino icon">
-					</a>
-					<p style="text-align:center;">127.0.0.1</p>
-				  </div>
-				  <div class="col">
-					<a href="#" class="thumbnail thumbnailBtn">
-					  <img src="..\static\img\arduino_icon_transparent.jpg" alt="Arduino icon">
-					</a>
-					<p style="text-align:center;">127.0.0.2</p>
-				  </div>
-				  <div class="col">
-					<a href="#" class="thumbnail thumbnailBtn">
-					  <img src="..\static\img\arduino_icon_transparent.jpg" alt="Arduino icon">
-					</a>
-					<p style="text-align:center;">127.0.0.3</p>
-				  </div>
-				  <div class="col">
-					<a href="#" class="thumbnail thumbnailBtn">
-					  <img src="..\static\img\arduino.png" alt="Arduino icon">
-					</a>
-					<p style="text-align:center;">127.0.0.4</p>
-				  </div>
-				</div>
-				<div class="row">
-				  <button id="connectBtn" type="submit" class="btn btn-primary" onclick="changeConnectButtonColor()"> Connect </button>
-				</div>
+			    <div class = "column spinners" style="text-align: center; padding-top:15px">
+				  <h6>No Devices Connected...</h6> <!-- animated spinners -->
+				  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
+				  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
+				  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>
+				  <span class="sr-only">Loading...</span>
+			    </div>
 			  </div>
 			</div>
-			<div id="Configure" class="w3-container selection" style="display:none">
-			  <div class = "row">
-				<span onclick="closeMenu();" class="closebtnCross">x</span>
-			  </div>
-			  <div class = "column spinners" style="text-align: center;">
-				<h6>Scanning for bluetooth devices ...</h6> <!-- animated spinners -->
-				<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
-				<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
-				<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>
-				  <span class="sr-only">Loading...</span>
+			<div id="Scan" class="w3-container selection" style="display:none">
+			  <div class="row" id="scan_device_row"> </div>
+			  <div class="row">
+				<button id="connectBtn" type="submit" class="btn btn-primary" onclick="changeConnectButtonColor()"> Connect </button>
 			  </div>
 			</div>
 		  </div>
@@ -158,28 +130,28 @@
 					  <th scope="row">
 						<form>
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea1" rows="3"></input>
+							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea1"> </input>
 						  </div>
 						</form>
 					  </th>
 					  <td>
 						<form>
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea1" rows="3"></input>
+							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea2"> </input>
 						  </div>
 						</form>
 					  </td>
 					  <td>
 						<form>
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea1" rows="3"></input>
+							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea3"> </input>
 						  </div>
 						</form>			 
 					  </td>
 					  <td>
 						<form>
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="45" id="Textarea1" rows="3"></input>
+							<input type="number" class="form-control form-control-sm" placeholder="45" id="Textarea4"> </input>
 						  </div>
 						</form>			  
 					  </td>
@@ -199,23 +171,24 @@
 							<br><a class="dropdown-item" id="servo_sanity_btn" href="#">Servo Sanity</a>
 							<br><a class="dropdown-item" id="sensor_sanity_btn" href="#">Sensor Sanity</a>
 						  </div>
-						</td>
-						<td style="padding: 3px;">
-						  </div>
+					   </div>
+					  </td>
+					  <td style="padding: 3px;">
+						 <div>
 							<input type="text" class="form-control" id="param_fld" placeholder="Servo Angle" aria-label="Username" aria-describedby="basic-addon1">
 						  </div>
-						</td>
-						<td style="padding: 3px;">
-						  <div class="btn-group-toggle" data-toggle="buttons">
-						  <label class="btn btn-info active">
-							<input type="checkbox" checked autocomplete="off"> Run Sanity Check
+					  </td>
+					  <td style="padding: 3px;">
+					    <div class="btn-group-toggle" data-toggle="buttons">
+					  	  <label class="btn btn-info active">
+					        <input type="checkbox" checked autocomplete="off"> Run Sanity Check
 						  </label>
 						</div>
 					  </td>
 					  <td style="padding: 10px;">
 						<span class="dot" style="height: 25px; width: 25px;background-color: #bbb;border-radius: 50%; display: inline-block;"></span>
 					  </td>
-					</tr>
+				  	</tr>
 				</table>
 				<script>
 				  var dropDwn_btn = document.getElementById("dropdownMenuButton");
@@ -319,10 +292,10 @@
 			  </i></p>
 			  <div class="row">
                 <div class="col">
-				<img src="..\static\img\PID-control_illustration.jpg" alt="PID-control illustration" style="max-width:100%;height:500px;"></img>
+				<img src="..\static\img\PID-control_illustration.jpg" alt="PID-control illustration" style="max-width:100%;height:500px;"> </img>
 				</div>
 				<div class="col">
-				<img src="..\static\img\pid_controller_equation.png" alt="PID_controller_equation" style="align-items: center;"></img>
+				<img src="..\static\img\pid_controller_equation.png" alt="PID_controller_equation" style="align-items: center;"> </img>
 				</div>
 			  </div>
 			  <h5>Control System Breakdown</h5>
