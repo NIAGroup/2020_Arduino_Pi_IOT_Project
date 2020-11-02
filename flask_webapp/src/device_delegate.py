@@ -24,7 +24,8 @@ class BtleDelegate(btle.DefaultDelegate):
         """
         btle.DefaultDelegate.__init__(self)
         self._characteristic = char
-        self.response = None
+        self.response_message_data = None
+        self.response_message_characteristic = None
 
     def handleNotification(self, cHandle, data):
         """
@@ -37,5 +38,6 @@ class BtleDelegate(btle.DefaultDelegate):
         Return:
             bytes being read.
         """
-        if cHandle == self._characteristic:
-            self.response = data
+        self.response_message_characteristic = cHandle
+        if self.response_message_characteristic == self._characteristic:
+            self.response_message_data = data
