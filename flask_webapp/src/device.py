@@ -9,9 +9,9 @@ Author:
     Adoany Berhe, Princton Brennan
 """
 import __init__
-#from bluepy import btle
+from bluepy import btle
 from messages import *
-#from device_delegate import BtleDelegate
+from device_delegate import BtleDelegate
 
 class Bt_Ble_Device(object):
     """
@@ -43,7 +43,7 @@ class Bt_Ble_Device(object):
             self._dev = btle.Peripheral(self._addr)
             self._services = list(self._dev.services)
             self._characteristic = self._services[len(self._services) - 1].getCharacteristics()[0]
-            self._delegate = BtleDelegate(self._characteristic)
+            self._delegate = BtleDelegate(self._characteristic.getHandle())
             self._dev.setDelegate(BtleDelegate(self._characteristic))
         except Exception:
             print(f"Unexpected Error occurred upon connecting.\n {Exception}")
@@ -81,13 +81,16 @@ class Bt_Ble_Device(object):
         Return:
 
         """
-        if self._dev.waitForNotifications(self._timeout):
-            if self._delegate.response_message_data:
-                print(f"Message bytes received from handle {self._delegate.response_message_characteristic}: {self._delegate.response_message_data}")
-            else:
-                print(f"Received bytes from an unexpected service/characteristic handle: Expected {self._delegate._characteristic} "
+        while True:
+            if self._dev.waitForNotifications(self._timeout):
+                import pdb; pdb.set_trace()
+                if self._delegate.response_message_data:
+                    print(f"Message bytes received from handle {self._delegate.response_message_handle}: {self._delegate.response_message_data}")
+                else:
+                    print(f"Received bytes from an unexpected service/characteristic handle: Expected {self._delegate._char_handle "
                       f"and received from handle {self._delegate.response_message_characteristic}")
-                print("Returning None!")
+                    print("Returning None!")
+                break
         return self._delegate.response_message_data
 
     def send_message(self, msgName):
@@ -103,11 +106,11 @@ class Bt_Ble_Device(object):
         Return:
              Response message bytes, None on failure.
         """
-        import pdb; pdb.set_trace()
         msg_type = eval(f"{msgName}_Message_Union")
         msg_obj = msg_type()    # Todo: Probably need a try-except here
         msg_obj.structure.command = 0x90
         msg_bytes = msg_obj.bytes   # Todo: Figure this out
+        import pdb; pdb.set_trace()
         self._write(msg_bytes)
         ret_bytes = self._read()
         if ret_bytes:
