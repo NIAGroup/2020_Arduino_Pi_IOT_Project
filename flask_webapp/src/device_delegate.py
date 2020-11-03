@@ -15,7 +15,7 @@ class BtleDelegate(btle.DefaultDelegate):
     """
 
     """
-    def __init__(self, char):
+    def __init__(self, handle):
         """
         Brief:
             __init__(): Initializer to BtleDelegate.
@@ -23,9 +23,9 @@ class BtleDelegate(btle.DefaultDelegate):
             char: Integer handle for the characteristic of the desired peripheral
         """
         btle.DefaultDelegate.__init__(self)
-        self._characteristic = char
+        self._char_handle = handle
         self.response_message_data = None
-        self.response_message_characteristic = None
+        self.response_message_handle = None
 
     def handleNotification(self, cHandle, data):
         """
@@ -38,6 +38,7 @@ class BtleDelegate(btle.DefaultDelegate):
         Return:
             bytes being read.
         """
-        self.response_message_characteristic = cHandle
-        if self.response_message_characteristic == self._characteristic:
+        import pdb; pdb.set_trace()
+        self.response_message_handle = cHandle
+        if self.response_message_handle == self._char_handle:
             self.response_message_data = data
