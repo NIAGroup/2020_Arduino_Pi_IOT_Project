@@ -38,7 +38,6 @@ class BtleDelegate(btle.DefaultDelegate):
         Return:
             bytes being read.
         """
-        import pdb; pdb.set_trace()
         self.response_message_handle = cHandle
         if self.response_message_handle == self._char_handle:
             self.response_message_data = data
