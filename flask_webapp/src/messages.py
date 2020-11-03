@@ -1,5 +1,5 @@
 import __init__
-from ctypes import Structure, Union, c_uint8, sizeof
+from ctypes import Structure, Union, c_uint8, sizeof, resize
 from copy import deepcopy
 
 class Message_Struct(Structure):
@@ -13,26 +13,26 @@ class Message_Struct(Structure):
         """
 
         """
+        field_name_idx = 0
         retStr = ""
         retStr += f"{type(self).__name__} \n".rjust(20)
-        
-        for super_field_name, super_field_type in super(type(self), self)._fields_:
-            if super_field_name == "reserved":
+        for field_tuple in super(type(self), self)._fields_:
+            if field_tuple[field_name_idx] == "reserved":
                continue
             else:
-                retStr += f"{super_field_name}           {getattr(self,super_field_name)}\n"
+                retStr += f"{field_tuple[field_name_idx]}           {getattr(self,field_tuple[field_name_idx])}\n"
 
-        for field_name, field_type in self._fields_:
-            if field_name == "reserved":
+        for field_tuple in self._fields_:
+            if field_tuple[field_name_idx] == "reserved":
                 continue    # skip all reserved fields from parsing
             else:
-                retStr += f"{field_name}                {getattr(self, field_name)} \n"
+                retStr += f"{field_tuple[field_name_idx]}                {getattr(self, field_tuple[field_name_idx])} \n"
 
         return retStr
 
 class Message_Union(Union):
     """
-    
+
     """
     _pack_ = 1
     _fields_ = []

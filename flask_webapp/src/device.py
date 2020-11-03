@@ -70,7 +70,9 @@ class Bt_Ble_Device(object):
             msg:
 
         """
-        self._characteristic.write(msg)
+        resize(msg, 8)  # Fixate structure size to 8 bytes
+        for a_byte in bytearray(msg):
+            self._characteristic.write(a_byte)
 
     def _read(self):
         """
@@ -81,16 +83,18 @@ class Bt_Ble_Device(object):
         Return:
 
         """
-        while True:
+
+        try:
             if self._dev.waitForNotifications(self._timeout):
-                import pdb; pdb.set_trace()
                 if self._delegate.response_message_data:
                     print(f"Message bytes received from handle {self._delegate.response_message_handle}: {self._delegate.response_message_data}")
                 else:
-                    print(f"Received bytes from an unexpected service/characteristic handle: Expected {self._delegate._char_handle "
+                    print(f"Received bytes from an unexpected service/characteristic handle: Expected {self._delegate._char_handle}"
                       f"and received from handle {self._delegate.response_message_characteristic}")
                     print("Returning None!")
-                break
+        except btle.BTLEDisconnectError as error:
+            print(f"An error occured upon reading response. \n{error}")
+
         return self._delegate.response_message_data
 
     def send_message(self, msgName):
@@ -106,12 +110,11 @@ class Bt_Ble_Device(object):
         Return:
              Response message bytes, None on failure.
         """
+        import pdb; pdb.set_trace()
         msg_type = eval(f"{msgName}_Message_Union")
         msg_obj = msg_type()    # Todo: Probably need a try-except here
         msg_obj.structure.command = 0x90
-        msg_bytes = msg_obj.bytes   # Todo: Figure this out
-        import pdb; pdb.set_trace()
-        self._write(msg_bytes)
+        self._write(msg_obj)
         ret_bytes = self._read()
         if ret_bytes:
             resp_msg_union = Response_Message_Union()
