@@ -17,13 +17,13 @@ class Message_Struct(Structure):
         retStr = ""
         retStr += f"{type(self).__name__} \n".rjust(20)
         for field_tuple in super(type(self), self)._fields_:
-            if field_tuple[field_name_idx] == "reserved":
+            if "reserved" in field_tuple[field_name_idx]:
                continue
             else:
                 retStr += f"{field_tuple[field_name_idx]}           {getattr(self,field_tuple[field_name_idx])}\n"
 
         for field_tuple in self._fields_:
-            if field_tuple[field_name_idx] == "reserved":
+            if "reserved" in field_tuple[field_name_idx]:
                 continue    # skip all reserved fields from parsing
             else:
                 retStr += f"{field_tuple[field_name_idx]}                {getattr(self, field_tuple[field_name_idx])} \n"
@@ -50,6 +50,7 @@ class Response_Message(Message_Struct):
         ("byte_4",          c_uint8, 1),
         ("byte_5",          c_uint8, 1),
         ("reserved",        c_uint8, 2),
+        ("reservedBytes",   c_uint8 * 6)
     ]
 
 class Response_Message_Union(Message_Union):
@@ -84,7 +85,9 @@ class Sanity_Bt_Message(Request_Message):
     """
 
     """
-    pass    
+    _fields_ = [
+        ("reservedBytes",   c_uint8 * 7)
+    ]
 
 class Sanity_Bt_Message_Union(Message_Union):
     """
@@ -97,7 +100,9 @@ class Sanity_Servo_Message(Request_Message):
     """
 
     """
-    pass
+    _fields_ = [
+        ("reservedBytes", c_uint8 * 7)
+    ]
 
 class Sanity_Servo_Message_Union(Message_Union):
     """
@@ -110,7 +115,9 @@ class Sanity_Sensor_Message(Request_Message):
     """
 
     """
-    pass
+    _fields_ = [
+        ("reservedBytes", c_uint8 * 7)
+    ]
 
 class Sanity_Sensor_Message_Union(Message_Union):
     """
@@ -123,7 +130,9 @@ class Sanity_PID_Message(Request_Message):
     """
 
     """
-    pass
+    _fields_ = [
+        ("reservedBytes", c_uint8 * 7)
+    ]
 
 class Sanity_PID_Message_Union(Message_Union):
     """
