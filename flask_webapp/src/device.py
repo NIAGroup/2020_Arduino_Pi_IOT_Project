@@ -30,7 +30,7 @@ class Bt_Ble_Device(object):
             addr: address of the device.
         """
         self._addr = addr
-        self._timeout = 10       # timeout value to receive a response in seconds
+        self._timeout = 60       # timeout value to receive a response in seconds
 
     def connect(self):
         """
@@ -70,9 +70,11 @@ class Bt_Ble_Device(object):
             msg:
 
         """
-        resize(msg, 8)  # Fixate structure size to 8 bytes
-        for a_byte in bytearray(msg):
-            self._characteristic.write(a_byte)
+        #resize(msg, 8)  # Fixate structure size to 8 bytes
+        for a_byte in msg.bytes:
+            print("I'm about to write the following:")
+            print(bytes([a_byte])) 
+            self._characteristic.write(bytes([a_byte]))
 
     def _read(self):
         """
@@ -83,18 +85,20 @@ class Bt_Ble_Device(object):
         Return:
 
         """
-
-        try:
-            if self._dev.waitForNotifications(self._timeout):
-                if self._delegate.response_message_data:
-                    print(f"Message bytes received from handle {self._delegate.response_message_handle}: {self._delegate.response_message_data}")
-                else:
-                    print(f"Received bytes from an unexpected service/characteristic handle: Expected {self._delegate._char_handle}"
-                      f"and received from handle {self._delegate.response_message_characteristic}")
-                    print("Returning None!")
-        except btle.BTLEDisconnectError as error:
-            print(f"An error occured upon reading response. \n{error}")
-
+        while True:
+            try:
+                if self._dev.waitForNotifications(self._timeout):
+                    if self._delegate.response_message_data:
+                        print(f"Message bytes received from handle {self._delegate.response_message_handle}: {self._delegate.response_message_data}")
+                    else:
+                        print(f"Received bytes from an unexpected service/characteristic handle: Expected {self._delegate._char_handle}"
+                          f"and received from handle {self._delegate.response_message_characteristic}")
+                        print("Returning None!")
+                    break
+            except btle.BTLEDisconnectError as error:
+                print(f"An error occured upon reading response. \n{error}")
+                break
+        
         return self._delegate.response_message_data
 
     def send_message(self, msgName):
@@ -110,7 +114,7 @@ class Bt_Ble_Device(object):
         Return:
              Response message bytes, None on failure.
         """
-        import pdb; pdb.set_trace()
+    
         msg_type = eval(f"{msgName}_Message_Union")
         msg_obj = msg_type()    # Todo: Probably need a try-except here
         msg_obj.structure.command = 0x90
