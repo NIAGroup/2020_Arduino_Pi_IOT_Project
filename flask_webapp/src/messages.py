@@ -93,7 +93,10 @@ class Sanity_Bt_Message_Union(Message_Union):
     """
 
     """
-    pass
+    _fields_ = [
+        ("structure",       Sanity_Bt_Message),
+        ("bytes",           sizeof(Sanity_Bt_Message) * c_uint8)
+    ]
 
 
 class Sanity_Servo_Message(Request_Message):
@@ -108,7 +111,10 @@ class Sanity_Servo_Message_Union(Message_Union):
     """
 
     """
-    pass
+    _fields_ = [
+        ("structure",       Sanity_Servo_Message),
+        ("bytes",           sizeof(Sanity_Servo_Message) * c_uint8)
+    ]
 
 
 class Sanity_Sensor_Message(Request_Message):
@@ -123,7 +129,10 @@ class Sanity_Sensor_Message_Union(Message_Union):
     """
 
     """
-    pass
+    _fields_ = [
+        ("structure",       Sanity_Sensor_Message),
+        ("bytes",           sizeof(Sanity_Sensor_Message) * c_uint8)
+    ]
 
 
 class Sanity_PID_Message(Request_Message):
@@ -138,7 +147,10 @@ class Sanity_PID_Message_Union(Message_Union):
     """
 
     """
-    pass
+    _fields_ = [
+        ("structure",       Sanity_PID_Message),
+        ("bytes",           sizeof(Sanity_PID_Message) * c_uint8)
+    ]
 
 
 class PID_Controller_Message(Request_Message):

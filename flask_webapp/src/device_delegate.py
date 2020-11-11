@@ -39,5 +39,6 @@ class BtleDelegate(btle.DefaultDelegate):
             bytes being read.
         """
         self.response_message_handle = cHandle
+        print(f"Recieved message from handle {cHandle}. Expected handle {self._char_handle}.")
         if self.response_message_handle == self._char_handle:
             self.response_message_data = data
