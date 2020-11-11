@@ -44,7 +44,7 @@ class Bt_Ble_Device(object):
             self._services = list(self._dev.services)
             self._characteristic = self._services[len(self._services) - 1].getCharacteristics()[0]
             self._delegate = BtleDelegate(self._characteristic.getHandle())
-            self._dev.setDelegate(BtleDelegate(self._characteristic))
+            self._dev.setDelegate(self._delegate)
         except Exception:
             print(f"Unexpected Error occurred upon connecting.\n {Exception}")
             return False
@@ -70,10 +70,17 @@ class Bt_Ble_Device(object):
             msg:
 
         """
-        #resize(msg, 8)  # Fixate structure size to 8 bytes
+        msg.bytes[1] = 241
+        msg.bytes[2] = 242
+        msg.bytes[3] = 243
+        msg.bytes[4] = 244
+        msg.bytes[5] = 245
+        msg.bytes[6] = 246
+        msg.bytes[7] = 247  
+        print(f"About to perform a write with bytes: {bytearray(msg.bytes)}\n")      
         for a_byte in msg.bytes:
-            print("I'm about to write the following:")
-            print(bytes([a_byte])) 
+            #print("I'm about to write the following:")
+            #print(bytes([a_byte])) 
             self._characteristic.write(bytes([a_byte]))
 
     def _read(self):
@@ -85,19 +92,16 @@ class Bt_Ble_Device(object):
         Return:
 
         """
-        while True:
-            try:
-                if self._dev.waitForNotifications(self._timeout):
-                    if self._delegate.response_message_data:
-                        print(f"Message bytes received from handle {self._delegate.response_message_handle}: {self._delegate.response_message_data}")
-                    else:
-                        print(f"Received bytes from an unexpected service/characteristic handle: Expected {self._delegate._char_handle}"
-                          f"and received from handle {self._delegate.response_message_characteristic}")
-                        print("Returning None!")
-                    break
-            except btle.BTLEDisconnectError as error:
-                print(f"An error occured upon reading response. \n{error}")
-                break
+        try:
+            if self._dev.waitForNotifications(self._timeout):
+                if self._delegate.response_message_data:
+                    print(f"Message bytes received from handle {self._delegate.response_message_handle}: {self._delegate.response_message_data}\n")
+                else:
+                    print(f"Received bytes from an unexpected service/characteristic handle: Expected {self._delegate._char_handle} "
+                      f"and received from handle {self._delegate.response_message_handle}")
+                    print("Returning None!")
+        except btle.BTLEDisconnectError as error:
+            print(f"An error occured upon reading response. \n{error}")
         
         return self._delegate.response_message_data
 
