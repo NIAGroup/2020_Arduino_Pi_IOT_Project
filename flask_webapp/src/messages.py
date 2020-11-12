@@ -43,14 +43,15 @@ class Response_Message(Message_Struct):
     """
     _fields_ = [
         ("status",          c_uint8),
+        ("command",         c_uint8),
         ("byte_0",          c_uint8, 1),
         ("byte_1",          c_uint8, 1),
         ("byte_2",          c_uint8, 1),
         ("byte_3",          c_uint8, 1),
         ("byte_4",          c_uint8, 1),
         ("byte_5",          c_uint8, 1),
-        ("reserved",        c_uint8, 2),
-        ("reservedBytes",   c_uint8 * 6)
+        ("reserved",        c_uint8, 2),    # One Status byte + Reserved byte = 2 Reserved
+        ("reservedBytes",   c_uint8 * 5)
     ]
 
 class Response_Message_Union(Message_Union):
@@ -71,16 +72,6 @@ class Request_Message(Message_Struct):
         ("command",         c_uint8),
     ]
 
-class Request_Message_Union(Message_Union):
-    """
-
-    """
-    _fields_ = [
-        ("structure",       Request_Message),
-        ("bytes",           sizeof(Request_Message) * c_uint8)
-    ]
-
-
 class Sanity_Bt_Message(Request_Message):
     """
 
@@ -88,6 +79,12 @@ class Sanity_Bt_Message(Request_Message):
     _fields_ = [
         ("reservedBytes",   c_uint8 * 7)
     ]
+
+    def __init__(self):
+        """
+
+        """
+        self.command = 0x90
 
 class Sanity_Bt_Message_Union(Message_Union):
     """
@@ -98,7 +95,6 @@ class Sanity_Bt_Message_Union(Message_Union):
         ("bytes",           sizeof(Sanity_Bt_Message) * c_uint8)
     ]
 
-
 class Sanity_Servo_Message(Request_Message):
     """
 
@@ -106,6 +102,12 @@ class Sanity_Servo_Message(Request_Message):
     _fields_ = [
         ("reservedBytes", c_uint8 * 7)
     ]
+
+    def __init__(self):
+        """
+
+        """
+        self.command = 0x80
 
 class Sanity_Servo_Message_Union(Message_Union):
     """
@@ -125,6 +127,12 @@ class Sanity_Sensor_Message(Request_Message):
         ("reservedBytes", c_uint8 * 7)
     ]
 
+    def __init__(self):
+        """
+
+        """
+        self.command = 0x70
+
 class Sanity_Sensor_Message_Union(Message_Union):
     """
 
@@ -142,6 +150,12 @@ class Sanity_PID_Message(Request_Message):
     _fields_ = [
         ("reservedBytes", c_uint8 * 7)
     ]
+
+    def __init__(self):
+        """
+
+        """
+        self.command = 0x70
 
 class Sanity_PID_Message_Union(Message_Union):
     """
@@ -166,6 +180,12 @@ class PID_Controller_Message(Request_Message):
         ("reserved",        c_uint8 * 2)
     ]
 
+    def __init__(self):
+        """
+
+        """
+        self.command = 0x70
+
 class PID_Controller_Message_Union(Message_Union):
     """
 
@@ -174,3 +194,9 @@ class PID_Controller_Message_Union(Message_Union):
         ("structure",       PID_Controller_Message),
         ("bytes",           sizeof(PID_Controller_Message) * c_uint8)
     ]
+
+    def __init__(self):
+        """
+
+        """
+        self.command = 0x70
