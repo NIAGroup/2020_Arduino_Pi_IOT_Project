@@ -105,10 +105,10 @@ class Bt_Ble_Device(object):
         
         return self._delegate.response_message_data
 
-    def send_message(self, msgName):
+    def send_message(self, msgName, **kwargs):
         """
         Brief:
-            send_message(msgName): generic message sending API.
+            send_message(msgName, **kwargs): generic message sending API.
         Description:
             This function will be used to issue any request commands to a bluetooth peripheral device and parse/process
                 the response message payload.
@@ -118,20 +118,33 @@ class Bt_Ble_Device(object):
         Return:
              Response message bytes, None on failure.
         """
-    
+        STATUS_SUCCESS = 0
         msg_type = eval(f"{msgName}_Message_Union")
-        msg_obj = msg_type()    # Todo: Probably need a try-except here
-        msg_obj.structure.command = 0x90
+        try:
+            msg_obj = msg_type()
+        except TypeError:
+            print(f"Message object {msg_type} not defined. Returning False.\n{TypeError}")
+            return False
+        for elt_name, elt_val in kwargs.item():
+            msg_obj.structure.elt_name = elt_val
+        #msg_obj.structure.command = 0x90
+        print(f"Writing message: {msgName}. \n{msg_obj.structure}")
         self._write(msg_obj)
+
         ret_bytes = self._read()
         if ret_bytes:
             resp_msg_union = Response_Message_Union()
-            for byte_idx in range(len(resp_msg_union.bytes)):
-                resp_msg_union.bytes[byte_idx] = ret_bytes[byte_idx]
-
-            print(resp_msg_union.structure)
-
-        return True
+            if len(ret_bytes) >= sizeof(resp_msg_union):
+                for byte_idx in range(len(resp_msg_union.bytes)):
+                    resp_msg_union.bytes[byte_idx] = ret_bytes[byte_idx]
+                print(f"Received Packet: \n{resp_msg_union.structure}")
+                return resp_msg_union.structure.status == STATUS_SUCCESS
+            else:
+                print(f"Received less bytes than expected for message: {msgName}.\n"
+                      f"Expected: {sizeof(resp_msg_union)} Received: {len(ret_bytes)}. Returning False")
+        else:
+            print("Didn't receive any bytes from device. Returning False.")
+        return False
 
 class Bt_Device(object):
     """
