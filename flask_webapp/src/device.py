@@ -118,7 +118,7 @@ class Bt_Ble_Device(object):
         Return:
              Response message bytes, None on failure.
         """
-        STATUS_SUCCESS = 0
+        STATUS_SUCCESS = 0x00
         msg_type = eval(f"{msgName}_Message_Union")
         try:
             msg_obj = msg_type()
