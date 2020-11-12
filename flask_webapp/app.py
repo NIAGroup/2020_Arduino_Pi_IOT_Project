@@ -71,6 +71,33 @@ def disconnect():
             retValue[device] = False
     return jsonify(retValue)
 
+@app.route("/send", methods=['GET', 'POST'])
+def send():
+    """
+    Brief:
+        send():
+
+    POST:
+        JSON => {selected_device_name : [ {method_name : {param_name : param_value} ] } ] }
+
+    GET:
+       JSON => {selected_device_name : {method_name : method_result} }
+
+    """
+    devices = request.get_json()
+    retValue = {}
+    for device_name in devices["selectedDevices"]:
+        retValue[device_name] = {}
+        for msg_name in devices[device_name]:
+            print(f"Sending command: {msg_name} params: {devices[device_name][msg_name]}")
+            try:
+                retValue[device_name][msg_name] = Container.get_device(device_name).send_message(msg_name, **devices[device_name][msg_name])
+            except Exception:
+                print(f"Unexpected error occurred upon sending command: {msg_name}. Returning False.\n{Exception}")
+                retValue[device_name][msg_name] = False
+
+    return jsonify(retValue)
+
 if __name__ == '__main__':
     # setting the host to 0.0.0.0 makes the pi act as a server, 
     # this allows users to get to the site by typing in the pi's
