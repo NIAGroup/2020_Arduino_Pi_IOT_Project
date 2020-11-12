@@ -43,14 +43,15 @@ class Response_Message(Message_Struct):
     """
     _fields_ = [
         ("status",          c_uint8),
+        ("command",         c_uint8),
         ("byte_0",          c_uint8, 1),
         ("byte_1",          c_uint8, 1),
         ("byte_2",          c_uint8, 1),
         ("byte_3",          c_uint8, 1),
         ("byte_4",          c_uint8, 1),
         ("byte_5",          c_uint8, 1),
-        ("reserved",        c_uint8, 2),
-        ("reservedBytes",   c_uint8 * 6)
+        ("reserved",        c_uint8, 2),    # One Status byte + Reserved byte = 2 Reserved
+        ("reservedBytes",   c_uint8 * 5)
     ]
 
 class Response_Message_Union(Message_Union):
