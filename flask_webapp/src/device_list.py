@@ -41,10 +41,9 @@ class BtDevContainer(object):
                 the raspberry pi.
         """
         devices = bluetooth.discover_devices(lookup_names=True)
-        for device in devices:
-            addr, name = device
+        for addr, name in devices:
             if self._is_verified_bt_dev(name):
-                self._bt_name_dev_dict[name] = Bt_Device(addr)
+                self._bt_name_dev_dict[name] = Bt_Device(addr, name)
 
     def _scan_for_bt_ble_devices(self):
         """
@@ -58,7 +57,7 @@ class BtDevContainer(object):
         devices = service.discover(2)
         for addr, name in zip(devices.keys(), devices.values()):
             if self._is_verified_bt_dev(name):
-                self._bt_name_dev_dict[name] = Bt_Ble_Device(addr)
+                self._bt_name_dev_dict[name] = Bt_Ble_Device(addr, name)
 
     def _is_verified_bt_dev(self, name):
         """
@@ -85,7 +84,7 @@ class BtDevContainer(object):
             list of device name strings.
         """
         self._scan_for_bt_ble_devices()
-        #self._scan_for_bt_regular_devices()
+        self._scan_for_bt_regular_devices()
         active_dev_list = list(self._bt_name_dev_dict.keys())
         print(f"Discovered {len(active_dev_list)} valid bluetooth devics.")
         return active_dev_list
