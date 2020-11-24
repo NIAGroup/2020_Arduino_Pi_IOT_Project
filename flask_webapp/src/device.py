@@ -62,8 +62,9 @@ class Bt_Ble_Device(object):
         Description:
             This method first disconnects the bluetooth device then deletes ble peripheral device.
         """
-        self._dev.disconnect()
-        del self._dev
+        if self._dev:
+            self._dev.disconnect()
+            del self._dev
 
     def _write(self, msg):
         """
@@ -125,9 +126,10 @@ class Bt_Ble_Device(object):
         except TypeError:
             print(f"Message object {msg_type} not defined. Returning False.\n{TypeError}")
             return False
-        for elt_name, elt_val in kwargs.item():
-            msg_obj.structure.elt_name = elt_val
-        #msg_obj.structure.command = 0x90
+        if kwargs:
+            for elt_name, elt_val in kwargs.item():
+                msg_obj.structure.elt_name = elt_val
+
         print(f"Writing message: {msgName}. \n{msg_obj.structure}")
         self._write(msg_obj)
 
@@ -194,7 +196,9 @@ class Bt_Device(object):
         Description:
             This method closes a bluetooth socket.
         """
-        self._sock.close()
+        if self._sock:
+            self._sock.close()
+            del self._sock
 
     def _write(self, msg):
         """
@@ -253,9 +257,10 @@ class Bt_Device(object):
         except TypeError:
             print(f"Message object {msg_type} not defined. Returning False.\n{TypeError}")
             return False
-        for elt_name, elt_val in kwargs.item():
-            msg_obj.structure.elt_name = elt_val
-        # msg_obj.structure.command = 0x90
+        if kwargs:
+            for elt_name, elt_val in kwargs.item():
+                msg_obj.structure.elt_name = elt_val
+
         print(f"Writing message: {msgName}. \n{msg_obj.structure}")
         self._write(msg_obj)
 
