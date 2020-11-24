@@ -24,14 +24,14 @@ class Message_Struct(Structure):
                continue
             else:
                 _val = getattr(self,field_tuple[field_name_idx])
-                retStr += f"{field_tuple[field_name_idx]}\t\t{_val}({hex(_val)})\n"
+                retStr += f"{field_tuple[field_name_idx]}\t\t{_val} ({hex(_val)})\n"
 
         for field_tuple in self._fields_:
             if "reserved" in field_tuple[field_name_idx]:
                 continue    # skip all reserved fields from parsing
             else:
                 _val = getattr(self, field_tuple[field_name_idx])
-                retStr += f"{field_tuple[field_name_idx]}\t\t{_val}({hex(_val)})\n"
+                retStr += f"{field_tuple[field_name_idx]}\t\t{_val} ({hex(_val)})\n"
 
         return retStr
 
