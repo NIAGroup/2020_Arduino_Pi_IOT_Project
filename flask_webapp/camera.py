@@ -20,6 +20,7 @@ class VideoCamera(object):
     def get_frame(self):
            #extracting frames
             ret, frame = self.video.read()
+            frame = cv2.flip(frame, flipCode=-1)
 
             # encode OpenCV raw frame to jpg and displaying it
             ret, jpeg = cv2.imencode('.jpg', frame)
