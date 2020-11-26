@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, redirect, render_template, Response
 from camera import VideoCamera
+from flask_sqlalchemy import SQLAlchemy
 import cv2
 import sys
 
@@ -11,6 +12,25 @@ from src.device_list import BtDevContainer
 Container = BtDevContainer()
 
 app = Flask(__name__)
+
+# Configures the flask app to handle SQLAlchemy database management
+# using /// references the absolute path for where the db will be located.
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///PID.db'
+# The track modifications must be explicitly set to false as it causes
+# a warning of 'significant overhead' and this may potentially cause issues
+# with the webapp functionalty. 
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# Initialize the DB
+db = SQLAlchemy(app)
+
+#Create db Model
+class ConnectedDevice(db.Model):
+    bdaddr = db.Column(db.String, primary_key = True)
+    name = db.Column(db.String(200), nullable = False)
+    
+    #Create function to return a string when we add a connected device
+    def __repr__(self):
+        return '<>Name %r' % self.bdaddr
 
 def gen_frames(camera):
 
@@ -27,6 +47,7 @@ def home():
     Param(s):
     Return:
     """
+    print(ConnectedDevice.query)
     return render_template("index_new.html")
 
 @app.route("/scan")
@@ -58,6 +79,14 @@ def connect():
     for device in devices["selectedDevices"]:
         try:
             retValue[device] = Container.get_device(device).connect()
+            newConnectedDevice = ConnectedDevice(bdaddr=Container.get_device(device).addr,name=Container.get_device(device).name)
+
+            # Push to DB
+            try:
+                db.session.add(newConnectedDevice)
+                db.session.commit()
+            except:
+                print("failed to store newly connected device.")
         except Exception:
             retValue[device] = False
     return jsonify(retValue)
