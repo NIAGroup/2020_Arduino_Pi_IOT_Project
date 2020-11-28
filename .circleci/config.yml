@@ -9,10 +9,11 @@ jobs:
                   - checkout
                   - run: sudo chown -R circleci:circleci /usr/local/bin
                   - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9/site-packages
+                  - run: sudo chown -R circleci:circleci ~/circleci/2020_Arduino_PI_IOT_Project/install_dependencies.sh
                   - run:
                           name: Building Environment
                           command: |
-                               /home/circleci/2020_Arduino_PI_IOT_Project/install_dependencies.sh
+                               install_dependencies.sh
                   - run: 
                           name: Running Tests
                           command: |
