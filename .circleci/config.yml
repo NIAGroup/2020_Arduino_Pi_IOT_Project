@@ -12,11 +12,11 @@ jobs:
                   - run:
                           name: Building Environment
                           command: |
-                                sudo ./install_dependencies.sh
+                               . sudo ./install_dependencies.sh
                   - run: 
                           name: Running Tests
                           command: |
-                                python3 -m pytest -r flask_webapp/tests --html=flask_webapp/test-reports/report.html --self-contained-html
+                                . python3 -m pytest -r flask_webapp/tests --html=flask_webapp/test-reports/report.html --self-contained-html
                   - store_test_results:
                           path: flask_webapp/test-reports/
                   - store_artifacts:
