@@ -54,6 +54,14 @@ class Message_Union(Union):
         except AttributeError:
             print(f"'Structure' field not implemented in message payload union.\n")
 
+class Request_Message(Message_Struct):
+    """
+
+    """
+    _fields_ = [
+        ("command",         c_uint8),
+    ]
+
 class Response_Message(Message_Struct):
     """
 
@@ -78,14 +86,6 @@ class Response_Message_Union(Message_Union):
     _fields_ = [
         ("structure",       Response_Message),
         ("bytes",           sizeof(Response_Message) * c_uint8)
-    ]
-
-class Request_Message(Message_Struct):
-    """
-
-    """
-    _fields_ = [
-        ("command",         c_uint8),
     ]
 
 
