@@ -4,11 +4,11 @@ jobs:
         build: 
                 working_directory: ~/2020_Arduino_PI_IOT_Project
                 docker:
-                  -  image: circleci/python:3.9.0
+                  -  image: circleci/python:3.7
                 steps: 
                   - checkout
                   - run: sudo chown -R circleci:circleci /usr/local/bin
-                  - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9/site-packages
+                  - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
                   - run: sudo chown -R circleci:circleci ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh         
                   - run: sudo chmod 777 ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh                  
                   - run:
