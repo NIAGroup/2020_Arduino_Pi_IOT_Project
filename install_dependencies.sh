@@ -7,5 +7,5 @@ sudo apt-get install libgtk-3-dev
 sudo apt-get install libcanberra-gtk*
 sudo apt-get install libatlas-base-dev gfortran
 sudo apt-get install libbluetooth-dev
-pip install pip --upgrade
-pip install -r flask_webapp/requirements.txt
+python3 -m pip install pip --upgrade
+python3 -m pip install -r flask_webapp/requirements.txt
