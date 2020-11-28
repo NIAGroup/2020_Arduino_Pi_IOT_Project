@@ -12,7 +12,7 @@ jobs:
                   - run:
                           name: Building Environment
                           command: |
-                               ./home/circleci/2020_Arduino_PI_IOT_Project/install_dependencies.sh
+                               home/circleci/2020_Arduino_PI_IOT_Project/install_dependencies.sh
                   - run: 
                           name: Running Tests
                           command: |
