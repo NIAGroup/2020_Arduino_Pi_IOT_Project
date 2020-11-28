@@ -9,15 +9,15 @@ jobs:
                   - checkout
                   - run: sudo chown -R circleci:circleci /usr/local/bin
                   - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9/site-packages
-                  - run: sudo chown -R circleci:circleci install_dependencies.sh
+                  - run: sudo chown -R circleci:circleci ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
                   - run:
                           name: Building Environment
                           command: |
-                               install_dependencies.sh
+                               ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
                   - run: 
                           name: Running Tests
                           command: |
-                                . python3 -m pytest -r flask_webapp/tests --html=flask_webapp/test-reports/report.html --self-contained-html
+                                python3 -m pytest -r flask_webapp/tests --html=flask_webapp/test-reports/report.html --self-contained-html
                   - store_test_results:
                           path: flask_webapp/test-reports/
                   - store_artifacts:
