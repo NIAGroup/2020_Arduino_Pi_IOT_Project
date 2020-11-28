@@ -30,7 +30,7 @@ chardet
 click
 Flask
 Flask-RESTful
-gattlib
+gattlib==0.20200122
 idna
 itsdangerous
 Jinja2
