@@ -11,6 +11,7 @@ jobs:
                   - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9/site-packages
                   - run: sudo chown -R circleci:circleci ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
                   - run: sudo chown -R circleci:circleci ~/2020_Arduino_PI_IOT_Project/test.sh
+                  - run: sudo chmod 777 ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
                   - run: sudo chmod 777 ~/2020_Arduino_PI_IOT_Project/test.sh
                   - run: 
                         name: Test
