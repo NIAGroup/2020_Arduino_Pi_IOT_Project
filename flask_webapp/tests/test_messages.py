@@ -72,3 +72,6 @@ def test_derived_message_unions(message_classes, message_structure_names):
             message_structure_names.remove(type(msg_obj().structure).__name__)
 
     assert len(message_structure_names) == 0, ",".join(y for y in message_structure_names) + " message classes don't have Unions"
+    
+def test_fail():
+    assert False
