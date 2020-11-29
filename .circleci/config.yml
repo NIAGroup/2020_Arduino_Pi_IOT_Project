@@ -28,7 +28,8 @@ jobs:
                   - run: 
                           name: Running Tests
                           command: |
-                                pipenv run python3 -m pytest -r flask_webapp/tests --html=flask_webapp/test-reports/report.html --self-contained-html
+                                cd flask_webapp
+                                pipenv run python3 -m pytest -r tests --html=test-reports/report.html --self-contained-html
                   - store_artifacts:
                           path: test-reports/
                           destination: IOT_Flask_App
