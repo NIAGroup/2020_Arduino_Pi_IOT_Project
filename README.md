@@ -4,7 +4,7 @@ A pulse-width modulation project that leverages a Flask webapp for remote access
 
 ## Circle CI
 
-[![CircleCI](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project.svg?style=svg)](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project)
+[![CircleCI](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project.svg?style=shield)](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project)
 
 ## Required Hardware
 
