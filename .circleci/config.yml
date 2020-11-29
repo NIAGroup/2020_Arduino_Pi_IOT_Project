@@ -31,7 +31,7 @@ jobs:
                                 cd flask_webapp
                                 pipenv run python3 -m pytest -r tests --html=test-reports/report.html --self-contained-html
                   - store_artifacts:
-                          path: test-reports/
+                          path: flask_webapp/test-reports/
                           destination: IOT_Flask_App
 
                           
