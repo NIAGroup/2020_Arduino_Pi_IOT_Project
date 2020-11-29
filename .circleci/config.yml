@@ -14,22 +14,22 @@ jobs:
                           name: Building Linux Environment
                           command: |
                                ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
-                               cd flask_webapp
                   - restore_cache:  
-                          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+                          key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
                   - run:
                           name: Building Python Environment
                           command: |
+                               cd flask_webapp
                                sudo pip install pipenv
                                pipenv install
                   - save_cache:
-                          key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+                          key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
                           paths:
                             - "venv"
                   - run: 
                           name: Running Tests
                           command: |
-                                pipenv run pytest -r tests --html=test-reports/report.html --self-contained-html
+                                pipenv run pytest -r flask_webapp/tests --html=flask_webapp/test-reports/report.html --self-contained-html
                   - store_artifacts:
                           path: test-reports/
                           destination: IOT_Flask_App
