@@ -1,5 +1,4 @@
 version: 1
-
 jobs:
         build: 
                 working_directory: ~/2020_Arduino_PI_IOT_Project
@@ -10,15 +9,27 @@ jobs:
                   - run: sudo chown -R circleci:circleci /usr/local/bin
                   - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
                   - run: sudo chown -R circleci:circleci ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh         
-                  - run: sudo chmod 777 ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh                  
+                  - run: sudo chmod 777 ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
                   - run:
-                          name: Building Environment
+                          name: Building Linux Environment
                           command: |
                                ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
+                  - restore_cache:  
+                          key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
+                  - run:
+                          name: Building Python Environment
+                          command: |
+                               cd flask_webapp
+                               pipenv install
+                  - save_cache:
+                          key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
+                          paths:
+                            - "venv"
                   - run: 
                           name: Running Tests
                           command: |
-                                python3 -m pytest -r flask_webapp/tests --html=flask_webapp/test-reports/report.html --self-contained-html
+                                cd flask_webapp
+                                pipenv run pytest -r tests -v --junitxml="test-reports/report.xml" --html="test-reports/report.html" --self-contained-html
                   - store_test_results:
                           path: flask_webapp/test-reports/
                   - store_artifacts:
