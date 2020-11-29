@@ -1,10 +1,7 @@
-# 2020_Arduino_Pi_IOT_Project
+# 2020_Arduino_Pi_IOT_Project [![CircleCI](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project.svg?style=shield)](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project)
 
 A pulse-width modulation project that leverages a Flask webapp for remote access hosted on a Raspberry PI communicating via bluetooth between a cluster of Arduinos.
 
-## Circle CI
-
-[![CircleCI](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project.svg?style=shield)](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project)
 
 ## Required Hardware
 
