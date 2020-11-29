@@ -2,7 +2,7 @@
 
 This project utilizes a Flask webapp hosted on a Raspberry PI to control a cluster of Arduinos via bluetooth balancing a ping-pong ball on a flat beam. Each Arduino has a Pulse Width Modulation (PWM) stepper motor which is used to adjust the respective connected beams. The user enters values for the starting angle, proportion (kp), integral (ki), and derivative (kd) which are used in a PID control algorithm that dictates the behavior of the motors when attempting to place the ping-pong ball at the center of the beam.   
 
-[![CircleCI](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project.svg?style=shield)](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project)
+[![CircleCI](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project/tree/feature/python_virtual_env.svg?style=shield)](https://circleci.com/gh/adonaygyb/2020_Arduino_Pi_IOT_Project)
 
 ## Required Hardware
 
