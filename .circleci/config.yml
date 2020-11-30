@@ -35,5 +35,6 @@ jobs:
     
 workflows:
   version: 2.1
-  jobs:
+  workflow:
+    jobs:
     - test-python-structures
