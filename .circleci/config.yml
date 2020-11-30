@@ -5,7 +5,21 @@ executors:
     docker:
     - image: circleci/python:3.7 
 
-jobs:    
+jobs:
+  build:
+    working_directory: ~/2020_Arduino_PI_IOT_Project
+    executor: my_docker_env
+    steps:
+    - checkout
+    - run: sudo chown -R circleci:circleci /usr/local/bin
+    - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+    - run: sudo chown -R circleci:circleci ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
+    - run: sudo chmod 777 ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
+    - run:
+        name: Building Linux Environment
+        command: |
+          ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh    
+          
   test-python-structures:
     working_directory: ~/2020_Arduino_PI_IOT_Project
     executor: my_docker_env
@@ -35,6 +49,6 @@ jobs:
     
 workflows:
   version: 2.1
-  workflow:
+  webapp-workflow:
     jobs:
     - test-python-structures
