@@ -49,6 +49,6 @@ jobs:
     
 workflows:
   version: 2.1
-  webapp-workflow:
+  flask_webapp_workflow:
     jobs:
     - test-python-structures
