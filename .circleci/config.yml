@@ -21,7 +21,7 @@ jobs:
           ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
     
   test:
-    working_directory: ~/2020_Arduino_PI_IOT_Project
+    working_directory: ~/2020_Arduino_PI_IOT_Project/flask_webapp
     executor: my_docker_env
     steps:
     - checkout
@@ -30,21 +30,19 @@ jobs:
     -  run:
         name: Building Python Environment
         command: |
-          cd flask_webapp
           pipenv install
     - save_cache:
-        key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
+        key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
         paths:
         - venv 
     - run:
         name: Running Tests
         command: |
-          cd flask_webapp
           pipenv run pytest -r tests -v --junitxml="test-reports/report.xml" --html="test-reports/report.html" --self-contained-html
     - store_test_results:
-        path: flask_webapp/test-reports/
+        path: test-reports/
     - store_artifacts:
-        path: flask_webapp/test-reports/
+        path: test-reports/
         destination: IOT_Flask_App
     
 workflows:
