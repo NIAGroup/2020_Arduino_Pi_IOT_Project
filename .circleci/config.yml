@@ -1,4 +1,4 @@
-version: 1
+version: 2.1
 
 executors:
   my_docker_env:
@@ -48,7 +48,7 @@ jobs:
         destination: IOT_Flask_App
     
 workflows:
-  version: 1
+  version: 2.1
   build_and_test:
     jobs:
     - build
