@@ -1,40 +1,54 @@
-version: 1
+version: 2.1
+
+executors:
+  my_docker_env:
+    docker:
+    - image: circleci/python:3.7 
+
 jobs:
-        build: 
-                working_directory: ~/2020_Arduino_PI_IOT_Project
-                docker:
-                  -  image: circleci/python:3.7
-                steps: 
-                  - checkout
-                  - run: sudo chown -R circleci:circleci /usr/local/bin
-                  - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
-                  - run: sudo chown -R circleci:circleci ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh         
-                  - run: sudo chmod 777 ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
-                  - run:
-                          name: Building Linux Environment
-                          command: |
-                               ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
-                  - restore_cache:  
-                          key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
-                  - run:
-                          name: Building Python Environment
-                          command: |
-                               cd flask_webapp
-                               pipenv install
-                  - save_cache:
-                          key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
-                          paths:
-                            - "venv"
-                  - run: 
-                          name: Running Tests
-                          command: |
-                                cd flask_webapp
-                                pipenv run pytest -r tests -v --junitxml="test-reports/report.xml" --html="test-reports/report.html" --self-contained-html
-                  - store_test_results:
-                          path: flask_webapp/test-reports/
-                  - store_artifacts:
-                          path: flask_webapp/test-reports/
-                          destination: IOT_Flask_App
-
-                          
-
+  build:
+    working_directory: ~/2020_Arduino_PI_IOT_Project
+    executor: my_docker_env
+    steps:
+    - checkout
+    - run: sudo chown -R circleci:circleci /usr/local/bin
+    - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
+    - run: sudo chown -R circleci:circleci ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
+    - run: sudo chmod 777 ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
+    - run:
+        name: Building Linux Environment
+        command: |
+          ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh    
+          
+  test-python-structures:
+    working_directory: ~/2020_Arduino_PI_IOT_Project
+    executor: my_docker_env
+    steps:
+    - checkout
+    - restore_cache:
+        key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
+    -  run:
+        name: Building Python Environment
+        command: |
+          cd flask_webapp
+          pipenv install
+    - save_cache:
+        key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
+        paths:
+        - venv 
+    - run:
+        name: Running Tests
+        command: |
+          cd flask_webapp
+          pipenv run pytest -r tests -v --junitxml="test-reports/report.xml" --html="test-reports/report.html" --self-contained-html
+    - store_test_results:
+        path: flask_webapp/test-reports/
+    - store_artifacts:
+        path: flask_webapp/test-reports/
+        destination: IOT_Flask_App
+    
+workflows:
+  version: 2.1
+  flask_webapp_workflow:
+    jobs:
+    - test-python-structures
