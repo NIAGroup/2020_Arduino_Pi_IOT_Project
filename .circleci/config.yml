@@ -49,5 +49,9 @@ jobs:
     
 workflows:
   version: 2.1
-  jobs:
-    - test-python-structures:
+  #build_and_test:
+    jobs:
+    #- build
+    - test-python-structures
+        #requires:
+        #- build 
