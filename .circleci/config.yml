@@ -20,7 +20,7 @@ jobs:
         command: |
           ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
     
-  test_python_back_end:
+  "test_python_structures":
     working_directory: ~/2020_Arduino_PI_IOT_Project
     executor: my_docker_env
     steps:
@@ -37,7 +37,7 @@ jobs:
       paths:
       - "venv"
     - run:
-        name: Running Tests
+        name: Running Pytest Tests
         command: |
           cd flask_webapp
           pipenv run pytest -r tests -v --junitxml="test-reports/report.xml" --html="test-reports/report.html" --self-contained-html
@@ -52,6 +52,6 @@ workflows:
   build_and_test:
     jobs:
     - build
-    - test_python_back_end:
+    - test_python_structures:
         requires:
         - build 
