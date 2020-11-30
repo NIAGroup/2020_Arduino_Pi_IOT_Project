@@ -3,7 +3,7 @@ version: 1
 executors:
   my_docker_env:
     docker:
-      - image: circleci/python:3.7 
+    - image: circleci/python:3.7 
 
 jobs:
   build:
@@ -35,6 +35,8 @@ jobs:
     executor: my_docker_env
     steps:
     - checkout
+    - restore_cache:
+        key: deps9-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
     - run:
         name: Running Tests
         command: |
@@ -52,4 +54,4 @@ workflows:
     - build
     - test:
         requires:
-            - build 
+        - build 
