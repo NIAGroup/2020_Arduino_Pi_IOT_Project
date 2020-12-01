@@ -6,8 +6,6 @@ This project utilizes a Flask webapp hosted on a Raspberry PI to control a clust
 
 ## Required Hardware
 
-test
-
 * Arduino & Supplies [LINK](https://www.amazon.com/ELEGOO-Project-Tutorial-Controller-Projects/dp/B01D8KOZF4/ref=sr_1_1_sspa?dchild=1&keywords=arduino+uno&qid=1594145201&sr=8-1-spons&psc=1&spLa=ZW5jcnlwdGVkUXVhbGlmaWVyPUEzOENFRUxFTVlBUklEJmVuY3J5cHRlZElkPUEwOTIwMjA3MUxQOFZUSjIxT0wzSyZlbmNyeXB0ZWRBZElkPUExMDAxMzc2M1RTT1dKR0NNR05TQiZ3aWRnZXROYW1lPXNwX2F0ZiZhY3Rpb249Y2xpY2tSZWRpcmVjdCZkb05vdExvZ0NsaWNrPXRydWU=):  
     * Arduino Uno [alternate(s): arduino nano] 
     * Ultrasonic Sensor [alternate(s): IR Range Finder]
