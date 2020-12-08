@@ -17,7 +17,7 @@ jobs:
     - run:
         name: Building Linux Environment
         command: |
-          sudo bash ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh    
+          sudo bash ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh -e "CI"
           
   test-python-message-structures:
     working_directory: ~/2020_Arduino_PI_IOT_Project
