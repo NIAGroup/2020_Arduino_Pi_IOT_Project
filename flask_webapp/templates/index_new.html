@@ -68,42 +68,86 @@
 	</section>
 	<section id="bluetooth">
 		<div class="container-fluid">
-		  <div class="jumbotron menu_bar img-shadow"  style="background-color: #fffdfb;">
-			<div class="row" >
-				<div class="col">
+			<div class="jumbotron menu_bar img-shadow"  style="background-color: #fffdfb;">
+				<div class="w3-bottombar w3-padding w3-border-red w3-hover-light-grey" style="margin-bottom:20px">
+					<h5>Previously Paired Bluetooth Devices</h5>
+				</div>
+				<div class="bt_row">
+				  <div class="col">
+					<a id="thumbnailBtn" class="thumbnail">
+						<img src="..\static\img\arduino_icon_transparent.jpg" alt="Arduino icon">
+					</a>
+					<p style="text-align:center;">127.0.0.1</p>
+				  </div>
+				  <div class="col">
+					<a id="thumbnailBtn" class="thumbnail">
+					  <img src="..\static\img\arduino_icon_transparent.jpg" alt="Arduino icon">
+					</a>
+					<p style="text-align:center;">127.0.0.2</p>
+				  </div>
+				  <div class="col">
+					<a id="thumbnailBtn" class="thumbnail">
+					  <img src="..\static\img\arduino_icon_transparent.jpg" alt="Arduino icon">
+					</a>
+					<p style="text-align:center;">127.0.0.3</p>
+				  </div>
+				  <div class="col">
+					<a id="thumbnailBtn" class="thumbnail">
+					  <img src="..\static\img\arduino.png" alt="Arduino icon">
+					</a>
+					<p style="text-align:center;">127.0.0.4</p>
+				  </div>
+				</div>
+				<div class="w3-bottombar w3-padding w3-border-red w3-hover-light-grey" style ="padding-top: 20px">
+					<h5>Available Bluetooth Devices</h5>
+				</div>
+				<div class="bt_row" >
+					<div class="container-fluid">
+						<div id="Scan" class="w3-container selection" style="text-align: center; margin-top: 20px; display:none;">
+							<!-- <div class = "column spinners" style="text-align: center; margin-top: 20px; display:none;"> -->
+							<h6>Scanning for bluetooth devices ...</h6> <!-- animated spinners -->
+							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
+							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
+							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>
+							<!-- </div> -->
+						</div> 
+					</div>
+				</div>
+				
+				<div class="bt_row">
+					<button id="scanBtn" type="" class="btn btn-primary" onclick="scanBTDevice(event, 'Scan')" style ="margin-right:4px;"> Scan </button>
+					<button id="connectBtn" type="submit" class="btn btn-primary" onclick="triggerConnection(this)" style ="margin-left:4px"> Connect </button>
+				</div>
+					
+				<!-- <div class="col"> strttttttttttttttttttttttt
 					<a href="javascript:void(0)" onclick="openSelection(event, 'MyBTDevices');">
 						<div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-red col-xs-6">
 						<h5>Connected Devices</h5>
 						</div>
 					</a>
-				</div>
-				<div class="col">
+				</div> -->
+				<!-- <div class="col">
 					<a href="javascript:void(0)" onclick="openSelection(event, 'Scan');">
 						<div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-red w3-border-red w3-border-red col-xs-6">
 						<h5>Scan for Bluetooth Devices</h5>
 						</div>
 					</a>
-				</div>
+				</div> endddddddddddddddddd-->
+				
+				<!-- <div id="MyBTDevices" class="w3-container selection" style="display:none">
+				  <div class="container-fluid">
+					<div class = "column spinners" style="text-align: center; padding-top:15px">
+					  <h6>No Devices Connected...</h6> 
+					  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
+					  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
+					  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>
+					  <span class="sr-only">Loading...</span>
+					</div>
+				  </div>
+				</div>-->
+				
+				<!-- animated spinners -->
 			</div>
-
-			<div id="MyBTDevices" class="w3-container selection" style="display:none">
-			  <div class="container-fluid">
-			    <div class = "column spinners" style="text-align: center; padding-top:15px">
-				  <h6>No Devices Connected...</h6> <!-- animated spinners -->
-				  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
-				  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
-				  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>
-				  <span class="sr-only">Loading...</span>
-			    </div>
-			  </div>
-			</div>
-			<div id="Scan" class="w3-container selection" style="display:none">
-			  <div class="row" id="scan_device_row"> </div>
-			  <div class="row">
-				<button id="connectBtn" type="submit" class="btn btn-primary" onclick="triggerConnection(this)"> Connect </button>
-			  </div>
-			</div>
-		  </div>
 		</div>
     </section>
 
@@ -229,10 +273,10 @@
 			<div class="row" >
 				<div class="col">
 				<!--<h5>Embedded Video</h5> -->
-				<div class="embed-responsive embed-responsive-4by3">
-                <iframe src="{{ url_for('video_feed') }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                <!--<img src="{{ url_for('video_feed') }}" style="width:500px;height:500px;">-->
-                </div>
+				<!--<div class="embed-responsive embed-responsive-4by3">-->
+<!--                 <iframe style="height:100%" src="{{ url_for('video_feed') }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+                <img src="{{ url_for('video_feed') }}" style="width:100%;height:100%;">
+                <!--</div>-->
 				</div>
 				<div class="col">
 					<div class="table-responsive h-100">
