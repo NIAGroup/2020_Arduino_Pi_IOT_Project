@@ -6,7 +6,7 @@ executors:
     - image: circleci/python:3.7 
 
 jobs:
-  build:
+  build-linux-dependencies:
     working_directory: ~/2020_Arduino_PI_IOT_Project
     executor: my_docker_env
     steps:
@@ -17,22 +17,22 @@ jobs:
     - run:
         name: Building Linux Environment
         command: |
-          bash ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh    
+          sudo bash ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh    
           
-  test-python-structures:
+  test-python-message-structures:
     working_directory: ~/2020_Arduino_PI_IOT_Project
     executor: my_docker_env
     steps:
     - checkout
     - restore_cache:
-        key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
+        key: deps9-{{ .Branch }}-{{ checksum "2020_Arduino_PI_IOT_Project/flask_webapp/Pipfile.lock" }}
     -  run:
         name: Building Python Environment
         command: |
           cd flask_webapp
           pipenv install
     - save_cache:
-        key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
+        key: deps9-{{ .Branch }}-{{ checksum "2020_Arduino_PI_IOT_Project/flask_webapp/Pipfile.lock" }}
         paths:
         - venv 
     - run:
@@ -50,5 +50,5 @@ workflows:
   version: 2.1
   flask_webapp_workflow:
     jobs:
-    - build
-    - test-python-structures
+    - build-linux-dependencies
+    - test-python-message-structures
