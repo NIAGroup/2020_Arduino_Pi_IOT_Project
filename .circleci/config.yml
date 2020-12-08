@@ -25,14 +25,14 @@ jobs:
     steps:
     - checkout
     - restore_cache:
-        key: deps9-{{ .Branch }}-{{ checksum "2020_Arduino_PI_IOT_Project/flask_webapp/Pipfile.lock" }}
+        key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
     -  run:
         name: Building Python Environment
         command: |
           cd flask_webapp
           pipenv install
     - save_cache:
-        key: deps9-{{ .Branch }}-{{ checksum "2020_Arduino_PI_IOT_Project/flask_webapp/Pipfile.lock" }}
+        key: deps9-{{ .Branch }}-{{ checksum "flask_webapp/Pipfile.lock" }}
         paths:
         - venv 
     - run:
