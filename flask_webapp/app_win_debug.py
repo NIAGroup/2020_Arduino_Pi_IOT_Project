@@ -3,12 +3,12 @@ from camera import VideoCamera
 import cv2
 import sys
 
-if sys.platform == 'win32':
-     print("Running on Windows OS. This is not supported yet.")
-     exit()
+# if sys.platform == 'win32':
+     # print("Running on Windows OS. This is not supported yet.")
+     # exit()
 
-from src.device_list import BtDevContainer
-Container = BtDevContainer()
+# from src.device_list import BtDevContainer
+# Container = BtDevContainer()
 
 app = Flask(__name__)
 
@@ -37,8 +37,9 @@ def scan():
     """
     retDict = {}
     try:
-        devices = Container.scan()
-        retDict["scan_devs"] = devices
+        #devices = Container.scan()
+        #retDict["scan_devs"] = devices
+        retDict["scan_devs"] = ['test1', 'test2', 'test3', 'test4']
     except Exception as e:
         print(f"Runtime error has occurred. {e}")
 
@@ -54,11 +55,15 @@ def connect():
     devices = request.get_json()
     retValue = {}
     for device in devices["selectedDevices"]:
+        """
         try:
             retValue[device] = Container.get_device(device).connect()
         except Exception:
             retValue[device] = False
-    return jsonify(retValue)
+        """
+        print(f"Device: {device}")
+  
+    return jsonify({"test2": True, "test3": True}) 
 
 @app.route("/disconnect", methods=['GET', 'POST'])
 def disconnect():
