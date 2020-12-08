@@ -14,11 +14,10 @@ jobs:
     - run: sudo chown -R circleci:circleci /usr/local/bin
     - run: sudo chown -R circleci:circleci /usr/local/lib/python3.7/site-packages
     - run: sudo chown -R circleci:circleci ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
-    - run: sudo chmod 777 ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh
     - run:
         name: Building Linux Environment
         command: |
-          ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh    
+          bash ~/2020_Arduino_PI_IOT_Project/install_dependencies.sh    
           
   test-python-structures:
     working_directory: ~/2020_Arduino_PI_IOT_Project
@@ -51,4 +50,5 @@ workflows:
   version: 2.1
   flask_webapp_workflow:
     jobs:
+    - build
     - test-python-structures
