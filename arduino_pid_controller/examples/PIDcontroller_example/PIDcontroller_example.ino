@@ -8,24 +8,34 @@ SharpIR SharpIR(IR, model);
 const byte servoPin = 6;    // Servo pin assigned as pin 6 [servos require a PWM pin].
 Servo servo;           
 
-unsigned long eventInterval = 1000;
+unsigned long eventInterval = 250;
+unsigned int previousDistance;
+unsigned int currentDistance;
 unsigned long previousTime = 0;
 unsigned long currentTime = millis();
+int currentServoPosition = 60; // sets the balance beam parallel to the surface
 String startMsg = "################################\n" \
                   "  running Servo/Sensor Example  \n" \
                   "################################";
-                  
-double P;         
-double I;         
-double D;
-double error;
-byte setpoint = 13;
+
+// When the ball is too far left, the error is negative
+// When the ball is too far right, the error is positive           
+
+double Kp, Ki, Kd; // PID controller constants
+double previousError, currentError;
+double P, I, D, PID_out; 
+const byte setpoint = 13;
 
 void setup(){
  Serial.begin(9600); 
  servo.attach(servoPin);
- servo.write(30);
- Serial.print(startMsg);
+ servo.write(0);
+ delay(500);
+ servo.write(currentServoPosition);
+ Serial.println(startMsg);
+ Kp = 5;
+ Ki = 0;
+ Kd = 0;
  //eventInterval = 2000;
  //runTimer(millis());
 }
@@ -64,8 +74,7 @@ void loop(){
        break;
     }
   }
-  Serial.print("Error: ");
-  Serial.println(getError());
+  PID_control();
  //SeeSawFxn();
 }
 
@@ -81,25 +90,55 @@ void SeeSawFxn(){
   }
 }
 
-double getError(){
- return setpoint - getPosition();  
+void PID_control(){
+  currentTime = millis();
+  currentError = getError();
+  P = Kp*currentError;
+  I = Ki*(currentError + previousError);
+  D = Kd*((previousDistance-currentDistance)/(currentTime-previousTime));
+  previousError = currentError;
+  previousTime = currentTime;
+  previousDistance = currentDistance;
+  PID_out = P + I + D;
+  currentServoPosition = (int)map(PID_out,-35,25,150,0);
+  servo.write(currentServoPosition);
+  Serial.println("****************************************************");
+  Serial.print("currentDistance: ");
+  Serial.print(currentDistance);
+  Serial.print(", previousDistance: ");
+  Serial.println(previousDistance);
+  Serial.print("currentError: "); 
+  Serial.print(currentError); 
+  Serial.print(", previousError: "); 
+  Serial.println(previousError); 
+  Serial.print("[P: "); 
+  Serial.print(P); 
+  Serial.print(", I: "); 
+  Serial.print(I); 
+  Serial.print(", D: "); 
+  Serial.print(D); 
+  Serial.print("];\t PID_out: "); 
+  Serial.println(PID_out);
+  Serial.print("servoPosition: ");
+  Serial.println(currentServoPosition);
 }
 
-int getPosition(){
+int getError(){
+ currentDistance = getPosition();
+ return (int)setpoint - (int)currentDistance;  
+}
+
+unsigned int getPosition(){
  int  i = 0;
  int distance = 0;
  unsigned long startTime = millis();
  currentTime = startTime;
- while (currentTime - startTime < eventInterval){
-   /*Serial.print("currentTime:");
-   Serial.print(currentTime);
-   Serial.print(", Delta: ");
-   Serial.println(currentTime - startTime);*/
+ while (currentTime - startTime < 100){
    distance += SharpIR.distance();
    i+=1;
    currentTime = millis();
  }
- return (int)distance/i;
+ return (unsigned int)distance/i;
 }
 
 void runTimer(unsigned long startTime){
