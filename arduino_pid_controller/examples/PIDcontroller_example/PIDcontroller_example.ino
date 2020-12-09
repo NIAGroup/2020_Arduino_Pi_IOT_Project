@@ -35,7 +35,7 @@ void setup(){
  Serial.println(startMsg);
  Kp = 5;
  Ki = 0;
- Kd = 0;
+ Kd = 40;
  //eventInterval = 2000;
  //runTimer(millis());
 }
@@ -75,7 +75,7 @@ void loop(){
     }
   }
   PID_control();
- //SeeSawFxn();
+  //SeeSawFxn();
 }
 
 void SeeSawFxn(){
@@ -94,13 +94,13 @@ void PID_control(){
   currentTime = millis();
   currentError = getError();
   P = Kp*currentError;
-  I = Ki*(currentError + previousError);
-  D = Kd*((previousDistance-currentDistance)/(currentTime-previousTime));
+  I = I + Ki*currentError;
+  D = Kd*((previousError-currentError)/(currentTime-previousTime));
   previousError = currentError;
   previousTime = currentTime;
   previousDistance = currentDistance;
   PID_out = P + I + D;
-  currentServoPosition = (int)map(PID_out,-35,25,150,0);
+  currentServoPosition = (int)map(PID_out,-45,30,150,0);
   servo.write(currentServoPosition);
   Serial.println("****************************************************");
   Serial.print("currentDistance: ");
