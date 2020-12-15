@@ -14,6 +14,7 @@ import socket
 
 from bluepy import btle
 from device_delegate import BtleDelegate
+import messages
 from messages import *
 
 class Bt_Ble_Device(object):
