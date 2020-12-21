@@ -24,14 +24,14 @@ class Message_Struct(Structure):
                continue
             else:
                 _val = getattr(self,field_tuple[field_name_idx])
-                retStr += f"{field_tuple[field_name_idx]}\t\t{_val}({hex(_val)})\n"
+                retStr += f"{field_tuple[field_name_idx]}\t\t{_val} ({hex(_val)})\n"
 
         for field_tuple in self._fields_:
             if "reserved" in field_tuple[field_name_idx]:
                 continue    # skip all reserved fields from parsing
             else:
                 _val = getattr(self, field_tuple[field_name_idx])
-                retStr += f"{field_tuple[field_name_idx]}\t\t{_val}({hex(_val)})\n"
+                retStr += f"{field_tuple[field_name_idx]}\t\t{_val} ({hex(_val)})\n"
 
         return retStr
 
@@ -54,21 +54,31 @@ class Message_Union(Union):
         except AttributeError:
             print(f"'Structure' field not implemented in message payload union.\n")
 
+class Request_Message(Message_Struct):
+    """
+
+    """
+    _fields_ = [
+        ("command",         c_uint8),
+    ]
+
 class Response_Message(Message_Struct):
     """
 
     """
     _fields_ = [
-        ("status",          c_uint8),
-        ("command",         c_uint8),
-        ("byte_0",          c_uint8, 1),
-        ("byte_1",          c_uint8, 1),
-        ("byte_2",          c_uint8, 1),
-        ("byte_3",          c_uint8, 1),
-        ("byte_4",          c_uint8, 1),
-        ("byte_5",          c_uint8, 1),
-        ("reserved",        c_uint8, 2),    # One Status byte + Reserved byte = 2 Reserved
-        ("reservedBytes",   c_uint8 * 5)
+        ("command",             c_uint8),
+        ("status",              c_uint8),
+        ("byte_0",              c_uint8, 1),
+        ("byte_1",              c_uint8, 1),
+        ("byte_2",              c_uint8, 1),
+        ("byte_3",              c_uint8, 1),
+        ("byte_4",              c_uint8, 1),
+        ("byte_5",              c_uint8, 1),
+        ("byte_6",              c_uint8, 1),
+        ("byte_7",              c_uint8, 1),
+        ("completionTime_ms",   c_uint8),
+        ("reservedBytes",       c_uint8 * 4)
     ]
 
 class Response_Message_Union(Message_Union):
@@ -78,14 +88,6 @@ class Response_Message_Union(Message_Union):
     _fields_ = [
         ("structure",       Response_Message),
         ("bytes",           sizeof(Response_Message) * c_uint8)
-    ]
-
-class Request_Message(Message_Struct):
-    """
-
-    """
-    _fields_ = [
-        ("command",         c_uint8),
     ]
 
 
