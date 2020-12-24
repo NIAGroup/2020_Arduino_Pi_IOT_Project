@@ -49,8 +49,8 @@ class Bt_Ble_Device(object):
             self._characteristic = self._services[len(self._services) - 1].getCharacteristics()[0]
             self._delegate = BtleDelegate(self._characteristic.getHandle())
             self._dev.setDelegate(self._delegate)
-        except Exception:
-            print(f"Unexpected Error occurred upon connecting.\n {Exception}")
+        except Exception as error:
+            print(f"Unexpected Error occurred upon connecting.\n{error}")
             return False
         return True
 
@@ -61,7 +61,7 @@ class Bt_Ble_Device(object):
         Description:
             This method first disconnects the bluetooth device then deletes ble peripheral device.
         """
-        if self._dev:
+        if hasattr(self,"_dev"):
             self._dev.disconnect()
             del self._dev
 
@@ -170,7 +170,6 @@ class Bt_Device(object):
         self._name = name
         self._timeout = 60  # timeout value to receive a response in seconds
         self._buflen = 8    # 8 bytes received per message
-        self._sock = None
 
     def connect(self):
         """
@@ -183,8 +182,8 @@ class Bt_Device(object):
             self._sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
             self._sock.connect((self._addr, self._port))
             print("Connected!")
-        except Exception:
-            print(f"Unexpected Error occurred upon connecting.\n {Exception}")
+        except Exception as error:
+            print(f"Unexpected Error occurred upon connecting.\n{error}")
             return False
         return True
 
@@ -195,7 +194,7 @@ class Bt_Device(object):
         Description:
             This method closes a bluetooth socket.
         """
-        if self._sock:
+        if hasattr(self, "_sock"):
             self._sock.close()
             del self._sock
 
