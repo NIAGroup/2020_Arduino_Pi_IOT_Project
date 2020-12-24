@@ -14,7 +14,6 @@ import socket
 
 from bluepy import btle
 from device_delegate import BtleDelegate
-import messages
 from messages import *
 
 class Bt_Ble_Device(object):
@@ -50,8 +49,8 @@ class Bt_Ble_Device(object):
             self._characteristic = self._services[len(self._services) - 1].getCharacteristics()[0]
             self._delegate = BtleDelegate(self._characteristic.getHandle())
             self._dev.setDelegate(self._delegate)
-        except Exception:
-            print(f"Unexpected Error occurred upon connecting.\n {Exception}")
+        except Exception as error:
+            print(f"Unexpected Error occurred upon connecting.\n{error}")
             return False
         return True
 
@@ -183,8 +182,8 @@ class Bt_Device(object):
             self._sock = bluetooth.BluetoothSocket(bluetooth.RFCOMM)
             self._sock.connect((self._addr, self._port))
             print("Connected!")
-        except Exception:
-            print(f"Unexpected Error occurred upon connecting.\n {Exception}")
+        except Exception as error:
+            print(f"Unexpected Error occurred upon connecting.\n{error}")
             return False
         return True
 
