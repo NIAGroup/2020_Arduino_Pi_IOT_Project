@@ -2,8 +2,7 @@ from flask import Flask, jsonify, request, redirect, render_template, Response
 from camera import VideoCamera
 import cv2
 import sys
-from models.log_devices import *
-
+import models.log_devices
 # if sys.platform == 'win32':
      # print("Running on Windows OS. This is not supported yet.")
      # exit()
@@ -44,26 +43,9 @@ def scan():
     except Exception as e:
         print(f"Runtime error has occurred. {e}")
 
+    for k in retDict.keys():
+        print(f'debug: key is {k}')
     return jsonify(retDict)
-
-@app.route('/paired_devices')
-def paired_devices():
-    """Return a list of paired devives."""
-
-    conn=sqlite3.connect('pid_app.db')
-    curs=conn.cursor()
-    curs.execute("SELECT * FROM devices")
-    results = curs.fetchall()
-    conn.close()
-    print(f'debug: {results}')
-
-    retPairedDevices = {}
-    for result in results:
-        retPairedDevices["name"] = result[1]
-        retPairedDevices["status"] = result[2]
-
-    print(f'paired devices {retPairedDevices}')
-    return jsonify(retPairedDevices)
 
 @app.route("/connect", methods=['GET', 'POST'])
 def connect():
@@ -82,7 +64,6 @@ def connect():
             retValue[device] = False
         """
         print(f"Device: {device}")
-        log_devices(device, "connected")
 
     return jsonify({"test2": True, "test3": True})
 
@@ -108,13 +89,10 @@ def send():
     """
     Brief:
         send():
-
     POST:
         JSON => {selected_device_name : [ {method_name : {param_name : param_value} ] } ] }
-
     GET:
        JSON => {selected_device_name : {method_name : method_result} }
-
     """
     devices = request.get_json()
     retValue = {}
