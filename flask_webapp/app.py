@@ -57,6 +57,7 @@ def connect():
     for device in devices["selectedDevices"]:
         try:
             retValue[device] = Container.get_device(device).connect()
+            #Todo: Update db to connected status
         except Exception:
             retValue[device] = False
     return jsonify(retValue)
@@ -74,7 +75,8 @@ def disconnect():
     retValue = {}
     for device in devices["selectedDevices"]:
         try:
-            Container.remove_device(device)
+            Container.get_device(device).disconnect()
+            # Todo: Update db to disconnected status.
             retValue[device] = True
         except Exception:
             retValue[device] = False
@@ -85,13 +87,10 @@ def send():
     """
     Brief:
         send():
-
     POST:
         JSON => {selected_device_name : [ {method_name : {param_name : param_value} ] } ] }
-
     GET:
        JSON => {selected_device_name : {method_name : method_result} }
-
     """
     devices = request.get_json()
     retValue = {}

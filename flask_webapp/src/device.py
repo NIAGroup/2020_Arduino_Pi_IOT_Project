@@ -5,8 +5,11 @@ Description:
     Describes bluetooth device abstractions for define read, write, scan, connect APIs.
 Classes:
     Bt_Ble_Device, Bt_Device
+Spec:
+    https://circuitpython.readthedocs.io/en/4.x/shared-bindings/bleio/__init__.html
+    https://ianharvey.github.io/bluepy-doc/peripheral.html
 Author:
-    Adoany Berhe
+    Adonay Berhe
 """
 import __init__
 import bluetooth
@@ -39,7 +42,7 @@ class Bt_Ble_Device(object):
     def connect(self):
         """
         Brief:
-            connect(): Connect API for bluetooth ble API.
+            connect(): Connect API for bluetooth ble device.
         Return:
             True upon successfully connecting/paring; False upon unexpected errors.
         """
@@ -54,6 +57,17 @@ class Bt_Ble_Device(object):
             return False
         return True
 
+    def is_connected(self):
+        """
+        Brief:
+            is_connected(): An API to check if bluetooth ble device is connected.
+        Description:
+            This method returns the btle.Peripheral built-in field 'connected'
+        Return:
+             True if device is still connected, False if disconnected.
+        """
+        return self._dev.connected
+
     def __del__(self):
         """
         Brief:
@@ -61,9 +75,19 @@ class Bt_Ble_Device(object):
         Description:
             This method first disconnects the bluetooth device then deletes ble peripheral device.
         """
-        if hasattr(self,"_dev"):
-            self._dev.disconnect()
+        if hasattr(self, "_dev"):
+            self.disconnect()
             del self._dev
+
+    def disconnect(self):
+        """
+        Brief:
+            disconnect(): Disconnect API for a bluetooth ble device.
+        Description:
+            This API checks if a connection exists. If so it will disconnect, else it will return.
+        """
+        if self.is_connected():
+            self._dev.disconnect()
 
     def _write(self, msg):
         """
@@ -110,35 +134,38 @@ class Bt_Ble_Device(object):
         Return:
              Response message bytes, None on failure (NameError or any other type of Exception raised).
         """
-        STATUS_SUCCESS = 0x00
-        try:
-            msg_type = eval(f"{msgName}_Message_Union")
-            msg_obj = msg_type()
-        except NameError as error:
-            print(f"Message object {msgName} not defined. Returning False.\n{error}")
-            return False
+        if self.is_connected():
+            STATUS_SUCCESS = 0x00
+            try:
+                msg_type = eval(f"{msgName}_Message_Union")
+                msg_obj = msg_type()
+            except NameError as error:
+                print(f"Message object {msgName} not defined. Returning False.\n{error}")
+                return False
 
-        if kwargs:
-            for elt_name, elt_val in kwargs.items():
-                if hasattr(msg_obj.structure, elt_name): # only overwrite value if field is present
-                    setattr(msg_obj.structure, elt_name, elt_val)
+            if kwargs:
+                for elt_name, elt_val in kwargs.items():
+                    if hasattr(msg_obj.structure, elt_name): # only overwrite value if field is present
+                        setattr(msg_obj.structure, elt_name, elt_val)
 
-        print(f"Writing message: {msgName}. \n{msg_obj.structure}")
-        self._write(msg_obj)
+            print(f"Writing message: {msgName}. \n{msg_obj.structure}")
+            self._write(msg_obj)
 
-        ret_bytes = self._read()
-        if ret_bytes:
-            resp_msg_union = Response_Message_Union()
-            if len(ret_bytes) >= sizeof(resp_msg_union):
-                for byte_idx in range(len(resp_msg_union.bytes)):
-                    resp_msg_union.bytes[byte_idx] = ret_bytes[byte_idx]
-                print(f"Received Packet: \n{resp_msg_union.structure}")
-                return resp_msg_union.structure.status == STATUS_SUCCESS
+            ret_bytes = self._read()
+            if ret_bytes:
+                resp_msg_union = Response_Message_Union()
+                if len(ret_bytes) >= sizeof(resp_msg_union):
+                    for byte_idx in range(len(resp_msg_union.bytes)):
+                        resp_msg_union.bytes[byte_idx] = ret_bytes[byte_idx]
+                    print(f"Received Packet: \n{resp_msg_union.structure}")
+                    return resp_msg_union.structure.status == STATUS_SUCCESS
+                else:
+                    print(f"Received less bytes than expected for message: {msgName}.\n"
+                          f"Expected: {sizeof(resp_msg_union)} Received: {len(ret_bytes)}. Returning False")
             else:
-                print(f"Received less bytes than expected for message: {msgName}.\n"
-                      f"Expected: {sizeof(resp_msg_union)} Received: {len(ret_bytes)}. Returning False")
+                print("Didn't receive any bytes from device. Returning False.")
         else:
-            print("Didn't receive any bytes from device. Returning False.")
+            print(f"Connection to {self._name}:{self._addr} is disconnected. Returning False")
         return False
 
 class Bt_Device(object):
@@ -181,6 +208,23 @@ class Bt_Device(object):
             return False
         return True
 
+    def is_connected(self):
+        """
+        Brief:
+            is_connected(): An API to check if bluetooth device is connected.
+        Description:
+            This method invokes 'socket.getpeername' API. This API (which is inherited from python's socket class)
+                returns the remote address to which the socket is connected. If not connected, it raises an error.
+        Return:
+             True if device is still connected, False if disconnected i.e. Exception is thrown.
+        """
+        try:
+            self._sock.getpeername()
+            return True
+        except Exception as error:
+            print(error)
+            return False
+
     def __del__(self):
         """
         Brief:
@@ -189,8 +233,18 @@ class Bt_Device(object):
             This method closes a bluetooth socket.
         """
         if hasattr(self, "_sock"):
-            self._sock.close()
+            self.disconnect()
             del self._sock
+
+    def disconnect(self):
+        """
+        Brief:
+            disconnect(): Disconnect API for a bluetooth device.
+        Description:
+            This API checks if a connection exists. If so it will disconnect, else it will return.
+        """
+        if self.is_connected():
+            self._sock.close()
 
     def _write(self, msg):
         """
@@ -233,33 +287,36 @@ class Bt_Device(object):
         Return:
              Response message bytes, None on failure.
         """
-        STATUS_SUCCESS = 0x00
-        try:
-            msg_type = eval(f"{msgName}_Message_Union")
-            msg_obj = msg_type()
-        except NameError as error:
-            print(f"Message object {msgName} not defined. Returning False.\n{error}")
-            return False
+        if self.is_connected():
+            STATUS_SUCCESS = 0x00
+            try:
+                msg_type = eval(f"{msgName}_Message_Union")
+                msg_obj = msg_type()
+            except NameError as error:
+                print(f"Message object {msgName} not defined. Returning False.\n{error}")
+                return False
 
-        if kwargs:
-            for elt_name, elt_val in kwargs.items():
-                if hasattr(msg_obj.structure, elt_name):  # only overwrite value if field is present
-                    setattr(msg_obj.structure, elt_name, elt_val)
+            if kwargs:
+                for elt_name, elt_val in kwargs.items():
+                    if hasattr(msg_obj.structure, elt_name):  # only overwrite value if field is present
+                        setattr(msg_obj.structure, elt_name, elt_val)
 
-        print(f"Writing message: {msgName}. \n{msg_obj.structure}")
-        self._write(msg_obj)
+            print(f"Writing message: {msgName}. \n{msg_obj.structure}")
+            self._write(msg_obj)
 
-        ret_bytes = self._read()
-        if ret_bytes:
-            resp_msg_union = Response_Message_Union()
-            if len(ret_bytes) >= sizeof(resp_msg_union):
-                for byte_idx in range(len(resp_msg_union.bytes)):
-                    resp_msg_union.bytes[byte_idx] = ret_bytes[byte_idx]
-                print(f"Received Packet: \n{resp_msg_union.structure}")
-                return resp_msg_union.structure.status == STATUS_SUCCESS
+            ret_bytes = self._read()
+            if ret_bytes:
+                resp_msg_union = Response_Message_Union()
+                if len(ret_bytes) >= sizeof(resp_msg_union):
+                    for byte_idx in range(len(resp_msg_union.bytes)):
+                        resp_msg_union.bytes[byte_idx] = ret_bytes[byte_idx]
+                    print(f"Received Packet: \n{resp_msg_union.structure}")
+                    return resp_msg_union.structure.status == STATUS_SUCCESS
+                else:
+                    print(f"Received less bytes than expected for message: {msgName}.\n"
+                          f"Expected: {sizeof(resp_msg_union)} Received: {len(ret_bytes)}. Returning False")
             else:
-                print(f"Received less bytes than expected for message: {msgName}.\n"
-                      f"Expected: {sizeof(resp_msg_union)} Received: {len(ret_bytes)}. Returning False")
+                print("Didn't receive any bytes from device. Returning False.")
         else:
-            print("Didn't receive any bytes from device. Returning False.")
+            print(f"Connection to {self._name}:{self._addr} is disconnected. Returning False")
         return False
