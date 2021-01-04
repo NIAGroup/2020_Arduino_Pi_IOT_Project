@@ -22,3 +22,4 @@ Werkzeug==1.0.1
 opencv-contrib-python==4.1.0.25
 pytest==5.4.3
 pytest-html==3.0.0
+pytest-mock==3.3.1
