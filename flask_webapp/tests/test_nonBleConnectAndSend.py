@@ -16,6 +16,7 @@ def sendMsg(bdaddr,msg_byte):
         sock.connect((bdaddr, port))
         print("Connected!")
         full_msg = [msg_byte,"f1","f2","f3","f4","f5","f6","f7"]
+        full_msg = [msg_byte,"00","00","00","00","00","00","00"]
         #print(dir(sock))
         print("request:", ":".join(full_msg))
         print("-"*50)
@@ -77,7 +78,7 @@ for an array of bytes.
 bdaddr, msg_byte = getArguments()
 print(msg_byte)
 
-if (int(msg_byte,16) > 0 and int(msg_byte,16) < 256):
+if (int(msg_byte,16) >= 0 and int(msg_byte,16) < 256):
     if bdaddr.count(":") == 5 and len(bdaddr) == 17:
         print(f"bdaddr : {bdaddr}")
         print(f"msg_byte : {msg_byte}")
@@ -86,4 +87,4 @@ if (int(msg_byte,16) > 0 and int(msg_byte,16) < 256):
     else:
         print("The bluetooth address is not formatted correctly.\nPlease try again following syntax 'xx:xx:xx:xx:xx:xx'")
 else:
-    print("The message byte must be between 0 and 255.\nPlease provide a valid message byte value.")
+    print("The message byte must be from 0 to 255.\nPlease provide a valid message byte value.")
