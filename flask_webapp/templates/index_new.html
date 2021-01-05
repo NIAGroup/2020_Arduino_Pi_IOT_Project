@@ -57,12 +57,13 @@
     </header>
 	<section id="showcase">
 		<div class="container-fluid">
-			<div class="jumbotron img-shadow" style="background-color: #fffdfb; font-family: PT Serif;">
-			  <h1 class="display-4">PID IOT Project</h1>
+			<div class="jumbotron img-shadow welcome_jumbotron" >
+			  <h1 class="display-4">PID Controller Project</h1>
 			  <p class="lead">
-			  Welcome to the IOT project! This is a remote access IOT project communicating via bluetooth between an Arduino & Raspberry Pi.<br>The objective of this project is to balance a ping-pong ball in the center of a beam using an arduino, which then communicates the results to a raspberry pi via a Bluetooth connection.
+<!-- 			  Welcome to the PID controller app! This is a remote access IOT project communicating via bluetooth between an Arduino & Raspberry Pi.<br>The objective of this project is to balance a ping-pong ball in the center of a beam using an arduino, which then communicates the results to a raspberry pi via a Bluetooth connection.
+ -->			  Welcome to the PID-Controller web app!<br>This application is a remote access IoT controller that utilizes an Arduino & Raspberry Pi to balance a ping-pong ball in the center of a beam.</br>
 			  </p>
-			  <p class="lead"><a class="btn btn-outline-dark btn-lg" href="#learnMore" role="button">Learn more</a></p>
+			  <p class="lead"><a class="btn btn-outline-dark btn-lg" href="#learnMore" role="button">Learn More</a></p>
 			</div>
 		</div>
 	</section>
@@ -72,7 +73,7 @@
 				<div class="w3-bottombar w3-padding w3-border-red w3-hover-light-grey" style="margin-bottom:20px">
 					<h5>Previously Paired Bluetooth Devices</h5>
 				</div>
-				<div class="bt_row">
+				<div class="bt_row" id="previouslypaired_bt_row">
 				  <div class="col">
 					<a id="thumbnailBtn" class="thumbnail">
 						<img src="..\static\img\arduino_icon_transparent.jpg" alt="Arduino icon">
@@ -98,18 +99,16 @@
 					<p style="text-align:center;">127.0.0.4</p>
 				  </div>
 				</div>
-				<div class="w3-bottombar w3-padding w3-border-red w3-hover-light-grey" style ="padding-top: 20px">
+				<div class="w3-bottombar w3-padding w3-border-red w3-hover-light-grey" style ="margin-bottom: 20px">
 					<h5>Available Bluetooth Devices</h5>
 				</div>
-				<div class="bt_row" >
+				<div class="bt_row" id="available_bt_row" >
 					<div class="container-fluid">
-						<div id="Scan" class="w3-container selection" style="text-align: center; margin-top: 20px; display:none;">
-							<!-- <div class = "column spinners" style="text-align: center; margin-top: 20px; display:none;"> -->
+						<div id="Scan" class="selection" style="align-items: center; justify-content: center; margin-top: 20px; display:none;">
 							<h6>Scanning for bluetooth devices ...</h6> <!-- animated spinners -->
 							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
 							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
 							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>
-							<!-- </div> -->
 						</div> 
 					</div>
 				</div>
@@ -118,38 +117,48 @@
 					<button id="scanBtn" type="" class="btn btn-primary" onclick="scanBTDevice(event, 'Scan')" style ="margin-right:4px;"> Scan </button>
 					<button id="connectBtn" type="submit" class="btn btn-primary" onclick="triggerConnection(this)" style ="margin-left:4px"> Connect </button>
 				</div>
-					
-				<!-- <div class="col"> strttttttttttttttttttttttt
-					<a href="javascript:void(0)" onclick="openSelection(event, 'MyBTDevices');">
-						<div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-red col-xs-6">
-						<h5>Connected Devices</h5>
-						</div>
-					</a>
-				</div> -->
-				<!-- <div class="col">
-					<a href="javascript:void(0)" onclick="openSelection(event, 'Scan');">
-						<div class="w3-half tablink w3-bottombar w3-hover-light-grey w3-padding w3-border-red w3-border-red w3-border-red col-xs-6">
-						<h5>Scan for Bluetooth Devices</h5>
-						</div>
-					</a>
-				</div> endddddddddddddddddd-->
-				
-				<!-- <div id="MyBTDevices" class="w3-container selection" style="display:none">
-				  <div class="container-fluid">
-					<div class = "column spinners" style="text-align: center; padding-top:15px">
-					  <h6>No Devices Connected...</h6> 
-					  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
-					  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
-					  <div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>
-					  <span class="sr-only">Loading...</span>
-					</div>
-				  </div>
-				</div>-->
-				
-				<!-- animated spinners -->
 			</div>
 		</div>
     </section>
+	
+	<section id="Functional_Testing">
+		<div class="container-fluid">
+			<div class="jumbotron img-shadow" style="background-color: #fffdfb; font-family: PT Serif;">
+				<div class="w3-bottombar w3-padding w3-border-red"style="margin-bottom:20px">
+					<h5>Functional Testing</h5>
+				</div>
+				<p class="lead">
+				Run sanity tests to check software functionality
+				</p>
+				<div class="progressbar">
+					<ul>
+						<li>
+							<i class="fa fa-bluetooth" aria-hidden="true"></i><br>
+							<i class="fa fa-check status_icon completed"></i>
+							<p>BT Connection</p>
+						</li>
+						<li>
+							<i class="fa fa-video-camera" aria-hidden="true"></i><br>
+							<i class="fa fa-times status_icon failed"></i>
+							<p>Video Feed</p>
+						</li>
+						<li>
+							<i class="fa fa-rss" aria-hidden="true"> </i><br>
+							<i class="fa fa-check status_icon "></i>
+							<p>Sensor Detection</p>
+						</li>
+						</li>
+						<li>
+							<i class="fa fa-cogs" aria-hidden="true"></i><br>
+							<i class="fa fa-check status_icon"></i>
+							<p>Servo</p>
+						</li>
+					</ul>
+				</div>
+				<button id="runBtn" type="submit" class="btn btn-primary" onclick="runFunctionalTests()" style="display: block"> Run Tests </button>
+			</div>
+		</div>
+	</section>
 
     <section id="Input_Table">
 		<div class="container-fluid">
@@ -203,64 +212,6 @@
 				  </tbody>
 				</table>
 				<button id="runBtn" type="submit" class="btn btn-primary" onclick="changeRunButtonColor()"> Run Test </button>
-				<table style="padding: 10px;">
-					<tr>
-					  <td>
-					   <div class="dropdown">
-						  <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-							Sanity Tests
-						  </button>
-						  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-							<a class="dropdown-item" id="bt_sanity_btn" href="#">BT Sanity</a>
-							<br><a class="dropdown-item" id="servo_sanity_btn" href="#">Servo Sanity</a>
-							<br><a class="dropdown-item" id="sensor_sanity_btn" href="#">Sensor Sanity</a>
-						  </div>
-					   </div>
-					  </td>
-					  <td style="padding: 3px;">
-						 <div>
-							<input type="text" class="form-control" id="param_fld" placeholder="Servo Angle" aria-label="Username" aria-describedby="basic-addon1">
-						  </div>
-					  </td>
-					  <td style="padding: 3px;">
-					    <div class="btn-group-toggle" data-toggle="buttons">
-					  	  <label class="btn btn-info active">
-					        <input type="checkbox" checked autocomplete="off"> Run Sanity Check
-						  </label>
-						</div>
-					  </td>
-					  <td style="padding: 10px;">
-						<span class="dot" style="height: 25px; width: 25px;background-color: #bbb;border-radius: 50%; display: inline-block;"></span>
-					  </td>
-				  	</tr>
-				</table>
-				<script>
-				  var dropDwn_btn = document.getElementById("dropdownMenuButton");
-				  var dropDown_btn_array = [
-					document.getElementById("bt_sanity_btn"),
-					document.getElementById("servo_sanity_btn"),
-					document.getElementById("sensor_sanity_btn"),
-				  ];
-
-				  for (i = 0; i<3;i++){
-					dropDown_btn_array[i].addEventListener("click", changeText);
-				  }
-				  function changeText(){
-					dropDwn_btn.innerHTML = this.id;
-					if (this.id.includes("bt") == true)
-					{
-					  document.getElementById("param_fld").placeholder = "integer value between 0 & 8";
-					}
-					if (this.id.includes("sensor") == true)
-					{
-					  document.getElementById("param_fld").placeholder = "N/A";
-					}
-					if (this.id.includes("servo") == true)
-					{
-					  document.getElementById("param_fld").placeholder = "Servo Angle";
-					}
-				  }
-				</script>
 			</div>
 		</div>
 	</section>
@@ -271,16 +222,62 @@
 				<h5>Output Feed</h5>
 			</div>
 			<div class="row" >
-				<div class="col">
+				<div class="col" id="videofeed_col">
 				<!--<h5>Embedded Video</h5> -->
 				<!--<div class="embed-responsive embed-responsive-4by3">-->
 <!--                 <iframe style="height:100%" src="{{ url_for('video_feed') }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
-                <img src="{{ url_for('video_feed') }}" style="width:100%;height:100%;">
-                <!--</div>-->
+                <!-- <img src="{{ url_for('video_feed') }}" style="width:100%;height:100%;"> -->
+				<img src="..\static\img\no_video_icon.png" style="width:100px;height:125px;" id="stream_video"></img>
+				<script>
+					function streamVideo(){
+						var vf_row = document.getElementById("videofeed_col");
+						clearChildNodes("videofeed_col");
+						var vf_img = document.createElement("img");
+						vf_img.setAttribute("style", "width:100%;height:100%");
+						vf_img.setAttribute("src", "{{ url_for('video_feed') }}");
+						vf_img.setAttribute("alt","Video Feed Not Available");
+						vf_row.appendChild(vf_img);
+						
+						var vf_btn = document.getElementById("videoBtn");
+						vf_btn.onclick= function(){endVideo()};
+						vf_btn.setAttribute("data-toggle","popover");
+						vf_btn.setAttribute("data-container","body");
+						vf_btn.setAttribute("data-content","Click to turn off camera");
+						<!-- vf_btn.setAttribute("onClick",'endVideo'); -->
+						document.querySelector('#videoBtn').innerHTML = 'End Video';
+						
+
+					};
+				</script>
+				<script>
+					function endVideo(){
+						var vf_row = document.getElementById("videofeed_col");
+						clearChildNodes("videofeed_col");
+						var vf_img = document.createElement("img");
+						vf_img.setAttribute("style", "width:100px;height:125px");
+						vf_img.setAttribute("src", "..\\static\\img\\no_video_icon.png");
+						vf_img.setAttribute("id","stream_video");
+						vf_img.setAttribute("alt","Video Feed Not Available");
+						vf_row.appendChild(vf_img);
+						
+						var vf_btn = document.getElementById("videoBtn");
+						vf_btn.setAttribute("data-toggle","popover");
+						vf_btn.setAttribute("data-container","body");
+						vf_btn.setAttribute("data-content","Click to turn on camera");
+						vf_btn.onclick= function(){streamVideo()};
+						document.querySelector('#videoBtn').innerHTML = 'Start Video';
+
+					};
+				</script>
+
+						<!--<h6>Scanning for bluetooth devices ...</h6>  animated spinners 
+							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
+							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
+							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>-->
 				</div>
 				<div class="col">
 					<div class="table-responsive h-100">
-						<table class="table table-dark h-100" style="margin:0px;text-align:center;">
+						<table class="table table-dark h-100" style="margin:0px;text-align:center;border-radius: .3rem">
 						  <thead>
 							<tr>
 							  <th scope="col">PID Values (K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>)</th>
@@ -317,6 +314,7 @@
 					</div>
 				</div>
 			</div>
+			<button id="videoBtn" type="submit" class="btn btn-primary" onclick="streamVideo()" style="margin-left:4px;margin-top:1rem" data-toggle="popover" data-container="body" data-content="Click to turn on camera"> Start Video </button>
 		  </div>
 		</div>
     </section>
