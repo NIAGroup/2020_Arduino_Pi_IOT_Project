@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, request, redirect, render_template, Response
+from flask import Flask, jsonify, request, redirect, render_template, Response 
 from camera import VideoCamera
 import cv2
 import sys

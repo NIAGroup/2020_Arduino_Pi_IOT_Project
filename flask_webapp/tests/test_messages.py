@@ -8,7 +8,6 @@ Author:
 """
 import __init__
 from ctypes import *
-import pdb
 
 def test_base_message_struct(message_classes):
     for msg_obj in message_classes:
