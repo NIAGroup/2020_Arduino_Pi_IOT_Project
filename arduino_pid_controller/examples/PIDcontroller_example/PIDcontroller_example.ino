@@ -1,11 +1,9 @@
 #include <Servo.h>
 #include <SharpIR.h>
 
-#define IR A0 // define signal pin
-#define model 1080 // used 1080 because model GP2Y0A21YK0F is used
-SharpIR SharpIR(IR, model);
+SharpIR SharpIR( SharpIR::GP2Y0A21YK0F, A0 );
 
-const byte servoPin = 6;    // Servo pin assigned as pin 6 [servos require a PWM pin].
+const byte servoPin = 5;    // Servo pin assigned as pin 6 [servos require a PWM pin].
 Servo servo;           
 
 unsigned long eventInterval = 250;
