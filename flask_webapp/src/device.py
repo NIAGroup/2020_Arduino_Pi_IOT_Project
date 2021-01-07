@@ -166,7 +166,7 @@ class Bt_Ble_Device(object):
             else:
                 print("Didn't receive any bytes from device. Returning False.")
         else:
-            print(f"Connection to {self._name}:{self._addr} is disconnected. Returning False")
+            print(f"\nConnection to {self._name}:{self._addr} is disconnected. Returning False")
         return False
 
 class Bt_Device(object):
@@ -319,5 +319,5 @@ class Bt_Device(object):
             else:
                 print("Didn't receive any bytes from device. Returning False.")
         else:
-            print(f"Connection to {self._name}:{self._addr} is disconnected. Returning False")
+            print(f"\nConnection to {self._name}:{self._addr} is disconnected. Returning False")
         return False

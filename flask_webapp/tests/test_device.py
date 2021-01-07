@@ -7,7 +7,7 @@ Author:
     Adoany Berhe
 """
 import __init__
-from unittest.mock import Mock
+from unittest.mock import Mock, MagicMock
 from src.messages import Response_Message_Union
 from src.device import Bt_Ble_Device, Bt_Device
 
@@ -39,18 +39,18 @@ def test_ble_bt_device_failed_connection():
     print("\nExpecting an Exception to be raised here.")
     assert ble_dev.connect() == False, "Expected an exception to be handled and False to be returned."
 
-def test_ble_bt_device_successful_connection(get_mock_ble_connection):
-    addr = "FF:FF:FF:FF:FF:FF"
-    name = "test"
-    ble_dev = Bt_Ble_Device(addr, name)
-    assert ble_dev.connect() == True, "Expected a True returned from Mock object."
-
 def test_regular_bt_device_failed_connection():
     addr = "FF:FF:FF:FF:FF:FF"
     name = "test"
     bt_dev = Bt_Device(addr, name)
     print("\nExpecting an Exception to be raised here.")
     assert bt_dev.connect() == False, "Expected an exception to be handled and False to be returned."
+
+def test_ble_bt_device_successful_connection(get_mock_ble_connection):
+    addr = "FF:FF:FF:FF:FF:FF"
+    name = "test"
+    ble_dev = Bt_Ble_Device(addr, name)
+    assert ble_dev.connect() == True, "Expected a True returned from Mock object."
 
 def test_regular_bt_device_successful_connection(get_mock_non_ble_connection):
     addr = "FF:FF:FF:FF:FF:FF"
@@ -59,16 +59,31 @@ def test_regular_bt_device_successful_connection(get_mock_non_ble_connection):
     assert bt_dev.connect() == True, "Expected a True returned from Mock object."
     assert bt_dev._sock, "Sock (Bluetooth socket) should be set if connection is made."
 
+def test_sending_to_disconnected_device():
+    addr = "FF:FF:FF:FF:FF:FF"
+    name = "test"
+    message_name = "Sanity_Adjust_Servo_180"
+
+    ble_dev = Bt_Ble_Device(addr, name)
+    ble_dev.is_connected = MagicMock(return_value=False)
+    assert ble_dev.send_message(message_name) == False, "Expected False to be returned since device is disconnected"
+
+    bt_dev = Bt_Device(addr, name)
+    bt_dev.is_connected = MagicMock(return_value=False)
+    assert bt_dev.send_message(message_name) == False, "Expected False to be returned since device is disconnected"
+
 def test_sending_wrong_message_name():
     addr = "FF:FF:FF:FF:FF:FF"
     name = "test"
     wrong_message_name = "Sanity_Adjust_Servo_1000000"
 
     ble_dev = Bt_Ble_Device(addr, name)
+    ble_dev.is_connected = MagicMock(return_value=True)     # Mocking device to be connected state
     print("\nExpecting an NameError Exception to be raised here and handled.")
     assert ble_dev.send_message(wrong_message_name) == False, "Expected an exception to be handled and False to be returned."
 
     bt_dev = Bt_Device(addr, name)
+    bt_dev.is_connected = MagicMock(return_value=True)      # Mocking device to be connected state
     print("\nExpecting an NameError Exception to be raised here and handled.")
     assert bt_dev.send_message(wrong_message_name) == False, "Expected an exception to be handled and False to be returned."
 
@@ -93,9 +108,11 @@ def test_setting_wrong_message_fields(monkeypatch):
     monkeypatch.setattr(Bt_Device, "_read", _mock_read)
 
     ble_dev = Bt_Ble_Device(addr, name)
+    ble_dev.is_connected = MagicMock(return_value=True)  # Mocking device to be connected state
     assert ble_dev.send_message(correct_message_name, error_field=10)
 
     bt_dev = Bt_Device(addr, name)
+    bt_dev.is_connected = MagicMock(return_value=True)  # Mocking device to be connected state
     assert bt_dev.send_message(correct_message_name, error_field=10)
 
 def test_overwritting_existing_message_field(monkeypatch):
@@ -121,9 +138,11 @@ def test_overwritting_existing_message_field(monkeypatch):
     monkeypatch.setattr(Bt_Device, "_read", _mock_read)
 
     ble_dev = Bt_Ble_Device(addr, name)
+    ble_dev.is_connected = MagicMock(return_value=True)  # Mocking device to be connected state
     assert ble_dev.send_message(correct_message_name, command=expected_command_field_value)
 
     bt_dev = Bt_Device(addr, name)
+    bt_dev.is_connected = MagicMock(return_value=True)  # Mocking device to be connected state
     assert bt_dev.send_message(correct_message_name, command=expected_command_field_value)
 
 def test_read_timeout_values():
@@ -143,8 +162,10 @@ def test_varying_return_bytes_from_read(monkeypatch):
     monkeypatch.setattr(Bt_Device, "_write", lambda self, msg: True)
 
     ble_dev = Bt_Ble_Device(addr, name)
+    ble_dev.is_connected = MagicMock(return_value=True)  # Mocking device to be connected state
     ble_dev._read = mock_method
     bt_dev = Bt_Device(addr, name)
+    bt_dev.is_connected = MagicMock(return_value=True)  # Mocking device to be connected state
     bt_dev._read = mock_method
 
     print(f"Mocking '_read' function to return None. Expecting False to be returned")
