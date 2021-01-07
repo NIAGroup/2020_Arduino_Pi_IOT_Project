@@ -60,6 +60,8 @@ void setup()
  Serial.println("#########################################");
  Serial.println("Ready to connect with a bluetooth device."); 
  Serial.println("#########################################");
+ delay(250);
+ servo.write(90);
 } 
 void loop() 
 { 

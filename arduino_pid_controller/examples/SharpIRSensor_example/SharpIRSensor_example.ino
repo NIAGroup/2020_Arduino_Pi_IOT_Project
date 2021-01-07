@@ -21,12 +21,9 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  //getSensorReading(millis())
-  Serial.println(analogRead(A0));
-  Serial.print("Distance: ");
-  Serial.print(SharpIR.getDistance());
-  Serial.println("cm");
-  delay(500);
+  //getSensorReading(millis());
+  Serial.println(SharpIR.getDistance());
+  delay(100);
 }
 
 void getSensorReading(unsigned long startTime){
