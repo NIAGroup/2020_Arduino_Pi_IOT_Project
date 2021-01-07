@@ -38,6 +38,7 @@ class Bt_Ble_Device(object):
         self._addr = addr
         self._name = name
         self._timeout = 60      # timeout value to receive a response in seconds
+        self._dev = None
 
     def connect(self):
         """
