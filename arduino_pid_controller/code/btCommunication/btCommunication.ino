@@ -159,7 +159,7 @@ void handleIncomingRequest(boolean isDeviceBLE){
              Serial.print(btcs.ServoLookupTbl[n].cmd);
              Serial.print(":");
              Serial.println(btcs.ServoLookupTbl[n].pos);
-             setServoPosition(btcs.ServoLookupTbl[n].pos);
+             //setServoPosition(btcs.ServoLookupTbl[n].pos);
            }
            break;
          }
