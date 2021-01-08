@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request, redirect, render_template, Response 
-from camera import VideoCamera
-import cv2
+from camera import *
+import cv2, time
 import sys
 
 if sys.platform == 'win32':
@@ -10,13 +10,11 @@ if sys.platform == 'win32':
 from src.device_list import BtDevContainer
 Container = BtDevContainer()
 
-app = Flask(__name__)
+outputFrame = None
+cam = None
+isCameraOn = False
 
-def gen_frames(camera):
-    while True:
-        frame = camera.get_frame()
-        yield (b'--frame\r\n'
-            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+app = Flask(__name__)
 
 @app.route("/")
 def home():
@@ -109,7 +107,16 @@ def video_feed():
     print('Turn on Webcam')
     # return the response generated along with the specific  media
     # type (mime type)
-    return Response(gen_frames(VideoCamera()),
+    global cam
+    global isCameraOn
+    if cam == None:
+        cam = VideoCamera()
+        isCameraOn = True
+    else:
+        time.sleep(0.1)
+        if cam.isCameraActive:
+            cam.isCameraActive = False
+    return Response(gen_frames(cam),
         mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
