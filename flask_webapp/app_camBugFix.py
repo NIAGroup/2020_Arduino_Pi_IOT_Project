@@ -20,15 +20,15 @@ class piCam(object):
     def __init__(self):
         self.video = cv2.VideoCapture(0)
         (self.grabbed, self.frame) = self.video.read()
-        # Adding threading to reduce synchronous resources
+        self.frame = cv2.flip(self.frame,flipCode=-1)
+        # Adding threading to reduce demand on resources
         threading.Thread(target=self.update, args=()).start()
     
     def __del__(self):
         self.video.release()
     
     def get_frame(self):
-        self.frame = cv2.flip(self.frame,flipCode=-1)
-        image = self.frame
+        image = cv2.flip(self.frame,flipCode=-1)
         ret, jpeg = cv2.imencode('.jpg',image)
         return jpeg.tobytes()
         
@@ -42,13 +42,6 @@ def gen(cam):
     while (True):
         frame = cam.get_frame()
         yield(b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-'''def gen_frames(camera):
-
-    while True:
-        frame = camera.get_frame()
-
-        yield (b'--frame\r\n'
-            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')'''
 
 @app.route("/")
 def home():
@@ -144,7 +137,7 @@ def video_feed():
     if cam == None:
     	cam = piCam()
     else:
-    	del cam
+    	#del cam
     	time.sleep(0.1)
     	#cam = piCam()
     return Response(gen(cam), mimetype='multipart/x-mixed-replace; boundary=frame')
