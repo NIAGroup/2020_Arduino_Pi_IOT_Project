@@ -24,14 +24,14 @@ class Message_Struct(Structure):
                continue
             else:
                 _val = getattr(self,field_tuple[field_name_idx])
-                retStr += f"{field_tuple[field_name_idx]}\t\t{_val}({hex(_val)})\n"
+                retStr += f"{field_tuple[field_name_idx]}\t\t{_val} ({hex(_val)})\n"
 
         for field_tuple in self._fields_:
             if "reserved" in field_tuple[field_name_idx]:
                 continue    # skip all reserved fields from parsing
             else:
                 _val = getattr(self, field_tuple[field_name_idx])
-                retStr += f"{field_tuple[field_name_idx]}\t\t{_val}({hex(_val)})\n"
+                retStr += f"{field_tuple[field_name_idx]}\t\t{_val} ({hex(_val)})\n"
 
         return retStr
 
@@ -53,6 +53,14 @@ class Message_Union(Union):
             return str(self.structure)
         except AttributeError:
             print(f"'Structure' field not implemented in message payload union.\n")
+
+class Request_Message(Message_Struct):
+    """
+
+    """
+    _fields_ = [
+        ("command",         c_uint8),
+    ]
 
 class Response_Message(Message_Struct):
     """
@@ -80,14 +88,6 @@ class Response_Message_Union(Message_Union):
     _fields_ = [
         ("structure",       Response_Message),
         ("bytes",           sizeof(Response_Message) * c_uint8)
-    ]
-
-class Request_Message(Message_Struct):
-    """
-
-    """
-    _fields_ = [
-        ("command",         c_uint8),
     ]
 
 

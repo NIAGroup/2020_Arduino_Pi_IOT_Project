@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, request, redirect, render_template, Response 
 from camera import VideoCamera
 import cv2
-import sys
+import sys, threading, time
 
 if sys.platform == 'win32':
     print("Running on Windows OS. This is not supported yet.")
@@ -11,14 +11,44 @@ from src.device_list import BtDevContainer
 Container = BtDevContainer()
 
 app = Flask(__name__)
+outputFrame = None
+lock = threading.Lock()
+isCamOn = False
+cam = None
 
-def gen_frames(camera):
+class piCam(object):
+    def __init__(self):
+        self.video = cv2.VideoCapture(0)
+        (self.grabbed, self.frame) = self.video.read()
+        # Adding threading to reduce synchronous resources
+        threading.Thread(target=self.update, args=()).start()
+    
+    def __del__(self):
+        self.video.release()
+    
+    def get_frame(self):
+        self.frame = cv2.flip(self.frame,flipCode=-1)
+        image = self.frame
+        ret, jpeg = cv2.imencode('.jpg',image)
+        return jpeg.tobytes()
+        
+    def update(self):
+        while True:
+            (self.grabbed, self.frame) = self.video.read()
+
+app = Flask(__name__)
+
+def gen(cam):
+    while (True):
+        frame = cam.get_frame()
+        yield(b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+'''def gen_frames(camera):
 
     while True:
         frame = camera.get_frame()
 
         yield (b'--frame\r\n'
-            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')'''
 
 @app.route("/")
 def home():
@@ -110,11 +140,14 @@ def send():
 
 @app.route('/video_feed')
 def video_feed():
-    print('Turn on Webcam')
-    # return the response generated along with the specific  media
-    # type (mime type)
-    return Response(gen_frames(VideoCamera()),
-        mimetype='multipart/x-mixed-replace; boundary=frame')
+    global cam
+    if cam == None:
+    	cam = piCam()
+    else:
+    	del cam
+    	time.sleep(0.1)
+    	#cam = piCam()
+    return Response(gen(cam), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':
