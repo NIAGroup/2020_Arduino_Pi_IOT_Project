@@ -27,8 +27,8 @@ double P, I, D, PID_out;
 const byte setpoint = 16;
 
 // Variables to use for calculating the min & max values
-const int max_angle = 120; 
-const int min_angle = 60; 
+const int max_angle = 110; 
+const int min_angle = 80; 
 const int max_distance = 20; 
 const int min_distance = 9; 
 const int min_error = setpoint - max_distance;
@@ -43,9 +43,9 @@ void setup(){
  delay(500);
  //servo.write(currentServoPosition);
  Serial.println(startMsg);
- Kp = 1;
- Ki = 0;
- Kd = 1;
+ Kp = 0.85;
+ Ki = 0.25;
+ Kd = 0.65;
  servo.write(currentServoPosition);
  //eventInterval = 2000;
  //runTimer(millis());
@@ -103,7 +103,7 @@ void loop(){
     }
     
   }
-  //PID_control();
+  PID_control();
 }
 
 void getPIDLimits(){
