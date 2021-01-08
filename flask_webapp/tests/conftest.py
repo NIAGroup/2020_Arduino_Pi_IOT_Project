@@ -41,6 +41,10 @@ class MockBluetoothSocketConnection(object):
     def close():
         print("Closing a connection to a Mock bluetooth object.")
 
+    @staticmethod
+    def getpeername():  # Mocking so is_connected() returns True
+        print("This is a mock API for confirming connection.")
+
 @pytest.fixture
 def get_mock_non_ble_connection(monkeypatch):
     def get_mock_bluetooth_socket(*args, **kwargs):
@@ -89,6 +93,7 @@ class mock_service(object):
 class MockBluetoothBlePeripheralConnection:
     def __init__(self):
         self.services = [mock_service()]
+        self.connected = True       # Mocking so is_connected() returns True
     @staticmethod
     def disconnect():
         print("Disconnecting the Mock bluetooth ble object.")
