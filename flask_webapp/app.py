@@ -4,8 +4,8 @@ import cv2
 import sys
 
 if sys.platform == 'win32':
-    print("Running on Windows OS. This is not supported yet.")
-    exit()
+     print("Running on Windows OS. This is not supported yet.")
+     exit()
 
 from src.device_list import BtDevContainer
 Container = BtDevContainer()
@@ -40,7 +40,6 @@ def scan():
     try:
         devices = Container.scan()
         retDict["scan_devs"] = devices
-        #retDict["scan_devs"] = ['test1', 'test2', 'test3', 'test4']
     except Exception as e:
         print(f"Runtime error has occurred. {e}")
 
@@ -61,8 +60,6 @@ def connect():
         except Exception:
             retValue[device] = False
     return jsonify(retValue)
-    #print(devices)
-    #return jsonify({"test2": True, "test3": True}) #uncommented line
 
 @app.route("/disconnect", methods=['GET', 'POST'])
 def disconnect():

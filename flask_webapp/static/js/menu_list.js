@@ -37,7 +37,7 @@ function clearChildNodes(elt_id){
 }
 
 function drawNoDeviceMessage(){
-  var no_dev_text = document.createTextNode("Couldn't Find any bluetooth devices.");
+  var no_dev_text = document.createTextNode("Couldn't find any bluetooth devices.");
 
   var dev_header = document.createElement("h6");
   dev_header.style = "text-align:center; padding-top:15px";
@@ -47,7 +47,7 @@ function drawNoDeviceMessage(){
   dev_column.setAttribute("class", "col");
   dev_column.appendChild(dev_header);
 
-  var scan_dev_row = document.getElementById("scan_device_row");
+  var scan_dev_row = document.getElementById("Scan");
   scan_dev_row.appendChild(dev_column);
 }
 
@@ -72,21 +72,24 @@ function drawDevices(name, index){
   dev_column.appendChild(dev_a_tag);
   dev_column.appendChild(dev_paragraph);
 
-  var scan_dev_row = document.getElementById("scan_device_row");
+  var scan_dev_row = document.getElementById("Scan");
   scan_dev_row.appendChild(dev_column);
+
 }
 
 function closeMenu(){
-  var i, x, tablinks;
+  var i, x; 
+  /* var tablinks; */
   x = document.getElementsByClassName("selection");
   for (i = 0; i < x.length; i++) {
     x[i].style.display = "none";
   }
-  tablinks = document.getElementsByClassName("tablink");
+/*   tablinks = document.getElementsByClassName("tablink");
   for (i = 0; i < x.length; i++) {
     tablinks[i].className = tablinks[i].className.replace(" w3-border-red", "");
-  }
+  } */
 }
+
 
 function changeRunButtonColor(){
   var btn;
@@ -165,5 +168,77 @@ function triggerConnection(connectBtn){
 
 
 function thumbnailSelect(element){
+  
+  $('.scanDev a.active').removeClass('active') /* select one thumbnail at a time */ 
   element.classList.toggle("active");
 }
+
+
+function scanBTDevice(evt, selectionName) {
+  if (document.getElementById(selectionName).style.display === "flex"){
+    closeMenu();
+    return;
+  }
+  else{
+    closeMenu();
+	document.getElementById(selectionName).style.display = "flex";
+	document.getElementById(selectionName).style.flexWrap = "wrap";
+    //evt.currentTarget.firstElementChild.className += "w3-border-red";
+     if (selectionName === "Scan"){
+      // Clear the row of previously scanned device image columns
+	  
+      setTimeout(function(){clearChildNodes("Scan");},2000);
+
+     // Perform a scan and grab data from back-end
+      var url = "/scan";
+      d3.json(url, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
+        if (data_in === null || data_in.scan_devs === undefined || data_in.scan_devs.length == 0) {
+          setTimeout(function(){drawNoDeviceMessage();},2000);
+        }
+        else{
+          setTimeout(function(){data_in.scan_devs.forEach(drawDevices);},2000);
+        }
+      });
+    } 
+  }
+}
+
+
+
+/* function streamVideo(){
+	
+	$('#stream_video').attr('style', "width:100%;height:100%");
+	clearChildNodes("videofeed_col");
+	var loading_text = document.createTextNode("Loading video feed...");
+	var vf_header = document.createElement("h6");
+	vf_header.appendChild(loading_text);
+	var vf_row = document.getElementById("videofeed_col");
+	vf_row.appendChild(vf_header);
+
+	var vf1_spinner = document.createElement("div");
+	vf1_spinner.setAttribute("class", "spinner-grow spinner-grow-sm text-primary");
+	vf1_spinner.setAttribute("animation", "spinner-grow 1.10s ease-in-out 0.2s infinite;");
+	vf1_spinner.setAttribute("role", "status");
+
+	var vf2_spinner = document.createElement("div");
+	vf2_spinner.setAttribute("class", "spinner-grow spinner-grow-sm text-primary");
+	vf2_spinner.setAttribute("animation", "spinner-grow 1.10s ease-in-out 0.4s infinite;");
+	vf2_spinner.setAttribute("role", "status");
+
+	var vf3_spinner = document.createElement("div");
+	vf3_spinner.setAttribute("class", "spinner-grow spinner-grow-sm text-primary");
+	vf3_spinner.setAttribute("animation", "spinner-grow 1.10s ease-in-out 0.6s infinite;");
+	vf3_spinner.setAttribute("role", "status");
+
+	vf_row.appendChild(vf1_spinner);
+	vf_row.appendChild(vf2_spinner);
+	vf_row.appendChild(vf3_spinner);
+
+	clearChildNodes("videofeed_col");
+
+	var vf_img = document.createElement("img");
+	vf_img.setAttribute("style", "width:100%;height:100%");
+	vf_img.setAttribute("src", "{{ url_for('video_feed') }}");
+	vf_row.appendChild(vf_img);
+
+}; */

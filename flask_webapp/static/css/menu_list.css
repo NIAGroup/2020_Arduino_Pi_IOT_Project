@@ -20,15 +20,17 @@ body {
   justify-content: center;
 }
 
-.thumbnail{
-  border-radius: 1rem;
-  border-width: medium;
-}
-
-#scan_device_row {
+#available_bt_row {
   padding-top: 10px;
 }
-
+.bt_row {
+  padding: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  margin-right: -15px;
+  margin-left: -15px;
+}
+}
 .connected {
   border-color: green;
 }
