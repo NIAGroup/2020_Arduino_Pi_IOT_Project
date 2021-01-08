@@ -22,7 +22,9 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   //getSensorReading(millis());
-  Serial.println(SharpIR.getDistance());
+  Serial.print(SharpIR.getDistance());
+  Serial.print("\t\t");
+  Serial.println(SharpIR.getDistance() * 2.54);
   delay(100);
 }
 
@@ -31,7 +33,11 @@ void getSensorReading(unsigned long startTime){
  int distance = 0;
  currentTime = startTime;
  while (currentTime - startTime < eventInterval){
-   distance += SharpIR.getDistance();
+   distance += SharpIR.getDistance() * 2.54;
+   Serial.print("\t\t");
+   Serial.println(SharpIR.getDistance());
+   Serial.print("\t\t");
+   Serial.println(SharpIR.getDistance() * 2.54);
    i+=1;
    currentTime = millis();
  }
