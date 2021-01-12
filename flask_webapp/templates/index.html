@@ -21,6 +21,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
   <script src="..\static\js\menu_list.js"></script>
+  <script src="..\static\js\function_test_list.js"></script>
   <link rel="stylesheet" href="..\static\css\menu_list.css">
 
   <title>NIA STEM Club | PID IOT Interface </title>
@@ -131,31 +132,35 @@
 				Run sanity tests to check software functionality
 				</p>
 				<div class="progressbar">
-					<ul>
-						<li>
+					<ul id="function_tests_row">
+						<li name="function_test" id="BT Connection">
 							<i class="fa fa-bluetooth" aria-hidden="true"></i><br>
-							<i class="fa fa-check status_icon completed"></i>
+							<i class="fa status_icon"></i>
+						<!--<i class="fa fa-check status_icon completed"></i>-->
 							<p>BT Connection</p>
 						</li>
-						<li>
+						<li name="function_test" id="Video Feed">
 							<i class="fa fa-video-camera" aria-hidden="true"></i><br>
-							<i class="fa fa-times status_icon failed"></i>
+							<i class="fa status_icon"></i>
+						<!--<i class="fa fa-times status_icon failed"></i> -->
 							<p>Video Feed</p>
 						</li>
-						<li>
+						<li name="function_test" id="Sensor Detection">
 							<i class="fa fa-rss" aria-hidden="true"> </i><br>
-							<i class="fa fa-check status_icon "></i>
+							<i class="fa status_icon "></i>
+						<!--<i class="fa fa-check status_icon "></i> -->
 							<p>Sensor Detection</p>
 						</li>
 						</li>
-						<li>
+						<li name="function_test" id="Servo Motors">
 							<i class="fa fa-cogs" aria-hidden="true"></i><br>
-							<i class="fa fa-check status_icon"></i>
-							<p>Servo</p>
+							<i class="fa status_icon"></i>
+						<!--<i class="fa fa-check status_icon"></i> -->
+							<p>Servo Motors</p>
 						</li>
 					</ul>
 				</div>
-				<button id="runBtn" type="submit" class="btn btn-primary" onclick="runFunctionalTests()" style="display: block"> Run Tests </button>
+				<button id="runBtn" type="submit" class="btn btn-primary" onclick="runFunctionTests()" style="display: block"> Run Tests </button>
 			</div>
 		</div>
 	</section>

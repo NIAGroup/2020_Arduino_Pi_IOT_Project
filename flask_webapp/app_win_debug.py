@@ -43,6 +43,24 @@ def previously_paried():
 
     return jsonify(retDict)
 
+@app.route("/send_function_tests", methods=['GET', 'POST'])
+def send_function_tests():
+    """
+    
+    """
+    devices = request.get_json()
+    for test in devices["function_tests"]:
+        print(f"Tests: {test}")
+
+    retDict = {}
+    retDict["function_tests"] = [
+        {"test_name": "BT Connection", "test_value": True},
+        {"test_name": "Video Feed", "test_value": False},
+        {"test_name": "Sensor Detection", "test_value": True},
+        {"test_name": "Servo Motors", "test_value": False},
+    ]
+    return jsonify(retDict)
+
 @app.route("/scan")
 def scan():
     """
@@ -70,12 +88,6 @@ def connect():
     devices = request.get_json()
     retValue = {}
     for device in devices["selectedDevices"]:
-        """
-        try:
-            retValue[device] = Container.get_device(device).connect()
-        except Exception:
-            retValue[device] = False
-        """
         print(f"Device: {device}")
   
     return jsonify({"test2": True, "test3": True}) 

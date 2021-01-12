@@ -1,5 +1,5 @@
 /**
- * @file   This file is specific to the PID IOT project. It defines th functionality of drop-down menus.
+ * @file   This file is specific to the PID IOT project. It defines the functionality of drop-down menus.
  * @author Adonay Berhe, Felicia James
  * @since  10.14.2020
  */
@@ -203,42 +203,3 @@ function scanBTDevice(evt, selectionName) {
   }
 }
 
-
-
-/* function streamVideo(){
-	
-	$('#stream_video').attr('style', "width:100%;height:100%");
-	clearChildNodes("videofeed_col");
-	var loading_text = document.createTextNode("Loading video feed...");
-	var vf_header = document.createElement("h6");
-	vf_header.appendChild(loading_text);
-	var vf_row = document.getElementById("videofeed_col");
-	vf_row.appendChild(vf_header);
-
-	var vf1_spinner = document.createElement("div");
-	vf1_spinner.setAttribute("class", "spinner-grow spinner-grow-sm text-primary");
-	vf1_spinner.setAttribute("animation", "spinner-grow 1.10s ease-in-out 0.2s infinite;");
-	vf1_spinner.setAttribute("role", "status");
-
-	var vf2_spinner = document.createElement("div");
-	vf2_spinner.setAttribute("class", "spinner-grow spinner-grow-sm text-primary");
-	vf2_spinner.setAttribute("animation", "spinner-grow 1.10s ease-in-out 0.4s infinite;");
-	vf2_spinner.setAttribute("role", "status");
-
-	var vf3_spinner = document.createElement("div");
-	vf3_spinner.setAttribute("class", "spinner-grow spinner-grow-sm text-primary");
-	vf3_spinner.setAttribute("animation", "spinner-grow 1.10s ease-in-out 0.6s infinite;");
-	vf3_spinner.setAttribute("role", "status");
-
-	vf_row.appendChild(vf1_spinner);
-	vf_row.appendChild(vf2_spinner);
-	vf_row.appendChild(vf3_spinner);
-
-	clearChildNodes("videofeed_col");
-
-	var vf_img = document.createElement("img");
-	vf_img.setAttribute("style", "width:100%;height:100%");
-	vf_img.setAttribute("src", "{{ url_for('video_feed') }}");
-	vf_row.appendChild(vf_img);
-
-}; */
