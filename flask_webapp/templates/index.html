@@ -8,9 +8,6 @@
   <meta name ="keywords" content ="IOT, Arduino, RaspberryPi, PID, STEM">
   <meta name ="author" content ="Adonay Berhe, Felicia James">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-  <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous"> -->
-  <!--<<link rel="stylesheet" href="..\static\css\table_style.css">-->
-  <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"><!--this css style sheet has access spinners unlike one above-->
   <link rel="stylesheet" type="text/css" href="../static/css/IOT_project.css"> <!--link to css style sheet -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT%20Serif"> <!--link to google fonts -->
@@ -61,8 +58,7 @@
 			<div class="jumbotron img-shadow welcome_jumbotron" >
 			  <h1 class="display-4">PID Controller Project</h1>
 			  <p class="lead">
-<!-- 			  Welcome to the PID controller app! This is a remote access IOT project communicating via bluetooth between an Arduino & Raspberry Pi.<br>The objective of this project is to balance a ping-pong ball in the center of a beam using an arduino, which then communicates the results to a raspberry pi via a Bluetooth connection.
- -->			  Welcome to the PID-Controller web app!<br>This application is a remote access IoT controller that utilizes an Arduino & Raspberry Pi to balance a ping-pong ball in the center of a beam.</br>
+ 			    Welcome to the PID-Controller web app!<br>This application is a remote access IoT controller that utilizes an Arduino & Raspberry Pi to balance a ping-pong ball in the center of a beam.</br>
 			  </p>
 			  <p class="lead"><a class="btn btn-outline-dark btn-lg" href="#learnMore" role="button">Learn More</a></p>
 			</div>
@@ -75,29 +71,8 @@
 					<h5>Previously Paired Bluetooth Devices</h5>
 				</div>
 				<div class="bt_row" id="previouslypaired_bt_row">
-				  <div class="col">
-					<a id="thumbnailBtn" class="thumbnail">
-						<img src="..\static\img\arduino_icon_transparent.jpg" alt="Arduino icon">
-					</a>
-					<p style="text-align:center;">127.0.0.1</p>
-				  </div>
-				  <div class="col">
-					<a id="thumbnailBtn" class="thumbnail">
-					  <img src="..\static\img\arduino_icon_transparent.jpg" alt="Arduino icon">
-					</a>
-					<p style="text-align:center;">127.0.0.2</p>
-				  </div>
-				  <div class="col">
-					<a id="thumbnailBtn" class="thumbnail">
-					  <img src="..\static\img\arduino_icon_transparent.jpg" alt="Arduino icon">
-					</a>
-					<p style="text-align:center;">127.0.0.3</p>
-				  </div>
-				  <div class="col">
-					<a id="thumbnailBtn" class="thumbnail">
-					  <img src="..\static\img\arduino.png" alt="Arduino icon">
-					</a>
-					<p style="text-align:center;">127.0.0.4</p>
+				  <div class="container-fluid">
+						<div id="ScanDB" class="selection" style="align-items: center; justify-content: center; margin-top: 20px; display:none;"></div>
 				  </div>
 				</div>
 				<div class="w3-bottombar w3-padding w3-border-red w3-hover-light-grey" style ="margin-bottom: 20px">
@@ -106,14 +81,14 @@
 				<div class="bt_row" id="available_bt_row" >
 					<div class="container-fluid">
 						<div id="Scan" class="selection" style="align-items: center; justify-content: center; margin-top: 20px; display:none;">
-							<h6>Scanning for bluetooth devices ...</h6> <!-- animated spinners -->
+							<h6>Scanning for bluetooth devices &nbsp &nbsp </h6> <!-- animated spinners -->
 							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
 							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
 							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>
-						</div> 
+						</div>
 					</div>
 				</div>
-				
+
 				<div class="bt_row">
 					<button id="scanBtn" type="" class="btn btn-primary" onclick="scanBTDevice(event, 'Scan')" style ="margin-right:4px;"> Scan </button>
 					<button id="connectBtn" type="submit" class="btn btn-primary" onclick="triggerConnection(this)" style ="margin-left:4px"> Connect </button>
@@ -121,7 +96,7 @@
 			</div>
 		</div>
     </section>
-	
+
 	<section id="Functional_Testing">
 		<div class="container-fluid">
 			<div class="jumbotron img-shadow" style="background-color: #fffdfb; font-family: PT Serif;">
@@ -242,7 +217,7 @@
 						vf_img.setAttribute("src", "{{ url_for('video_feed') }}");
 						vf_img.setAttribute("alt","Video Feed Not Available");
 						vf_row.appendChild(vf_img);
-						
+
 						var vf_btn = document.getElementById("videoBtn");
 						vf_btn.onclick= function(){endVideo()};
 						vf_btn.setAttribute("data-toggle","popover");
@@ -250,7 +225,7 @@
 						vf_btn.setAttribute("data-content","Click to turn off camera");
 						<!-- vf_btn.setAttribute("onClick",'endVideo'); -->
 						document.querySelector('#videoBtn').innerHTML = 'End Video';
-						
+
 
 					};
 				</script>
@@ -264,21 +239,15 @@
 						vf_img.setAttribute("id","stream_video");
 						vf_img.setAttribute("alt","Video Feed Not Available");
 						vf_row.appendChild(vf_img);
-						
+
 						var vf_btn = document.getElementById("videoBtn");
 						vf_btn.setAttribute("data-toggle","popover");
 						vf_btn.setAttribute("data-container","body");
 						vf_btn.setAttribute("data-content","Click to turn on camera");
 						vf_btn.onclick= function(){streamVideo()};
 						document.querySelector('#videoBtn').innerHTML = 'Start Video';
-
 					};
 				</script>
-
-						<!--<h6>Scanning for bluetooth devices ...</h6>  animated spinners 
-							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
-							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
-							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>-->
 				</div>
 				<div class="col">
 					<div class="table-responsive h-100">
@@ -410,7 +379,5 @@
     </footer>
 
 <!-- Footer -->
-
-
 </body>
 </html>
