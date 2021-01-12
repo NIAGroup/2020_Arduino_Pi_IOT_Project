@@ -1,6 +1,9 @@
 import __init__
-from ctypes import Structure, Union, c_uint8, sizeof
-from copy import deepcopy
+from ctypes import Structure, Union, c_uint8, sizeof, resize
+
+
+# -------------- Base Message Structures ---------------------#
+
 
 class Message_Struct(Structure):
     """
@@ -13,43 +16,69 @@ class Message_Struct(Structure):
         """
 
         """
+        field_name_idx = 0
         retStr = ""
         retStr += f"{type(self).__name__} \n".rjust(20)
-        
-        for super_field_name, super_field_type in super(type(self), self)._fields_:
-            if super_field_name == "reserved":
+        for field_tuple in super(type(self), self)._fields_:
+            if "reserved" in field_tuple[field_name_idx]:
                continue
             else:
-                retStr += f"{super_field_name}           {getattr(self,super_field_name)}\n"
+                _val = getattr(self,field_tuple[field_name_idx])
+                retStr += f"{field_tuple[field_name_idx]}\t\t{_val} ({hex(_val)})\n"
 
-        for field_name, field_type in self._fields_:
-            if field_name == "reserved":
+        for field_tuple in self._fields_:
+            if "reserved" in field_tuple[field_name_idx]:
                 continue    # skip all reserved fields from parsing
             else:
-                retStr += f"{field_name}                {getattr(self, field_name)} \n"
+                _val = getattr(self, field_tuple[field_name_idx])
+                retStr += f"{field_tuple[field_name_idx]}\t\t{_val} ({hex(_val)})\n"
 
         return retStr
 
 class Message_Union(Union):
     """
-    
+
     """
     _pack_ = 1
     _fields_ = []
+
+    def __init__(self):
+        pass
+
+    def __str__(self):
+        """
+
+        """
+        try:
+            return str(self.structure)
+        except AttributeError:
+            print(f"'Structure' field not implemented in message payload union.\n")
+
+class Request_Message(Message_Struct):
+    """
+
+    """
+    _fields_ = [
+        ("command",         c_uint8),
+    ]
 
 class Response_Message(Message_Struct):
     """
 
     """
     _fields_ = [
-        ("status",          c_uint8),
-        ("byte_0",          c_uint8, 1),
-        ("byte_1",          c_uint8, 1),
-        ("byte_2",          c_uint8, 1),
-        ("byte_3",          c_uint8, 1),
-        ("byte_4",          c_uint8, 1),
-        ("byte_5",          c_uint8, 1),
-        ("reserved",        c_uint8, 2),
+        ("command",             c_uint8),
+        ("status",              c_uint8),
+        ("byte_0",              c_uint8, 1),
+        ("byte_1",              c_uint8, 1),
+        ("byte_2",              c_uint8, 1),
+        ("byte_3",              c_uint8, 1),
+        ("byte_4",              c_uint8, 1),
+        ("byte_5",              c_uint8, 1),
+        ("byte_6",              c_uint8, 1),
+        ("byte_7",              c_uint8, 1),
+        ("completionTime_ms",   c_uint8),
+        ("reservedBytes",       c_uint8 * 4)
     ]
 
 class Response_Message_Union(Message_Union):
@@ -62,75 +91,237 @@ class Response_Message_Union(Message_Union):
     ]
 
 
-class Request_Message(Message_Struct):
+#------------------ Derived Message Structures -----------------#
+
+
+class Sanity_BT_Echo_Message(Request_Message):
     """
 
     """
     _fields_ = [
-        ("command",         c_uint8),
+        ("reservedBytes",   c_uint8 * 7)
     ]
 
-class Request_Message_Union(Message_Union):
+class Sanity_BT_Echo_Message_Union(Message_Union):
     """
 
     """
     _fields_ = [
-        ("structure",       Request_Message),
-        ("bytes",           sizeof(Request_Message) * c_uint8)
+        ("structure",       Sanity_BT_Echo_Message),
+        ("bytes",           sizeof(Sanity_BT_Echo_Message) * c_uint8)
+    ]
+    def __init__(self):
+        """
+
+        """
+        self.structure.command = 0x80
+
+class Sanity_Adjust_Servo_180_Message(Request_Message):
+    """
+
+    """
+    _fields_ = [
+        ("reservedBytes",   c_uint8 * 7)
     ]
 
-
-class Sanity_Bt_Message(Request_Message):
+class Sanity_Adjust_Servo_180_Message_Union(Message_Union):
     """
 
     """
-    pass    
+    _fields_ = [
+        ("structure",       Sanity_Adjust_Servo_180_Message),
+        ("bytes",           sizeof(Sanity_Adjust_Servo_180_Message) * c_uint8)
+    ]
 
-class Sanity_Bt_Message_Union(Message_Union):
+    def __init__(self):
+        """
+
+        """
+        self.structure.command = 0x9B
+
+class Sanity_Adjust_Servo_150_Message(Request_Message):
     """
 
     """
-    pass
+    _fields_ = [
+        ("reservedBytes",   c_uint8 * 7)
+    ]
 
-
-class Sanity_Servo_Message(Request_Message):
+class Sanity_Adjust_Servo_150_Message_Union(Message_Union):
     """
 
     """
-    pass
+    _fields_ = [
+        ("structure",       Sanity_Adjust_Servo_150_Message),
+        ("bytes",           sizeof(Sanity_Adjust_Servo_150_Message) * c_uint8)
+    ]
 
-class Sanity_Servo_Message_Union(Message_Union):
+    def __init__(self):
+        """
+
+        """
+        self.structure.command = 0x98
+
+class Sanity_Adjust_Servo_120_Message(Request_Message):
     """
 
     """
-    pass
+    _fields_ = [
+        ("reservedBytes",   c_uint8 * 7)
+    ]
 
-
-class Sanity_Sensor_Message(Request_Message):
+class Sanity_Adjust_Servo_120_Message_Union(Message_Union):
     """
 
     """
-    pass
+    _fields_ = [
+        ("structure",       Sanity_Adjust_Servo_120_Message),
+        ("bytes",           sizeof(Sanity_Adjust_Servo_120_Message) * c_uint8)
+    ]
 
-class Sanity_Sensor_Message_Union(Message_Union):
+    def __init__(self):
+        """
+
+        """
+        self.structure.command = 0x94
+
+class Sanity_Adjust_Servo_90_Message(Request_Message):
     """
 
     """
-    pass
+    _fields_ = [
+        ("reservedBytes",   c_uint8 * 7)
+    ]
 
-
-class Sanity_PID_Message(Request_Message):
+class Sanity_Adjust_Servo_90_Message_Union(Message_Union):
     """
 
     """
-    pass
+    _fields_ = [
+        ("structure",       Sanity_Adjust_Servo_90_Message),
+        ("bytes",           sizeof(Sanity_Adjust_Servo_90_Message) * c_uint8)
+    ]
 
-class Sanity_PID_Message_Union(Message_Union):
+    def __init__(self):
+        """
+
+        """
+        self.structure.command = 0x90
+
+class Sanity_Adjust_Servo_60_Message(Request_Message):
     """
 
     """
-    pass
+    _fields_ = [
+        ("reservedBytes",   c_uint8 * 7)
+    ]
 
+class Sanity_Adjust_Servo_60_Message_Union(Message_Union):
+    """
+
+    """
+    _fields_ = [
+        ("structure",       Sanity_Adjust_Servo_60_Message),
+        ("bytes",           sizeof(Sanity_Adjust_Servo_60_Message) * c_uint8)
+    ]
+
+    def __init__(self):
+        """
+
+        """
+        self.structure.command = 0x92
+
+class Sanity_Adjust_Servo_30_Message(Request_Message):
+    """
+
+    """
+    _fields_ = [
+        ("reservedBytes",   c_uint8 * 7)
+    ]
+
+class Sanity_Adjust_Servo_30_Message_Union(Message_Union):
+    """
+
+    """
+    _fields_ = [
+        ("structure",       Sanity_Adjust_Servo_30_Message),
+        ("bytes",           sizeof(Sanity_Adjust_Servo_30_Message) * c_uint8)
+    ]
+
+    def __init__(self):
+        """
+
+        """
+        self.structure.command = 0x91
+
+class Sanity_Adjust_Servo_0_Message(Request_Message):
+    """
+
+    """
+    _fields_ = [
+        ("reservedBytes",   c_uint8 * 7)
+    ]
+
+class Sanity_Adjust_Servo_0_Message_Union(Message_Union):
+    """
+
+    """
+    _fields_ = [
+        ("structure",       Sanity_Adjust_Servo_0_Message),
+        ("bytes",           sizeof(Sanity_Adjust_Servo_0_Message) * c_uint8)
+    ]
+
+    def __init__(self):
+        """
+
+        """
+        self.structure.command = 0x93
+
+class Sanity_Loop_Servo_180_Message(Request_Message):
+    """
+
+    """
+    _fields_ = [
+        ("reservedBytes",   c_uint8 * 7)
+    ]
+
+class Sanity_Loop_Servo_180_Message_Union(Message_Union):
+    """
+
+    """
+    _fields_ = [
+        ("structure",       Sanity_Loop_Servo_180_Message),
+        ("bytes",           sizeof(Sanity_Loop_Servo_180_Message) * c_uint8)
+    ]
+
+    def __init__(self):
+        """
+
+        """
+        self.structure.command = 0x96
+
+class Sanity_Blink_Yellow_LED_Message(Request_Message):
+    """
+
+    """
+    _fields_ = [
+        ("reservedBytes",   c_uint8 * 7)
+    ]
+
+class Sanity_Blink_Yellow_LED_Message_Union(Message_Union):
+    """
+
+    """
+    _fields_ = [
+        ("structure",       Sanity_Blink_Yellow_LED_Message),
+        ("bytes",           sizeof(Sanity_Blink_Yellow_LED_Message) * c_uint8)
+    ]
+
+    def __init__(self):
+        """
+
+        """
+        self.structure.command = 0xA0
 
 class PID_Controller_Message(Request_Message):
     """
@@ -153,3 +344,9 @@ class PID_Controller_Message_Union(Message_Union):
         ("structure",       PID_Controller_Message),
         ("bytes",           sizeof(PID_Controller_Message) * c_uint8)
     ]
+
+    def __init__(self):
+        """
+
+        """
+        self.command = 0x70

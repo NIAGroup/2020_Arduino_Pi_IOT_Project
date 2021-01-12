@@ -41,10 +41,9 @@ class BtDevContainer(object):
                 the raspberry pi.
         """
         devices = bluetooth.discover_devices(lookup_names=True)
-        for device in devices:
-            addr, name = device
+        for addr, name in devices:
             if self._is_verified_bt_dev(name):
-                self._bt_name_dev_dict[name] = Bt_Device(addr)
+                self._bt_name_dev_dict[name] = Bt_Device(addr, name)
 
     def _scan_for_bt_ble_devices(self):
         """
@@ -58,7 +57,7 @@ class BtDevContainer(object):
         devices = service.discover(2)
         for addr, name in zip(devices.keys(), devices.values()):
             if self._is_verified_bt_dev(name):
-                self._bt_name_dev_dict[name] = Bt_Ble_Device(addr)
+                self._bt_name_dev_dict[name] = Bt_Ble_Device(addr, name)
 
     def _is_verified_bt_dev(self, name):
         """
@@ -85,7 +84,7 @@ class BtDevContainer(object):
             list of device name strings.
         """
         self._scan_for_bt_ble_devices()
-        #self._scan_for_bt_regular_devices()
+        self._scan_for_bt_regular_devices()
         active_dev_list = list(self._bt_name_dev_dict.keys())
         print(f"Discovered {len(active_dev_list)} valid bluetooth devics.")
         return active_dev_list
@@ -110,27 +109,4 @@ class BtDevContainer(object):
         except Exception:
             print(f"An unexpected exception occurred down the stack. Re-raising exception.")
             raise Exception
-
-    def remove_device(self, name):
-        """
-        Brief:
-            remove_device(name): Removes a bluetooth device from _bt_name_dev_dict dictionary.
-        Description:
-            This function takes a name(string) of the desired device, disconnects the device, then deletes the device
-                instance from the managing dictionary.
-        Param(s):
-            name: string value of the device name.
-        Return:
-            True upon successful disconnection; Raise an exception upon error/failure.
-        """
-        try:
-            del self._bt_name_dev_dict[name]
-        except KeyError:
-            print(f"Device name: {name} is not found. Something most likely went wrong!\n{KeyError}")
-            raise KeyError
-        except Exception:
-            print(f"An unexpected exception occurred down the stack. Re-raising exception.")
-            raise Exception
-
-        return True
 
