@@ -34,7 +34,7 @@
 #include "BT_Communication_Standard.h"
 
 BTComm_Standard btcs; 
-const byte servoPin = 6;    // Servo pin assigned as pin 6 [servos require a PWM pin].
+const byte servoPin = 5;    // Servo pin assigned as pin 6 [servos require a PWM pin].
 Servo servo;                // To create a servo instance, we use the Servo class from Servo.h.
 boolean isDeviceBLE = false;
 // Using the SoftwareSerial Library, the Digital IO pins 2 & 3 are repurposed as Soft Serial Pins
@@ -53,13 +53,15 @@ void setup()
 {   
  Serial.begin(9600);       // The default baudrate for the HC-05 is 38400, and 9600 for the HM-10 
  BT_Module.begin(9600);       // If the baudrate is incorrect the messages will not be read/displayed correctly.
- BT_ClassicModule.begin(9600);
+ //BT_ClassicModule.begin(9600);
  pinMode(blueLED_pin, OUTPUT);      // The led pin gets setup as an output pin. 
  pinMode(yellowLED_pin, OUTPUT);
  servo.attach(servoPin);
  Serial.println("#########################################");
  Serial.println("Ready to connect with a bluetooth device."); 
  Serial.println("#########################################");
+ delay(250);
+ servo.write(90);
 } 
 void loop() 
 { 
@@ -157,7 +159,7 @@ void handleIncomingRequest(boolean isDeviceBLE){
              Serial.print(btcs.ServoLookupTbl[n].cmd);
              Serial.print(":");
              Serial.println(btcs.ServoLookupTbl[n].pos);
-             setServoPosition(btcs.ServoLookupTbl[n].pos);
+             //setServoPosition(btcs.ServoLookupTbl[n].pos);
            }
            break;
          }

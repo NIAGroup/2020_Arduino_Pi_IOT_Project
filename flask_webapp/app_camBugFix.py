@@ -1,20 +1,47 @@
 from flask import Flask, jsonify, request, redirect, render_template, Response 
-from camera import *
-import cv2, time
-import sys
+from camera import VideoCamera
+import cv2
+import sys, threading, time
 
 if sys.platform == 'win32':
-     print("Running on Windows OS. This is not supported yet.")
-     exit()
+    print("Running on Windows OS. This is not supported yet.")
+    exit()
 
 from src.device_list import BtDevContainer
 Container = BtDevContainer()
 
+app = Flask(__name__)
 outputFrame = None
+lock = threading.Lock()
+isCamOn = False
 cam = None
-isCameraOn = False
+
+class piCam(object):
+    def __init__(self):
+        self.video = cv2.VideoCapture(0)
+        (self.grabbed, self.frame) = self.video.read()
+        self.frame = cv2.flip(self.frame,flipCode=-1)
+        # Adding threading to reduce demand on resources
+        threading.Thread(target=self.update, args=()).start()
+    
+    def __del__(self):
+        self.video.release()
+    
+    def get_frame(self):
+        image = cv2.flip(self.frame,flipCode=-1)
+        ret, jpeg = cv2.imencode('.jpg',image)
+        return jpeg.tobytes()
+        
+    def update(self):
+        while True:
+            (self.grabbed, self.frame) = self.video.read()
 
 app = Flask(__name__)
+
+def gen(cam):
+    while (True):
+        frame = cam.get_frame()
+        yield(b'--frame\r\n'b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 @app.route("/")
 def home():
@@ -36,6 +63,7 @@ def scan():
     try:
         devices = Container.scan()
         retDict["scan_devs"] = devices
+        #retDict["scan_devs"] = ['test1', 'test2', 'test3', 'test4']
     except Exception as e:
         print(f"Runtime error has occurred. {e}")
 
@@ -49,14 +77,15 @@ def connect():
     Return:
     """
     devices = request.get_json()
-    retValue = {"connectedDevice": {}}
+    retValue = {}
     for device in devices["selectedDevices"]:
         try:
-            retValue["connectedDevice"][device] = Container.get_device(device).connect()
-            #Todo: Update db to connected status
+            retValue[device] = Container.get_device(device).connect()
         except Exception:
-            retValue["connectedDevice"][device] = False
+            retValue[device] = False
     return jsonify(retValue)
+    #print(devices)
+    #return jsonify({"test2": True, "test3": True}) #uncommented line
 
 @app.route("/disconnect", methods=['GET', 'POST'])
 def disconnect():
@@ -66,16 +95,13 @@ def disconnect():
     Return:
     """
     devices = request.get_json()
-    retValue = {"disconnectedDevice": {}}
+    retValue = {}
     for device in devices["selectedDevices"]:
         try:
-            Container.get_device(device).disconnect()
-            # Todo: Update db to disconnected status.
-            retValue["disconnectedDevice"][device] = True
+            Container.remove_device(device)
             retValue[device] = True
-        except Exception as error:
-            print(f"Unexpected error occurred. {error}")
-            retValue["disconnectedDevice"][device] = False
+        except Exception:
+            retValue[device] = False
     return jsonify(retValue)
 
 @app.route("/send", methods=['GET', 'POST'])
@@ -83,10 +109,13 @@ def send():
     """
     Brief:
         send():
+
     POST:
         JSON => {selected_device_name : [ {method_name : {param_name : param_value} ] } ] }
+
     GET:
        JSON => {selected_device_name : {method_name : method_result} }
+
     """
     devices = request.get_json()
     retValue = {}
@@ -104,20 +133,14 @@ def send():
 
 @app.route('/video_feed')
 def video_feed():
-    print('Turn on Webcam')
-    # return the response generated along with the specific  media
-    # type (mime type)
     global cam
-    global isCameraOn
     if cam == None:
-        cam = VideoCamera()
-        isCameraOn = True
+    	cam = piCam()
     else:
-        time.sleep(0.1)
-        if cam.isCameraActive:
-            cam.isCameraActive = False
-    return Response(gen_frames(cam),
-        mimetype='multipart/x-mixed-replace; boundary=frame')
+    	#del cam
+    	time.sleep(0.1)
+    	#cam = piCam()
+    return Response(gen(cam), mimetype='multipart/x-mixed-replace; boundary=frame')
 
 
 if __name__ == '__main__':

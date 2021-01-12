@@ -22,9 +22,26 @@ body {
 
 }
 
-img{
-	height:150px;
+/* .welcome_jumbotron{
+	background-image: url(../img/arduino_stockphoto.jpg);
+	background-repeat: no-repeat;
+	background-attachment: fixed;
+	background-position: center;
+	background-size: 300px 100px;
+	background-color: #fffdfb;
+	font-family: PT Serif;
+} */
+
+.welcome_jumbotron {
+/*     background-image: url(../img/Merged_arduino_2.png);
+    background-position: top center;
+	background-repeat: no-repeat;
+	background-position: 40% center; */
+    background-color: #fffdfb;
+    font-family: PT Serif;
+    padding-right: 40%;
 }
+
 
 
 .thumbnail {
@@ -34,7 +51,7 @@ img{
     line-height: 1.42857143;
     background-color: transparent;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 1rem;
     -webkit-transition: border .2s ease-in-out;
     -o-transition: border .2s ease-in-out;
     transition: border .2s ease-in-out;
@@ -43,6 +60,9 @@ img{
 	border: 1px solid #007bff;
 }
 
+img{
+	height:150px;
+}
 img{
   display: block;
   margin-left: auto;
@@ -55,4 +75,97 @@ img{
 
 .table td, .table th{
 vertical-align: middle;
+}
+
+.progressbar{
+	margin:100px auto;
+/* 	display:flex;
+	width:50%;
+	margin:0 auto;
+	justify-content: space--between;
+	align-items:flex-end;  */
+}
+.progressbar i{
+	font-size: 350%;
+	margin-bottom: 20px;
+}
+.progressbar ul{
+	text-align: center;	
+}
+.progressbar ul li{
+	display: inline-block;
+	width: 20%;
+	position: relative;
+}
+.status_icon{
+	font-size: 100% !important;
+	background: #ECECEC;
+	color:#323644;
+	border-radius:50%;
+	padding:5px;
+	
+}
+
+.transcolor{
+opacity: 0.5;
+}
+
+.status_icon::after{
+	content:'';
+	background: #ECECEC;
+	height:5px;
+	width: 93%;
+	display: block;
+ 	position: absolute;
+	left:54%;  
+	top: 83px;
+}
+.progressbar ul li:last-child .status_icon::after{
+	width: 0%;
+
+}
+
+.status_icon.completed{
+	font-size: 100% !important;
+	background: #148e14;
+	color:white;
+	border-radius:50%;
+	padding:5px;
+	
+}
+.status_icon.completed::after{
+	content:'';
+	background: #148e14;
+	height:5px;
+	width: 93%;
+	display: block;
+	position: absolute;
+	left:54%;
+	top: 83px;
+}
+
+.status_icon.failed{
+	font-size: 100% !important;
+	background: red;
+	color:white;
+	border-radius:50%;
+	padding:5px;
+	
+}
+.status_icon.failed::after{
+	content:'';
+	background: red;
+	height:5px;
+	width: 93%;
+	display: block;
+	position: absolute;
+	left:54%;
+	top: 83px;
+}
+
+#videofeed_col{
+	display: flex !important;
+}
+#stream_video{
+	margin: auto !important;
 }

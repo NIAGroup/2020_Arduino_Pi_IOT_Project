@@ -110,26 +110,3 @@ class BtDevContainer(object):
             print(f"An unexpected exception occurred down the stack. Re-raising exception.")
             raise Exception
 
-    def remove_device(self, name):
-        """
-        Brief:
-            remove_device(name): Removes a bluetooth device from _bt_name_dev_dict dictionary.
-        Description:
-            This function takes a name(string) of the desired device, disconnects the device, then deletes the device
-                instance from the managing dictionary.
-        Param(s):
-            name: string value of the device name.
-        Return:
-            True upon successful disconnection; Raise an exception upon error/failure.
-        """
-        try:
-            del self._bt_name_dev_dict[name]
-        except KeyError:
-            print(f"Device name: {name} is not found. Something most likely went wrong!\n{KeyError}")
-            raise KeyError
-        except Exception:
-            print(f"An unexpected exception occurred down the stack. Re-raising exception.")
-            raise Exception
-
-        return True
-
