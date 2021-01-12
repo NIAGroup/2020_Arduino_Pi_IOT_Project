@@ -36,7 +36,7 @@ function clearChildNodes(elt_id){
   scan_dev_row.querySelectorAll('*').forEach(n => n.remove());
 }
 
-function drawNoDeviceMessage(){
+function drawNoDeviceMessage(elt_id){
   var no_dev_text = document.createTextNode("Couldn't find any bluetooth devices.");
 
   var dev_header = document.createElement("h6");
@@ -46,9 +46,17 @@ function drawNoDeviceMessage(){
   var dev_column = document.createElement("div");
   dev_column.setAttribute("class", "col");
   dev_column.appendChild(dev_header);
-
+  if (elt_id === "Scan")
+  {
   var scan_dev_row = document.getElementById("Scan");
   scan_dev_row.appendChild(dev_column);
+  }
+  
+  if (elt_id === "ScanDB")
+  {
+  var scanDB_dev_row = document.getElementById("ScanDB");
+  scanDB_dev_row.appendChild(dev_column);
+  }
 }
 
 function drawDevices(name, index){
@@ -73,6 +81,31 @@ function drawDevices(name, index){
   dev_column.appendChild(dev_paragraph);
 
   var scan_dev_row = document.getElementById("Scan");
+  scan_dev_row.appendChild(dev_column);
+
+}
+function drawScanDBDevices(name, index){
+  var dev_image = document.createElement("img");
+  dev_image.setAttribute("src", "../static/img/arduino_icon_transparent.jpg");
+  dev_image.setAttribute("alt", "Arduino icon");
+
+  var dev_a_tag = document.createElement("a");
+  dev_a_tag.setAttribute("class", "thumbnail");
+  dev_a_tag.setAttribute("onclick", "thumbnailSelect(this)");
+  dev_a_tag.appendChild(dev_image);
+
+  var dev_paragraph = document.createElement("p");
+  dev_paragraph.setAttribute("style", "text-align:center");
+  var dev_name_text = document.createTextNode(name);
+  dev_paragraph.appendChild(dev_name_text);
+
+  var dev_column = document.createElement("div");
+  dev_column.classList = "col scanDev";
+  dev_column.id = name;
+  dev_column.appendChild(dev_a_tag);
+  dev_column.appendChild(dev_paragraph);
+
+  var scan_dev_row = document.getElementById("ScanDB");
   scan_dev_row.appendChild(dev_column);
 
 }
@@ -179,21 +212,37 @@ function scanBTDevice(evt, selectionName) {
     closeMenu();
     return;
   }
+  if (document.getElementById("ScanDB").style.display === "flex"){
+    closeMenu();
+    return;
+  }
   else{
     closeMenu();
 	document.getElementById(selectionName).style.display = "flex";
 	document.getElementById(selectionName).style.flexWrap = "wrap";
+	document.getElementById("ScanDB").style.display = "flex";
+	document.getElementById("ScanDB").style.flexWrap = "wrap";
     //evt.currentTarget.firstElementChild.className += "w3-border-red";
      if (selectionName === "Scan"){
       // Clear the row of previously scanned device image columns
+
+	  clearChildNodes("ScanDB")
+	  var scanDBurl= "/previously_paired";
+	  d3.json(scanDBurl, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
+        if (data_in === null || data_in.prev_devs === undefined || data_in.prev_devs.length == 0) {
+          setTimeout(function(){drawNoDeviceMessage("ScanDB");},2000);
+        }
+        else{
+          setTimeout(function(){data_in.prev_devs.forEach(drawScanDBDevices);},2000);
+        }
+      });
 	  
       setTimeout(function(){clearChildNodes("Scan");},2000);
-
      // Perform a scan and grab data from back-end
-      var url = "/scan";
-      d3.json(url, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
+      var scanurl = "/scan";
+      d3.json(scanurl, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
         if (data_in === null || data_in.scan_devs === undefined || data_in.scan_devs.length == 0) {
-          setTimeout(function(){drawNoDeviceMessage();},2000);
+          setTimeout(function(){drawNoDeviceMessage("Scan");},2000);
         }
         else{
           setTimeout(function(){data_in.scan_devs.forEach(drawDevices);},2000);

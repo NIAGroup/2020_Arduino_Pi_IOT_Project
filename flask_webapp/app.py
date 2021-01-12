@@ -23,7 +23,7 @@ def home():
     Param(s):
     Return:
     """
-    return render_template("index_new.html")
+    return render_template("index.html")
 
 @app.route("/scan")
 def scan():
