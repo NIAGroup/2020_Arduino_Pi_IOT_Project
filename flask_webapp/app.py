@@ -1,14 +1,14 @@
-from flask import Flask, jsonify, request, redirect, render_template, Response 
+from flask import Flask, jsonify, request, redirect, render_template, Response
 from camera import *
 import cv2, time
 import sys
 
-if sys.platform == 'win32':
-     print("Running on Windows OS. This is not supported yet.")
-     exit()
-
-from src.device_list import BtDevContainer
-Container = BtDevContainer()
+# if sys.platform == 'win32':
+#      print("Running on Windows OS. This is not supported yet.")
+#      exit()
+#
+# from src.device_list import BtDevContainer
+# Container = BtDevContainer()
 
 outputFrame = None
 cam = None
@@ -34,8 +34,9 @@ def scan():
     """
     retDict = {}
     try:
-        devices = Container.scan()
-        retDict["scan_devs"] = devices
+        # devices = Container.scan()
+        # retDict["scan_devs"] = devices
+        retDict["scan_devs"] = ['test1', 'test2', 'test3', 'test4']
     except Exception as e:
         print(f"Runtime error has occurred. {e}")
 
