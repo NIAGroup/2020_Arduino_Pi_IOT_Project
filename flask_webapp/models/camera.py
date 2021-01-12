@@ -1,4 +1,4 @@
-import cv2
+import cv2, threading
 #from imutils.video import WebcamVideoStream
 #import threading
 #import time
@@ -7,26 +7,30 @@ import cv2
 # outputFrame = None
 # lock = threading.Lock()
 
+
+class VideoCamera(object):
+    def __init__(self):
+        self.isCameraActive = True
+        self.video = cv2.VideoCapture(0)
+        (self.grabbed, self.frame) = self.video.read()
+        self.frame = cv2.flip(self.frame,flipCode=-1)
+        # Adding threading to reduce demand on resources
+        threading.Thread(target=self.update, args=()).start()
+    
+    def __del__(self):
+        self.video.release()
+    
+    def get_frame(self):
+        image = cv2.flip(self.frame,flipCode=-1)
+        ret, jpeg = cv2.imencode('.jpg',image)
+        return jpeg.tobytes()
+        
+    def update(self):
+        while self.isCameraActive:
+            (self.grabbed, self.frame) = self.video.read()
+            
 def gen_frames(camera):
     while True:
         frame = camera.get_frame()
         yield (b'--frame\r\n'
             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-
-class VideoCamera(object):
-    def __init__(self):
-       #capturing video
-       self.video = cv2.VideoCapture(0)
-
-    def __del__(self):
-        #releasing camera
-        self.video.release()
-
-    def get_frame(self):
-           #extracting frames
-            ret, frame = self.video.read()
-            frame = cv2.flip(frame, flipCode=-1)
-
-            # encode OpenCV raw frame to jpg and displaying it
-            ret, jpeg = cv2.imencode('.jpg', frame)
-            return jpeg.tobytes()

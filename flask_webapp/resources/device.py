@@ -12,23 +12,23 @@ class BluetoothDevice(Resource):
         """
         retDict = {}
         try:
-            #devices = Container.scan()
-            #retDict["scan_devs"] = devices
+            # devices = Container.scan()
+            # retDict["scan_devs"] = devices
+            # test on Windows
             retDict["scan_devs"] = ['test1', 'test2', 'test3', 'test4']
-
             # update database
             for deviceName in retDict["scan_devs"]:
-                print(f'scanned dev: {deviceName}')
+                print(f'scanned device: {deviceName}')
                 if ScanDeviceModel.find_by_name(deviceName):
                     print(f'scan device already exist: {deviceName}')
                 else:
-                    print(f"found a new new device: {deviceName}")
                     device = ScanDeviceModel(deviceName)
                     device.save_to_db()
         except Exception as e:
             print(f"Runtime error has occurred. {e}")
 
         return jsonify(retDict)
+
 
 class Connect(Resource):
     def get(self,name):
@@ -40,25 +40,36 @@ class Connect(Resource):
     def post(self):
         devices = request.get_json()
         print(f'devices => {devices}')
-        retValue = {}
+        retValue = {"connectedDevice": {}}
+
         for deviceName in devices["selectedDevices"]:
-            print(f'debug: {deviceName}')
-            """
-            try:
-                retValue[deviceName] = Container.get_device(deviceName).connect()
-            except Exception:
-                retValue[deviceName] = False
-            """
+            print(f'debug: processing {deviceName}')
+            # This try block is failing
+            # try:
+            #     retValue["connectedDevice"][deviceName] = Container.get_device(deviceName).connect()
+            #     # update database
+            #     device = DeviceModel.find_by_name(deviceName)
+            #     if device:
+            #         # Connecting existing device
+            #         device.status = "connected"
+            #     else:
+            #         # Adding a new device
+            #         device = DeviceModel(deviceName, "connected")
+            #     device.save_to_db()
+            # except Exception:
+            #     print("debug: try failed")
+            #     retValue["connectedDevice"][deviceName] = False
+                # update database
             device = DeviceModel.find_by_name(deviceName)
             if device:
-                print(f"connecting existing device {deviceName}")
+                # Connecting existing device
                 device.status = "connected"
             else:
-                print(f"Adding a new device: {deviceName}")
+                # Adding a new device
                 device = DeviceModel(deviceName, "connected")
             device.save_to_db()
 
-        return device.json(), 201
+        return jsonify(retValue)
 
     def delete(self,name):
         device = DeviceModel.find_by_name(name)
@@ -75,38 +86,30 @@ class Disconnect(Resource):
         Param(s):
         Return:
         """
-
         devices = request.get_json()
         print(f'devices => {devices}')
-        retValue = {}
+        retValue = {"disconnectedDevice": {}}
         for deviceName in devices["selectedDevices"]:
-            # try block is failing calling Container.remove_device()
+            # try block is failing
             # try:
-            #     Container.remove_device(deviceName)
-            #     retValue[device] = True
-            #     # update database
+            #     Container.get_device(deviceName).disconnect()
+            #     retValue["disconnectedDevice"][device] = True
+            #     retValue[deviceName] = True
+            #     # Update db to disconnected status
             #     device = DeviceModel.find_by_name(deviceName)
             #     if device:
-            #         print("Disconnecting device")
+            #         print(f"Disconnecting device {deviceName}")
             #         device.status = "disconnected"
-            #         #device = DeviceModel(name, data['status'])
-            #     else:
-            #         #device.status = data['status'] # update the status
-            #         #device = DeviceModel(name, data['status'])
-            #         print("Adding a new device")
-            #         device = DeviceModel(deviceName, "connected")
-            #
             #     device.save_to_db()
-            # except Exception:
-            #     print("In exception")
-            #     retValue[deviceName] = False
-
-                device = DeviceModel.find_by_name(deviceName)
-                if device:
-                    print(f"Disconnecting device {deviceName}")
-                    device.status = "disconnected"
-                device.save_to_db()
-
+            # except Exception as error:
+            #     print(f"Unexpected error occurred. {error}")
+            #     retValue["disconnectedDevice"][deviceName] = False
+            # Update db to disconnected status
+            device = DeviceModel.find_by_name(deviceName)
+            if device:
+                print(f"Disconnecting device {deviceName}")
+                device.status = "disconnected"
+            device.save_to_db()
         return jsonify(retValue)
 
 
