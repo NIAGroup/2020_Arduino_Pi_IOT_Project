@@ -26,7 +26,7 @@ def home():
     Param(s):
     Return:
     """
-    return render_template("index_new.html")
+    return render_template("index.html")
 
 @app.route("/previously_paired")
 def previously_paried():
