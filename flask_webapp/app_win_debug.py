@@ -26,7 +26,22 @@ def home():
     Param(s):
     Return:
     """
-    return render_template("index_new.html")
+    return render_template("index.html")
+
+@app.route("/previously_paired")
+def previously_paried():
+    """
+    Brief:
+    Param(s):
+    Return:
+    """
+    retDict = {}
+    try:
+        retDict["prev_devs"] = ['prev0', 'prev1', 'prev2']
+    except Exception as e:
+        print(f"Runtime error has occurred. {e}")
+
+    return jsonify(retDict)
 
 @app.route("/scan")
 def scan():
