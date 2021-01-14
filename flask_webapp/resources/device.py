@@ -41,7 +41,6 @@ class Connect(Resource):
 
         for deviceName in devices["selectedDevices"]:
             print(f'debug: processing {deviceName}')
-            This try block is failing
             try:
                 retValue["connectedDevice"][deviceName] = Container.get_device(deviceName).connect()
                 # update database
