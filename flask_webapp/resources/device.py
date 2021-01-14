@@ -24,7 +24,6 @@ class BluetoothDevice(Resource):
                     device.save_to_db()
         except Exception as e:
             print(f"Runtime error has occurred. {e}")
-
         return jsonify(retDict)
 
 
@@ -57,15 +56,12 @@ class Connect(Resource):
             except Exception:
                 print("debug: try failed")
                 retValue["connectedDevice"][deviceName] = False
-                update database
-
         return jsonify(retValue)
 
     def delete(self,name):
         device = DeviceModel.find_by_name(name)
         if device:
             device.delete_from_db()
-
         return {'message', 'device deleted'}
 
 
@@ -93,7 +89,6 @@ class Disconnect(Resource):
             except Exception as error:
                 print(f"Unexpected error occurred. {error}")
                 retValue["disconnectedDevice"][deviceName] = False
-
         return jsonify(retValue)
 
 
