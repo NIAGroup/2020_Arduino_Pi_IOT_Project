@@ -193,6 +193,16 @@ class Bt_Device(object):
         self._timeout = 60  # timeout value to receive a response in seconds
         self._buflen = 8    # 8 bytes received per message
 
+    @property
+    def name(self):
+        """
+        Brief:
+            name(): Getter api for _name attribute
+        return:
+            string (_name attribute)
+        """
+        return self._name
+
     def connect(self):
         """
         Brief:

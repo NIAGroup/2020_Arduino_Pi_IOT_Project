@@ -31,6 +31,14 @@ class BtDevContainer(object):
 
         """
         self._bt_name_dev_dict = {}     # name -> device
+        self._connected_dev = None
+
+    @property
+    def connected_device(self):
+        """
+
+        """
+        return self._connected_dev
 
     def _scan_for_bt_regular_devices(self):
         """
@@ -110,3 +118,21 @@ class BtDevContainer(object):
             print(f"An unexpected exception occurred down the stack. Re-raising exception.")
             raise Exception
 
+    def connect_device(self, name):
+        """
+
+        """
+        retVal = True
+
+        if (name == self._connected_dev) or self.get_device(name).is_connected():
+            print("Device is already connected.")
+        else:
+            try:
+                retVal = self.get_device(name).connect()
+            except Exception as error:
+                print(f"An unexpected error happened. {error}")
+                retVal = False
+        if retVal:
+            self._connected_dev = name
+
+        return retVal

@@ -25,6 +25,14 @@ def home():
     """
     return render_template("index.html")
 
+@app.route("/previously_paired")
+def previously_paired():
+    """
+
+    """
+    retDict = {}
+
+
 @app.route("/scan")
 def scan():
     """
@@ -51,11 +59,7 @@ def connect():
     devices = request.get_json()
     retValue = {"connectedDevice": {}}
     for device in devices["selectedDevices"]:
-        try:
-            retValue["connectedDevice"][device] = Container.get_device(device).connect()
-            #Todo: Update db to connected status
-        except Exception:
-            retValue["connectedDevice"][device] = False
+        retValue["connectedDevice"][device] = Container.connect_device(device)
     return jsonify(retValue)
 
 @app.route("/disconnect", methods=['GET', 'POST'])
