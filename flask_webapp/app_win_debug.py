@@ -1,7 +1,10 @@
 from flask import Flask, jsonify, request, redirect, render_template, Response
-from camera import VideoCamera
-import cv2
+from flask_restful import Resource, Api
 import sys
+
+from db import db
+from models.camera import VideoCamera, gen_frames
+from resources.device import BluetoothDevice, Connect, Disconnect, DeviceList
 
 # if sys.platform == 'win32':
      # print("Running on Windows OS. This is not supported yet.")
@@ -11,13 +14,20 @@ import sys
 # Container = BtDevContainer()
 
 app = Flask(__name__)
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pid_app.db'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+api = Api(app)
 
-def gen_frames(camera):
+@app.before_first_request
+def create_tables():
+    db.create_all()
 
-    while True:
-        frame = camera.get_frame()
-        yield (b'--frame\r\n'
-            b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+# def gen_frames(camera):
+#
+#     while True:
+#         frame = camera.get_frame()
+#         yield (b'--frame\r\n'
+#             b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 
 @app.route("/")
 def home():
@@ -61,6 +71,7 @@ def send_function_tests():
     ]
     return jsonify(retDict)
 
+<<<<<<< HEAD
 @app.route("/scan")
 def scan():
     """
@@ -108,6 +119,15 @@ def disconnect():
         except Exception:
             retValue[device] = False
     return jsonify(retValue)
+=======
+@app.route('/video_feed')
+def video_feed():
+    print('Turn on Webcam')
+    # return the response generated along with the specific  media
+    # type (mime type)
+    return Response(gen_frames(VideoCamera()),
+        mimetype='multipart/x-mixed-replace; boundary=frame')
+>>>>>>> a2f290033573fa826ec651172fdfd7f0b347dcf4
 
 @app.route("/send", methods=['GET', 'POST'])
 def send():
@@ -136,14 +156,10 @@ def send():
 
     return jsonify(retValue)
 
-@app.route('/video_feed')
-def video_feed():
-    print('Turn on Webcam')
-    # return the response generated along with the specific  media
-    # type (mime type)
-    return Response(gen_frames(VideoCamera()),
-        mimetype='multipart/x-mixed-replace; boundary=frame')
-
+api.add_resource(Connect, '/connect')
+api.add_resource(Disconnect, '/disconnect')
+api.add_resource(BluetoothDevice, '/scan')
+api.add_resource(DeviceList, '/devices')
 
 if __name__ == '__main__':
     # setting the host to 0.0.0.0 makes the pi act as a server,
@@ -151,4 +167,5 @@ if __name__ == '__main__':
     # local ip address.
     # NOTE : When running the webapp you must use "sudo" for super user
     # rights to run as a server.
+    db.init_app(app)
     app.run(host="0.0.0.0", port=5000, debug=True)

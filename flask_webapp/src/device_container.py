@@ -4,7 +4,7 @@ File:
 Description:
     Describes bluetooth device container for managing device instances.
 Classes:
-    BtDevContainer
+    Bt_Dev_Container
 Author:
     Adoany Berhe
 """
@@ -13,10 +13,17 @@ import bluetooth
 from bluetooth.ble import DiscoveryService
 from device import Bt_Ble_Device, Bt_Device
 
-class BtDevContainer(object):
+RETURN_STATUS = {
+        "SUCCESS": 0x00,
+        "ALREADY_CONNECTED": 0x01,
+        "CONNECTION_FAILED": 0x02,
+        "ERROR": 0xFF
+    }
+
+class Bt_Dev_Container(object):
     """
     Brief:
-        BtDevContainer(): Container class for holding all bt device instances and apis
+        Bt_Dev_Container(): Container class for holding all bt device instances and apis
     Description:
         This class will discover all peripheral devices and provide APIs for sending and receiving
             commands.
@@ -32,7 +39,6 @@ class BtDevContainer(object):
         """
         self._bt_name_dev_dict = {}     # name -> device
         self._connected_dev = None
-
     @property
     def connected_device(self):
         """
@@ -122,17 +128,30 @@ class BtDevContainer(object):
         """
 
         """
-        retVal = True
-
-        if (name == self._connected_dev) or self.get_device(name).is_connected():
+        if self.get_device(name).is_connected():
             print("Device is already connected.")
+            self._connected_dev = name
+            return RETURN_STATUS["ALREADY_CONNECTED"]
         else:
             try:
-                retVal = self.get_device(name).connect()
-            except Exception as error:
-                print(f"An unexpected error happened. {error}")
-                retVal = False
-        if retVal:
-            self._connected_dev = name
+                if self._connected_dev:     # disconnect the previously connected device
+                    self.disconnect_device(self._connected_dev)
 
-        return retVal
+                # connect the new device
+                if self.get_device(name).connect():
+                    self._connected_dev = name
+                    return RETURN_STATUS["SUCCESS"]
+                else:
+                    print(f"Connect command failed for device {name}")
+                    return RETURN_STATUS["CONNECTION_FAILED"]
+            except Exception as error:
+                print(f"An unexpected error happened. \n{error}")
+                raise error
+
+    def disconnect_device(self, name):
+        """
+
+        """
+        self.get_device(name).disconnect()
+        self._connected_dev = None      # reset connected_device to None
+

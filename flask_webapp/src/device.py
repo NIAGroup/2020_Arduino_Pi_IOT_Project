@@ -40,6 +40,16 @@ class Bt_Ble_Device(object):
         self._timeout = 60      # timeout value to receive a response in seconds
         self._dev = None
 
+    @property
+    def name(self):
+        """
+        Brief:
+            name(): Getter api for _name attribute
+        return:
+            string (_name attribute)
+        """
+        return self._name
+
     def connect(self):
         """
         Brief:
