@@ -1,15 +1,16 @@
-from flask import Flask, jsonify, request, redirect, render_template, Response
-from flask_restful import Resource, Api
-import sys, time
-
+from flask import Flask
+from flask_restful import Api
+import sys
 from db import db
 from models.camera import VideoCamera, gen_frames
-from resources.resource_manager import Home_Manager, Connection_Manager, Disconnection_Manager, Scanlist_Manager, \
-    Previous_Connection_Manager, Functional_Test_Manager, PID_Command_Manager, Video_Feed_Manager
 
 if sys.platform == 'win32':
-    print("Running on Windows OS. This is not supported yet.")
-    exit()
+    print("Running on Windows OS. This is going to launch the debug version of this application.")
+    from resources.resource_manager_win_debug import HOME, Device_Connection_Resource, Device_Disconnection_Resource, \
+        Scanlist_Resource, Previous_Connection_Resource, Functional_Test_Resource, PID_Command_Resource, Video_Feed_Resource
+else:
+    from resources.resource_manager import HOME, Device_Connection_Resource, Device_Disconnection_Resource, \
+        Scanlist_Resource, Previous_Connection_Resource, Functional_Test_Resource, PID_Command_Resource, Video_Feed_Resource
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pid_app.db'
@@ -67,14 +68,14 @@ def video_feed():
     return Response(gen_frames(cam),
         mimetype='multipart/x-mixed-replace; boundary=frame')
 """
-api.add_resource(Home_Manager, '/')
-api.add_resource(Connection_Manager, '/connect')
-api.add_resource(Disconnection_Manager, '/disconnect')
-api.add_resource(Scanlist_Manager, '/scan')
-api.add_resource(Previous_Connection_Manager, '/get_previously_paired')
-api.add_resource(Functional_Test_Manager, '/send_function_tests')
-api.add_resource(PID_Command_Manager, '/send')
-api.add_resourece(Video_Feed_Manager, '/get_video_feed')
+api.add_resource(HOME, '/')
+api.add_resource(Device_Connection_Resource, '/connect')
+api.add_resource(Device_Disconnection_Resource, '/disconnect')
+api.add_resource(Scanlist_Resource, '/scan')
+api.add_resource(Previous_Connection_Resource, '/get_previously_paired')
+api.add_resource(Functional_Test_Resource, '/send_function_tests')
+api.add_resource(PID_Command_Resource, '/send')
+api.add_resourece(Video_Feed_Resource, '/get_video_feed')
 
 if __name__ == '__main__':
     # setting the host to 0.0.0.0 makes the pi act as a server,

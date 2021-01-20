@@ -40,7 +40,7 @@ class Bt_Dev_Container(object):
         self._bt_name_dev_dict = {}     # name -> device
         self._connected_dev = None
     @property
-    def connected_device(self):
+    def get_connected_device(self):
         """
 
         """
@@ -117,18 +117,31 @@ class Bt_Dev_Container(object):
         """
         try:
             return self._bt_name_dev_dict[name]
-        except KeyError:
-            print(f"Device name: {name} is not found. Raising exception.\n{KeyError}")
-            raise KeyError
-        except Exception:
-            print(f"An unexpected exception occurred down the stack. Re-raising exception.")
-            raise Exception
+        except KeyError as error:
+            print(f"Device name: {name} is not found. Raising exception.\n{error}\nRe-raising exception")
+            raise error
+        except Exception as error:
+            print(f"An unexpected exception occurred down the stack. \n{error}\nRe-raising exception.")
+            raise error
 
     def connect_device(self, name):
         """
 
         """
-        if self.get_device(name).is_connected():
+        dev = None
+        try:
+            dev = self.get_device(name)
+        except Exception:
+            print(f"Device handle not found. Will be performing a scan.")
+            self.scan()
+            try:
+                dev = self.get_device(name)
+            except KeyError as device_not_available_error:
+                print(f"Device not available after performing scan. Raising exception:\n{device_not_available_error}")
+                raise device_not_available_error
+
+
+        if dev.is_connected():
             print("Device is already connected.")
             self._connected_dev = name
             return RETURN_STATUS["ALREADY_CONNECTED"]
@@ -137,8 +150,7 @@ class Bt_Dev_Container(object):
                 if self._connected_dev:     # disconnect the previously connected device
                     self.disconnect_device(self._connected_dev)
 
-                # connect the new device
-                if self.get_device(name).connect():
+                if dev.connect():           # connect the new device
                     self._connected_dev = name
                     return RETURN_STATUS["SUCCESS"]
                 else:
@@ -152,6 +164,9 @@ class Bt_Dev_Container(object):
         """
 
         """
-        self.get_device(name).disconnect()
-        self._connected_dev = None      # reset connected_device to None
+        if name in self._bt_name_dev_dict.keys():
+            self.get_device(name).disconnect()
+            self._connected_dev = None      # reset connected_device to None
+        else:
+            print(f"Device handle for {name} not found. Returning without doing anything.")
 

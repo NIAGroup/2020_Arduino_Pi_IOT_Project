@@ -6,14 +6,25 @@ from src.device_container import Bt_Dev_Container, RETURN_STATUS
 
 Container = Bt_Dev_Container()
 
-class Home_Manager(Resource):
+class HOME(Resource):
     """
 
     """
     def get(self):
         return render_template("index.html"), status.HTTP_200_OK
 
-class Scanlist_Manager(Resource):
+class Previous_Connection_Resource(Resource):
+    def get(self):
+        resp_status = None
+        retDict = {'previously_paired_devices': [device.json() for device in Device_Model.query.all()]}
+        if len(retDict['previously_paired_devices']) == 0:      # Check if db has any devices logged.
+            resp_status = status.HTTP_204_NO_CONTENT
+        else:
+            resp_status = status.HTTP_200_OK
+
+        return Response(jsonify(retDict), status=resp_status, mimetype='application/json')
+
+class Scanlist_Resource(Resource):
     def get(self):
         """
         Brief:
@@ -34,12 +45,11 @@ class Scanlist_Manager(Resource):
 
         return Response(jsonify(retDict), status=resp_status, mimetype='application/json')
 
-class Connection_Manager(Resource):
+class Device_Connection_Resource(Resource):
     def get(self):
         retDict = {}
         resp_status = None
         devices = Device_Model.find_by_status("connected")
-
         if devices:
             if type(devices) is list:   # more than one connected device logged.
                 error_str = f"Found multiple entries in the database with connected status. {devices}"
@@ -63,45 +73,69 @@ class Connection_Manager(Resource):
         for deviceName in devices["selectedDevices"]:
             print(f'debug: processing {deviceName}')
             try:
-                if deviceName != Container.connected_device():
-                    ret_status = Container.connect_device(deviceName)
+                if deviceName != Container.get_connected_device():
+                    connected_dev_from_db = Device_Model.find_by_status("connected")    # check for connected status entry in db
+                    if (connected_dev_from_db != None) and (connected_dev_from_db.name == deviceName):
+                        resp_status = HTTP_513_DB_AND_CONTAINER_INCONSISTENT = 513
+                        error_str = f"DB reports {deviceName} is {connected_dev_from_db.status} while Container reports connected " \
+                                    f"device is {Container.get_connected_device()}."
+                        print(error_str)
+                        retDict["error_msg"] = error_str
+                    else:
+                        ret_status = Container.connect_device(deviceName)
+                        if ret_status == RETURN_STATUS["SUCCESS"]:
+                            if connected_dev_from_db:
+                                connected_dev_from_db.status = "disconnected"
+                                connected_dev_from_db.save_to_db()
+                                retDict["disconnected_device"] = connected_dev_from_db.json()
 
-                    if ret_status == RETURN_STATUS["SUCCESS"]:     #if connect returned true
+                            device = Device_Model.find_by_name(deviceName)
+                            if device:
+                                # Connecting existing device
+                                device.status = "connected"
+                                resp_status = status.HTTP_202_ACCEPTED
+                            else:
+                                # Adding a new device
+                                device = Device_Model(deviceName, "connected")
+                                resp_status = status.HTTP_201_CREATED
+                            device.save_to_db()
+                            retDict["connected_device"] = device.json()   # create the body/payload
 
-                        prev_connected_dev = Device_Model.find_by_status("connected")
-                        if prev_connected_dev:  # check for previous connection
-                            prev_connected_dev.status = "disconnected"
-                            prev_connected_dev.save_to_db()
-                            retDict["disconnected_device"] = prev_connected_dev.json()
-
-                        device = Device_Model.find_by_name(deviceName)
-                        if device:
-                            # Connecting existing device
-                            device.status = "connected"
-                        else:
-                            # Adding a new device
-                            device = Device_Model(deviceName, "connected")
-                        device.save_to_db()
-                        retDict["connected_device"] = device.json()   # create the body/payload
-                        resp_status = status.HTTP_201_CREATED
-
-                    elif ret_status == RETURN_STATUS["ALREADY_CONNECTED"]:
-                        resp_status = status.HTTP_202_ACCEPTED
-                        # Confirm that db also reports the same thing
-                        device = Device_Model.find_by_name(deviceName)
-                        if (device == None) or (device.status != "connected"):
-                            pass    # Todo: Figure out this edge condition
-                        else:
-                            retDict["connected_device"] = device.json()
+                        elif ret_status == RETURN_STATUS["ALREADY_CONNECTED"]:
+                            resp_status = status.HTTP_202_ACCEPTED
+                            # Confirm that db also reports the same thing
+                            device = Device_Model.find_by_name(deviceName)
+                            if (device == None) or (device.status != "connected"):
+                                resp_status = HTTP_513_DB_AND_CONTAINER_INCONSISTENT = 513
+                                error_str = ""
+                                if device:
+                                    error_str = f"DB reports device is {device.status} while Container reports already connected."
+                                else: # device isn't found in db
+                                    error_str = f"Device {deviceName} is not found in the {Device_Model.__tablename__} table."
+                                print(error_str)
+                                retDict["error_msg"] = error_str
+                            else:
+                                retDict["connected_device"] = device.json()
                 else:
                     resp_status = status.HTTP_202_ACCEPTED
                     # Confirm that db also reports the same thing
                     device = Device_Model.find_by_name(deviceName)
                     if (device == None) or (device.status != "connected"):
-                        pass  # Todo: Figure out this edge condition
+                        resp_status = HTTP_513_DB_AND_CONTAINER_INCONSISTENT = 513
+                        error_str = ""
+                        if device:
+                            error_str = f"DB reports {deviceName} is {device.status} while Container reports already connected."
+                        else:  # device isn't found in db
+                            error_str = f"{deviceName} is not found in the {Device_Model.__tablename__} table."
+                        print(error_str)
+                        retDict["error_msg"] = error_str
                     else:
                         retDict["connected_device"] = device.json()
-
+            except KeyError:
+                error_str = "The device selected is not currently available."
+                print (error_str)
+                retDict["error_msg"] = error_str
+                resp_status = status.HTTP_404_NOT_FOUND
             except Exception as error:
                 error_str = f"An error occurred in the lower stack of the code. \n {error}"
                 print(error_str)
@@ -116,7 +150,7 @@ class Connection_Manager(Resource):
             device.delete_from_db()
         return {'message', 'device deleted'}
 
-class Disconnection_Manager(Resource):
+class Device_Disconnection_Resource(Resource):
     def put(self):
         """
         Brief:
@@ -129,40 +163,38 @@ class Disconnection_Manager(Resource):
         resp_status = None
         for deviceName in devices["selectedDevices"]:
             try:
-                Container.disconnect_device(deviceName)
-
-                # Update db to disconnected status
-                device = Device_Model.find_by_name(deviceName)
-                if device:
+                connected_dev_from_db = Device_Model.find_by_status("connected")  # check for connected status entry in db
+                if (connected_dev_from_db != None) and (connected_dev_from_db.name == deviceName):
+                    Container.disconnect_device(deviceName)
                     print(f"Disconnecting device {deviceName}")
-                    device.status = "disconnected"
+                    connected_dev_from_db.status = "disconnected"   # Update db to disconnected status
+                    connected_dev_from_db.save_to_db()
+                    retDict["disconnected_device"] = connected_dev_from_db.json()
+                    resp_status = status.HTTP_202_ACCEPTED
                 else:
-                    print(f"Something weird is happening here. DB entry not found for device {deviceName}!!!")
-                    device = Device_Model(deviceName, "disconnected")
-                device.save_to_db()
-                retDict["disconnected_device"] = device.json()
-                resp_status = status.HTTP_202_ACCEPTED
+                    resp_status = HTTP_514_DB_ERROR = 514
+                    error_str = ""
+                    if connected_dev_from_db:
+                        error_str = f"DB reports {deviceName} is {connected_dev_from_db.status}."
+                    else:  # device isn't found in db
+                        error_str = f"{deviceName} is not found in the {Device_Model.__tablename__} table."
+                    print(error_str)
+                    retDict["error_msg"] = error_str
             except Exception as error:
+                resp_status = status.HTTP_503_SERVICE_UNAVAILABLE
                 error_str = f"Unexpected error occurred. {error}"
                 print(error_str)
                 retDict["error_msg"] = error_str
-                resp_status = status.HTTP_503_SERVICE_UNAVAILABLE
 
         return Response(jsonify(retDict), status=resp_status, mimetype='application/json')
 
-class Previous_Connection_Manager(Resource):
-    def get(self):
-        resp_status = status.HTTP_200_OK
-        retDict = {'previously_paired_devices': [device.json() for device in Device_Model.query.all()]}
-        return Response(jsonify(retDict), status=resp_status, mimetype='application/json')
-
-class Functional_Test_Manager(Resource):
+class Functional_Test_Resource(Resource):
     def get(self):
         pass
     def post(self):
         pass
 
-class PID_Command_Manager(Resource):
+class PID_Command_Resource(Resource):
     def get(self):
         pass
 
@@ -172,5 +204,5 @@ class PID_Command_Manager(Resource):
         """
         pass
 
-class Video_Feed_Manager(Resource):
+class Video_Feed_Resource(Resource):
     pass
