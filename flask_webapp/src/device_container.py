@@ -13,11 +13,10 @@ import bluetooth
 from bluetooth.ble import DiscoveryService
 from device import Bt_Ble_Device, Bt_Device
 
-RETURN_STATUS = {
+CONTAINER_RETURN_STATUS = {
         "SUCCESS": 0x00,
         "ALREADY_CONNECTED": 0x01,
         "CONNECTION_FAILED": 0x02,
-        "ERROR": 0xFF
     }
 
 class Bt_Dev_Container(object):

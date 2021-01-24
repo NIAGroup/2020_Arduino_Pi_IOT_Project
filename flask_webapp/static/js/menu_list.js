@@ -227,9 +227,9 @@ function scanBTDevice(evt, selectionName) {
       // Clear the row of previously scanned device image columns
 
 	  clearChildNodes("ScanDB")
-	  var scanDBurl= "/previously_paired";
+	  var scanDBurl= "/get_previously_paired";
 	  d3.json(scanDBurl, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
-        if (data_in === null || data_in.prev_devs === undefined || data_in.prev_devs.length == 0) {
+        if (data_in === null || data_in.previously_paired_devices === undefined || data_in.previously_paired_devices.length == 0) {
           setTimeout(function(){drawNoDeviceMessage("ScanDB");},2000);
         }
         else{
@@ -241,11 +241,11 @@ function scanBTDevice(evt, selectionName) {
      // Perform a scan and grab data from back-end
       var scanurl = "/scan";
       d3.json(scanurl, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
-        if (data_in === null || data_in.scan_devs === undefined || data_in.scan_devs.length == 0) {
+        if (data_in === null || data_in.scanned_devices === undefined || data_in.scanned_devices.length == 0) {
           setTimeout(function(){drawNoDeviceMessage("Scan");},2000);
         }
         else{
-          setTimeout(function(){data_in.scan_devs.forEach(drawDevices);},2000);
+          setTimeout(function(){data_in.scanned_devices.forEach(drawDevices);},2000);
         }
       });
     } 

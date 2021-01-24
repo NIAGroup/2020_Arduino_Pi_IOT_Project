@@ -1,12 +1,12 @@
 from flask import request, jsonify, render_template, Response
 from flask_restful import Resource
 from flask_api import status
-from models.device_db_model import Device_Model
+from models.device_db_model import Device_Model, DB_RETURN_STATUS
 from src.device_container import Bt_Dev_Container, RETURN_STATUS
 
 Container = Bt_Dev_Container()
 
-class HOME(Resource):
+class Home(Resource):
     """
 
     """
@@ -116,6 +116,8 @@ class Device_Connection_Resource(Resource):
                                 retDict["error_msg"] = error_str
                             else:
                                 retDict["connected_device"] = device.json()
+                        elif ret_status == RETURN_STATUS["CONNECTION_FAILED"]:
+                            resp_status = status.HTTP_204_NO_CONTENT    # do nothing since no connection happened.
                 else:
                     resp_status = status.HTTP_202_ACCEPTED
                     # Confirm that db also reports the same thing
