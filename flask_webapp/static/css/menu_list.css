@@ -31,6 +31,6 @@ body {
   margin-left: -15px;
 }
 }
-.connected {
+.connection_status_border {
   border-color: green;
 }

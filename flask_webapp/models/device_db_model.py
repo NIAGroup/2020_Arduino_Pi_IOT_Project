@@ -1,3 +1,4 @@
+import __init__
 from flask_sqlalchemy import SQLAlchemy
 
 DB_RETURN_STATUS = {

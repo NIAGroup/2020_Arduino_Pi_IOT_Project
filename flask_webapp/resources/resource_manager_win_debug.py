@@ -1,4 +1,5 @@
-from flask import request, jsonify, render_template, Response, make_response
+import __init__
+from flask import request, jsonify, render_template, Response, make_response, json
 from flask_restful import Resource
 from flask_api import status
 from models.device_db_model import Device_Model, DB_RETURN_STATUS
@@ -20,11 +21,11 @@ class Previous_Connection_Resource(Resource):
         headers = {"Content-type": "application/json; charset=UTF-8"}
         retDict = {'previously_paired_devices': [device.json() for device in Device_Model.query.all()]}
         if len(retDict['previously_paired_devices']) == 0:      # Check if db has any devices logged.
-            resp_status = status.HTTP_204_NO_CONTENT
+            resp_status = status.HTTP_404_NOT_FOUND
         else:
             resp_status = status.HTTP_200_OK
 
-        return retDict, resp_status, headers
+        return {'previously_paired_devices': [{"name":"you", "status":"disconnected"} , {"name":"me", "status":"connected"}]}, resp_status, headers
 
 class Scanlist_Resource(Resource):
     def get(self):

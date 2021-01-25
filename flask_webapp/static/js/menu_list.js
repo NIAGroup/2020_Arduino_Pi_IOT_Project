@@ -3,7 +3,7 @@
  * @author Adonay Berhe, Felicia James
  * @since  10.14.2020
  */
-
+/*
 function openSelection(evt, selectionName) {
   if (document.getElementById(selectionName).style.display === "block"){
     closeMenu();
@@ -30,6 +30,43 @@ function openSelection(evt, selectionName) {
     }
   }
 }
+*/
+
+var baseUrl = "";
+var HTTP_204_NO_CONTENT = 204;
+var HTTP_200_OK = 200;
+var HTTP_404_NOT_FOUND = 404;
+
+function getPreviouslyPairedDevices(){
+    var html_elt_id_name = "PreviousPaired";
+    var prev_paired_elt_row = document.getElementById(html_elt_id_name);
+    prev_paired_elt_row.style.display = "flex";
+	prev_paired_elt_row.style.flexWrap = "wrap";
+
+	clearChildNodes(html_elt_id_name);
+    var url= baseUrl.concat("/get_previously_paired");
+    fetch(url, {
+        method: "GET",
+        headers: {"Content-type": "application/json; charset=UTF-8"},
+    })
+    .then(response => {
+        if (response.status === HTTP_200_OK){
+            return  response.json();
+        }
+        else if (response.status === HTTP_404_NOT_FOUND){
+            setTimeout(function(){drawNoDeviceMessage(html_elt_id_name);},2000);
+            throw new Error("No previously connected devices. \n" + response.status + ": " + response.statusText);
+        }
+        else {
+            setTimeout(function(){drawNoDeviceMessage(html_elt_id_name);},2000);
+            throw new Error("An unexpected error occurred. \n" + response.status + ": " + response.statusText);
+        }
+    })
+    .then(data => {
+        setTimeout(function(){data.previously_paired_devices.forEach(drawPreviouslyPairedDevices);},2000);
+    })
+    .catch(err => console.error(err));
+}
 
 function clearChildNodes(elt_id){
   var scan_dev_row = document.getElementById(elt_id);
@@ -52,62 +89,46 @@ function drawNoDeviceMessage(elt_id){
   scan_dev_row.appendChild(dev_column);
   }
   
-  if (elt_id === "ScanDB")
+  if (elt_id === "PreviousPaired")
   {
-  var scanDB_dev_row = document.getElementById("ScanDB");
+  var scanDB_dev_row = document.getElementById("PreviousPaired");
   scanDB_dev_row.appendChild(dev_column);
   }
 }
 
-function drawDevices(name, index){
+function drawDevicesInRows(device, index, rowName){
   var dev_image = document.createElement("img");
   dev_image.setAttribute("src", "../static/img/arduino_icon_transparent.jpg");
   dev_image.setAttribute("alt", "Arduino icon");
 
   var dev_a_tag = document.createElement("a");
   dev_a_tag.setAttribute("class", "thumbnail");
+  if (device.status === "connected"){
+    dev_a_tag.setAttribute("style", "border-color : green", "border-width : thick");
+  }
   dev_a_tag.setAttribute("onclick", "thumbnailSelect(this)");
   dev_a_tag.appendChild(dev_image);
 
   var dev_paragraph = document.createElement("p");
   dev_paragraph.setAttribute("style", "text-align:center");
-  var dev_name_text = document.createTextNode(name);
+  var dev_name_text = document.createTextNode(device.name);
   dev_paragraph.appendChild(dev_name_text);
 
   var dev_column = document.createElement("div");
-  dev_column.classList = "col scanDev";
-  dev_column.id = name;
+  dev_column.classList = "col scanDev";     // This class name needs to change
+  dev_column.id = device.name;
   dev_column.appendChild(dev_a_tag);
   dev_column.appendChild(dev_paragraph);
 
-  var scan_dev_row = document.getElementById("Scan");
+  var scan_dev_row = document.getElementById(rowName);
   scan_dev_row.appendChild(dev_column);
-
 }
-function drawScanDBDevices(name, index){
-  var dev_image = document.createElement("img");
-  dev_image.setAttribute("src", "../static/img/arduino_icon_transparent.jpg");
-  dev_image.setAttribute("alt", "Arduino icon");
 
-  var dev_a_tag = document.createElement("a");
-  dev_a_tag.setAttribute("class", "thumbnail");
-  dev_a_tag.setAttribute("onclick", "thumbnailSelect(this)");
-  dev_a_tag.appendChild(dev_image);
-
-  var dev_paragraph = document.createElement("p");
-  dev_paragraph.setAttribute("style", "text-align:center");
-  var dev_name_text = document.createTextNode(name);
-  dev_paragraph.appendChild(dev_name_text);
-
-  var dev_column = document.createElement("div");
-  dev_column.classList = "col scanDev";
-  dev_column.id = name;
-  dev_column.appendChild(dev_a_tag);
-  dev_column.appendChild(dev_paragraph);
-
-  var scan_dev_row = document.getElementById("ScanDB");
-  scan_dev_row.appendChild(dev_column);
-
+function drawDevices(name, index){
+  drawDevicesInRows(name, index, "Scan");
+}
+function drawPreviouslyPairedDevices(device, index){
+  drawDevicesInRows(device, index, "PreviousPaired");
 }
 
 function closeMenu(){
@@ -122,7 +143,6 @@ function closeMenu(){
     tablinks[i].className = tablinks[i].className.replace(" w3-border-red", "");
   } */
 }
-
 
 function changeRunButtonColor(){
   var btn;
@@ -212,7 +232,7 @@ function scanBTDevice(evt, selectionName) {
     closeMenu();
     return;
   }
-  if (document.getElementById("ScanDB").style.display === "flex"){
+  if (document.getElementById("PreviousPaired").style.display === "flex"){
     closeMenu();
     return;
   }
@@ -220,17 +240,17 @@ function scanBTDevice(evt, selectionName) {
     closeMenu();
 	document.getElementById(selectionName).style.display = "flex";
 	document.getElementById(selectionName).style.flexWrap = "wrap";
-	document.getElementById("ScanDB").style.display = "flex";
-	document.getElementById("ScanDB").style.flexWrap = "wrap";
+	document.getElementById("PreviousPaired").style.display = "flex";
+	document.getElementById("PreviousPaired").style.flexWrap = "wrap";
     //evt.currentTarget.firstElementChild.className += "w3-border-red";
      if (selectionName === "Scan"){
       // Clear the row of previously scanned device image columns
 
-	  clearChildNodes("ScanDB")
+	  clearChildNodes("PreviousPaired")
 	  var scanDBurl= "/get_previously_paired";
 	  d3.json(scanDBurl, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
         if (data_in === null || data_in.previously_paired_devices === undefined || data_in.previously_paired_devices.length == 0) {
-          setTimeout(function(){drawNoDeviceMessage("ScanDB");},2000);
+          setTimeout(function(){drawNoDeviceMessage("PreviousPaired");},2000);
         }
         else{
           setTimeout(function(){data_in.prev_devs.forEach(drawScanDBDevices);},2000);
@@ -251,4 +271,6 @@ function scanBTDevice(evt, selectionName) {
     } 
   }
 }
+
+//$(window).bind("load", getPreviouslyPairedDevices());
 

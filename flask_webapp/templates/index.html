@@ -23,7 +23,7 @@
 
   <title>NIA STEM Club | PID IOT Interface </title>
 </head>
-<body>
+<body onload="getPreviouslyPairedDevices()">
     <!--Create responsive navigation bar that collapses at medium resolution i.e tablets-->
     <header>
         <nav class="navbar fixed-top navbar-expand-md navbar-light" style="background-color: #fffdfb;">
@@ -72,7 +72,7 @@
 				</div>
 				<div class="bt_row" id="previouslypaired_bt_row">
 				  <div class="container-fluid">
-						<div id="ScanDB" class="selection" style="align-items: center; justify-content: center; margin-top: 20px; display:none;"></div>
+						<div id="PreviousPaired" class="selection" style="align-items: center; justify-content: center; margin-top: 20px; display:none;"></div>
 				  </div>
 				</div>
 				<div class="w3-bottombar w3-padding w3-border-red w3-hover-light-grey" style ="margin-bottom: 20px">

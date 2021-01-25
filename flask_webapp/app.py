@@ -1,3 +1,4 @@
+import __init__
 from flask import Flask
 from flask_restful import Api
 import sys
