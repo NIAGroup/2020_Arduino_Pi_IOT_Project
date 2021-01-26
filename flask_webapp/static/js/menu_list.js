@@ -1,36 +1,10 @@
 /**
- * @file   This file is specific to the PID IOT project. It defines the functionality of drop-down menus.
+ * @file   This file is specific to the PID IOT project. It defines the functionality of device menus.
  * @author Adonay Berhe, Felicia James
  * @since  10.14.2020
  */
-/*
-function openSelection(evt, selectionName) {
-  if (document.getElementById(selectionName).style.display === "block"){
-    closeMenu();
-    return;
-  }
-  else{
-    closeMenu();
-    document.getElementById(selectionName).style.display = "block";
-    evt.currentTarget.firstElementChild.className += "w3-border-red";
-    if (selectionName === "Scan"){
-      // Clear the row of previously scanned device image columns
-      clearChildNodes("scan_device_row");
 
-      // Perform a scan and grab data from back-end
-      var url = "/scan";
-      d3.json(url, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
-        if (data_in === null || data_in.scan_devs === undefined || data_in.scan_devs.length == 0) {
-          drawNoDeviceMessage();
-        }
-        else{
-          data_in.scan_devs.forEach(drawDevices);
-        }
-      });
-    }
-  }
-}
-*/
+// User defined macros
 
 var baseUrl = "";
 var HTTP_200_OK = 200;
@@ -40,6 +14,8 @@ var HTTP_204_NO_CONTENT = 204;
 var HTTP_404_NOT_FOUND = 404;
 var HTTP_512_DOUBLE_ENTRY_DB_ERROR = 512;
 var HTTP_515_NO_DEVICE_RETURNED = 515;
+
+// ....................... Function definitions ..................... //
 
 function getPreviouslyPairedDevices(){
     var html_elt_id_name = "PreviousPaired";
@@ -139,6 +115,7 @@ function drawDevicesInRows(device, index, rowName){
   var dev_a_tag = document.createElement("a");
   dev_a_tag.setAttribute("class", "thumbnail");
   if (device.status === "connected"){
+    dev_a_tag.classList.add("connection_status_border");
     dev_a_tag.setAttribute("style", "border-color : green", "border-width : thick");
   }
   dev_a_tag.setAttribute("onclick", "thumbnailSelect(this)");
@@ -150,7 +127,7 @@ function drawDevicesInRows(device, index, rowName){
   dev_paragraph.appendChild(dev_name_text);
 
   var dev_column = document.createElement("div");
-  dev_column.classList = "col scanDev";     // This class name needs to change
+  dev_column.classList = "col Devs";
   dev_column.id = device.name;
   dev_column.appendChild(dev_a_tag);
   dev_column.appendChild(dev_paragraph);
@@ -167,18 +144,52 @@ function drawPreviouslyPairedDevices(device, index){
   drawDevicesInRows(device, index, "PreviousPaired");
 }
 
-function triggerConnection(connectBtn){
-  var deviceNames = {};
-  var selectedDevices = getSelectedDevices();
-  if($.isEmptyObject(selectedDevices))
+function getSelectedDevices(){
+  var devices = document.getElementsByClassName("Devs");
+  var selectedDevices = {};
+  for (device of devices)
   {
-    return;
+    devChilda = device.getElementsByTagName('a')[0];
+    devChildp = device.getElementsByTagName('p')[0];
+    if (devChilda.classList.contains('active'))
+    {
+      selectedDevices[devChildp.innerHTML] = [devChilda, devChildp];
+    }
   }
 
-  deviceNames["selectedDevices"]  = Object.keys(selectedDevices);
-  var isConnected = false;
+  return selectedDevices;
+}
 
-  var url= baseUrl.concat("/connect");
+function getConnectedDevice(){
+    var connected_device_tag = document.getElementsByClassName("connection_status_border");
+    return connected_device_tag.nextSibling.innerHTML;
+}
+
+function changeConnectBtnToDisconnect(){
+    var connect_btn = document.getElementById("connectBtn");
+    if (!connect_btn.classList.contains("btn-danger")){
+        connect_btn.classList.add("btn-danger");
+        connect_btn.innerHTML = "Disconnect";
+    }
+}
+
+function changeDisconnectBtnToConnect(){
+    var connect_btn = document.getElementById("connectBtn");
+    if (connect_btn.classList.contains("btn-danger")){
+        connect_btn.classList.remove("btn-danger");
+        connect_btn.innerHTML = "Connect";
+    }
+}
+
+function sendConnect(){
+    var deviceNames = {};
+    var selectedDevices = getSelectedDevices();
+    if($.isEmptyObject(selectedDevices))
+    {
+    return;
+    }
+    deviceNames["selectedDevices"]  = Object.keys(selectedDevices);
+    var url= baseUrl.concat("/connect");
     fetch(url, {
         method: "POST",
         headers: {"Content-type": "application/json; charset=UTF-8"},
@@ -197,9 +208,71 @@ function triggerConnection(connectBtn){
         }
     })
     .then(data => {
-        data.scanned_devices.forEach(drawScannedDevices);
+        if ("disconnected_device" in data){     // There was a prior connection
+            var connected_dev_name = getConnectedDevice();
+            if (connected_dev_name == data.disconnected_device.name){
+                // Disconnect device here...
+                changeDisconnectBtnToConnect();
+            }
+            else{
+                throw Error("Client and server miss-match. Connected device client: " + connected_dev_name " != server: " + data.disconnected_device.name);
+            }
+        }
+        // connect device here...
+        changeConnectBtnToDisconnect();
+
     })
     .catch(err => console.error(err));
+}
+
+function sendDisconnect(){
+
+}
+
+function triggerConnection(connectBtn){
+    var deviceNames = {};
+    var selectedDevices = getSelectedDevices();
+    if($.isEmptyObject(selectedDevices))
+    {
+        return;
+    }
+    deviceNames["selectedDevices"]  = Object.keys(selectedDevices);
+    var url= baseUrl.concat("/connect");
+    fetch(url, {
+        method: "POST",
+        headers: {"Content-type": "application/json; charset=UTF-8"},
+        body: JSON.stringify(deviceNames)
+    })
+    .then(response => {
+        if ((response.status === HTTP_201_CREATED) or (response.status === HTTP_202_ACCEPTED)){
+            return  response.json();
+        }
+        else if (response.status === HTTP_512_DOUBLE_ENTRY_DB_ERROR){
+            throw new Error("Server-side database error occurred. There are two double entries spotted.\n" + response.status + ": " + response.statusText);
+        }
+        else {
+            setTimeout(function(){drawNoDeviceMessage(html_elt_id_name);},2000);
+            throw new Error("An unexpected error occurred. \n" + response.status + ": " + response.statusText);
+        }
+    })
+    .then(data => {
+        if ("disconnected_device" in data){     // There was a prior connection
+            var connected_dev_name = getConnectedDevice();
+            if (connected_dev_name == data.disconnected_device.name){
+                // Disconnect device here...
+                changeDisconnectBtnToConnect();
+            }
+            else{
+                throw Error("Client and server miss-match. Connected device client: " + connected_dev_name " != server: " + data.disconnected_device.name);
+            }
+        }
+        // connect device here...
+        changeConnectBtnToDisconnect();
+
+    })
+    .catch(err => console.error(err));
+
+
 
 
   d3.json(url, {method: "POST", body: JSON.stringify(deviceNames),
@@ -247,49 +320,28 @@ function changeRunButtonColor(){
   var btn;
   btn = document.getElementById("runBtn");
   
-  if(btn.classList.contains("btn-success"))
-  {
+  if(btn.classList.contains("btn-success")){
     btn.classList.remove("btn-success");
     btn.classList.add("btn-danger")
   }
-  else if (btn.classList.contains("btn-danger"))
-  {
+  else if (btn.classList.contains("btn-danger")){
     btn.classList.remove("btn-danger");
     btn.classList.remove("btn-success");
   }
-  else
-  {
+  else{
     btn.classList.add("btn-success");
   }
   
 }
 
-function getSelectedDevices(){
-  var devices = document.getElementsByClassName("scanDev");
-  var selectedDevices = {};
-  for (device of devices)
-  {
-    devChilda = device.getElementsByTagName('a')[0];
-    devChildp = device.getElementsByTagName('p')[0];
-    if (devChilda.classList.contains('active'))
-    {
-      selectedDevices[devChildp.innerHTML] = [devChilda, devChildp];
-    }
-  }
-
-  return selectedDevices;
-}
-
-
-
 function thumbnailSelect(element){
-  
-  $('.scanDev a.active').removeClass('active') /* select one thumbnail at a time */ 
-  element.classList.toggle("active");
+    $('.Devs a.active').removeClass('active') /* select one thumbnail at a time */
+    element.classList.toggle("active");
+    if(element.classList.contains("connection_status_border")){
+        changeConnectBtnToDisconnect();
+    }
+    else{
+        changeDisconnectBtnToConnect();
+    }
 }
-
-
-
-
-//$(window).bind("load", getPreviouslyPairedDevices());
 

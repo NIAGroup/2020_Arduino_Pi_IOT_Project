@@ -41,7 +41,7 @@ class Scanlist_Resource(Resource):
             {"name": 'test1', "status": 'disconnected'},
             {"name": 'test2', "status": 'disconnected'},
             {"name": 'test3', "status": 'disconnected'},
-            {"name": 'test4', "status": 'disconnected'},
+            {"name": 'test4', "status": 'connected'},
         ]
 
         return retDict, resp_status, headers
