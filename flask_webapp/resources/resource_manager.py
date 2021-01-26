@@ -34,8 +34,10 @@ class Scanlist_Resource(Resource):
         retDict = {}
         resp_status = None
         try:
+            retDict["scanned_devices"] = []
             devices = Container.scan()
-            retDict["scanned_devices"] = devices      # Create the body/payload
+            for device in devices:
+                retDict["scanned_devices"].append({"name": device, "status": "disconnected"})
             resp_status = status.HTTP_200_OK
         except Exception as e:
             error_str = f"Runtime error has occurred upon performing a scan.\n {e}"

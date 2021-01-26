@@ -33,15 +33,19 @@ function openSelection(evt, selectionName) {
 */
 
 var baseUrl = "";
-var HTTP_204_NO_CONTENT = 204;
 var HTTP_200_OK = 200;
+var HTTP_201_CREATED = 201;
+var HTTP_202_ACCEPTED = 202;
+var HTTP_204_NO_CONTENT = 204;
 var HTTP_404_NOT_FOUND = 404;
+var HTTP_512_DOUBLE_ENTRY_DB_ERROR = 512;
+var HTTP_515_NO_DEVICE_RETURNED = 515;
 
 function getPreviouslyPairedDevices(){
     var html_elt_id_name = "PreviousPaired";
-    var prev_paired_elt_row = document.getElementById(html_elt_id_name);
-    prev_paired_elt_row.style.display = "flex";
-	prev_paired_elt_row.style.flexWrap = "wrap";
+    var prev_paired_row = document.getElementById(html_elt_id_name);
+    prev_paired_row.style.display = "flex";
+	prev_paired_row.style.flexWrap = "wrap";
 
 	clearChildNodes(html_elt_id_name);
     var url= baseUrl.concat("/get_previously_paired");
@@ -64,6 +68,37 @@ function getPreviouslyPairedDevices(){
     })
     .then(data => {
         setTimeout(function(){data.previously_paired_devices.forEach(drawPreviouslyPairedDevices);},2000);
+    })
+    .catch(err => console.error(err));
+}
+
+function getScanDevices() {
+    var html_elt_id_name = "Scan";
+    var scan_row = document.getElementById(html_elt_id_name);
+    clearChildNodes(html_elt_id_name);
+    scan_row.style.display = "flex";
+    scan_row.style.flexWrap = "wrap";
+
+    var url= baseUrl.concat("/scan");
+    fetch(url, {
+        method: "GET",
+        headers: {"Content-type": "application/json; charset=UTF-8"},
+    })
+    .then(response => {
+        if (response.status === HTTP_200_OK){
+            return  response.json();
+        }
+        else if (response.status === HTTP_404_NOT_FOUND){
+            setTimeout(function(){drawNoDeviceMessage(html_elt_id_name);},2000);
+            throw new Error("No devices available.\n" + response.status + ": " + response.statusText);
+        }
+        else {
+            setTimeout(function(){drawNoDeviceMessage(html_elt_id_name);},2000);
+            throw new Error("An unexpected error occurred. \n" + response.status + ": " + response.statusText);
+        }
+    })
+    .then(data => {
+        data.scanned_devices.forEach(drawScannedDevices);
     })
     .catch(err => console.error(err));
 }
@@ -124,17 +159,81 @@ function drawDevicesInRows(device, index, rowName){
   scan_dev_row.appendChild(dev_column);
 }
 
-function drawDevices(name, index){
+function drawScannedDevices(name, index){
   drawDevicesInRows(name, index, "Scan");
 }
+
 function drawPreviouslyPairedDevices(device, index){
   drawDevicesInRows(device, index, "PreviousPaired");
+}
+
+function triggerConnection(connectBtn){
+  var deviceNames = {};
+  var selectedDevices = getSelectedDevices();
+  if($.isEmptyObject(selectedDevices))
+  {
+    return;
+  }
+
+  deviceNames["selectedDevices"]  = Object.keys(selectedDevices);
+  var isConnected = false;
+
+  var url= baseUrl.concat("/connect");
+    fetch(url, {
+        method: "POST",
+        headers: {"Content-type": "application/json; charset=UTF-8"},
+        body: JSON.stringify(deviceNames)
+    })
+    .then(response => {
+        if ((response.status === HTTP_201_CREATED) or (response.status === HTTP_202_ACCEPTED)){
+            return  response.json();
+        }
+        else if (response.status === HTTP_512_DOUBLE_ENTRY_DB_ERROR){
+            throw new Error("Server-side database error occurred. There are two double entries spotted.\n" + response.status + ": " + response.statusText);
+        }
+        else {
+            setTimeout(function(){drawNoDeviceMessage(html_elt_id_name);},2000);
+            throw new Error("An unexpected error occurred. \n" + response.status + ": " + response.statusText);
+        }
+    })
+    .then(data => {
+        data.scanned_devices.forEach(drawScannedDevices);
+    })
+    .catch(err => console.error(err));
+
+
+  d3.json(url, {method: "POST", body: JSON.stringify(deviceNames),
+    headers: {"Content-type": "application/json; charset=UTF-8"}}).then((returnVal)=>{
+    var error = "";
+
+    Object.entries(returnVal).forEach(([devName, connectionStatus]) => {
+      if(connectionStatus === true && deviceNames["selectedDevices"].includes(devName))
+      {
+        selectedDevices[devName][0].classList.toggle("active");
+        selectedDevices[devName][0].classList.add("connected");
+        isConnected = true;
+      }
+      else
+      {
+        error = error.concat(devName, " ");
+      }
+    })
+    console.log(error.length);
+    if (error.length > 0)
+    {
+      alert("These devices were not able to connect. Check server logs [log location here...] for details.\n".concat(error));
+    }
+    if(isConnected)
+    {
+      connectBtn.classList.add("btn-success");
+    }
+  });
 }
 
 function closeMenu(){
   var i, x; 
   /* var tablinks; */
-  x = document.getElementsByClassName("selection");
+  x = document.getElementsByClassName("selection");     // Maybe change to element ID to target just Scan??
   for (i = 0; i < x.length; i++) {
     x[i].style.display = "none";
   }
@@ -180,44 +279,7 @@ function getSelectedDevices(){
 
   return selectedDevices;
 }
-function triggerConnection(connectBtn){
-  var deviceNames = {};
-  var selectedDevices = getSelectedDevices();
-  if($.isEmptyObject(selectedDevices))
-  {
-    return;
-  }
 
-  deviceNames["selectedDevices"]  = Object.keys(selectedDevices);
-  var isConnected = false;
-  var url = "/connect";
-  d3.json(url, {method: "POST", body: JSON.stringify(deviceNames),
-    headers: {"Content-type": "application/json; charset=UTF-8"}}).then((returnVal)=>{
-    var error = "";
-
-    Object.entries(returnVal).forEach(([devName, connectionStatus]) => {
-      if(connectionStatus === true && deviceNames["selectedDevices"].includes(devName))
-      {
-        selectedDevices[devName][0].classList.toggle("active");
-        selectedDevices[devName][0].classList.add("connected");
-        isConnected = true;
-      }
-      else
-      {
-        error = error.concat(devName, " ");
-      }
-    })
-    console.log(error.length);
-    if (error.length > 0)
-    {
-      alert("These devices were not able to connect. Check server logs [log location here...] for details.\n".concat(error));
-    }
-    if(isConnected)
-    {
-      connectBtn.classList.add("btn-success");
-    }
-  });
-}
 
 
 function thumbnailSelect(element){
@@ -227,50 +289,7 @@ function thumbnailSelect(element){
 }
 
 
-function scanBTDevice(evt, selectionName) {
-  if (document.getElementById(selectionName).style.display === "flex"){
-    closeMenu();
-    return;
-  }
-  if (document.getElementById("PreviousPaired").style.display === "flex"){
-    closeMenu();
-    return;
-  }
-  else{
-    closeMenu();
-	document.getElementById(selectionName).style.display = "flex";
-	document.getElementById(selectionName).style.flexWrap = "wrap";
-	document.getElementById("PreviousPaired").style.display = "flex";
-	document.getElementById("PreviousPaired").style.flexWrap = "wrap";
-    //evt.currentTarget.firstElementChild.className += "w3-border-red";
-     if (selectionName === "Scan"){
-      // Clear the row of previously scanned device image columns
 
-	  clearChildNodes("PreviousPaired")
-	  var scanDBurl= "/get_previously_paired";
-	  d3.json(scanDBurl, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
-        if (data_in === null || data_in.previously_paired_devices === undefined || data_in.previously_paired_devices.length == 0) {
-          setTimeout(function(){drawNoDeviceMessage("PreviousPaired");},2000);
-        }
-        else{
-          setTimeout(function(){data_in.prev_devs.forEach(drawScanDBDevices);},2000);
-        }
-      });
-	  
-      setTimeout(function(){clearChildNodes("Scan");},2000);
-     // Perform a scan and grab data from back-end
-      var scanurl = "/scan";
-      d3.json(scanurl, {method: "GET", headers: {"Content-type": "application/json; charset=UTF-8"}}).then((data_in)=>{
-        if (data_in === null || data_in.scanned_devices === undefined || data_in.scanned_devices.length == 0) {
-          setTimeout(function(){drawNoDeviceMessage("Scan");},2000);
-        }
-        else{
-          setTimeout(function(){data_in.scanned_devices.forEach(drawDevices);},2000);
-        }
-      });
-    } 
-  }
-}
 
 //$(window).bind("load", getPreviouslyPairedDevices());
 

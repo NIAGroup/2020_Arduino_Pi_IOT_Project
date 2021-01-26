@@ -25,7 +25,7 @@ class Previous_Connection_Resource(Resource):
         else:
             resp_status = status.HTTP_200_OK
 
-        return {'previously_paired_devices': [{"name":"you", "status":"disconnected"} , {"name":"me", "status":"connected"}]}, resp_status, headers
+        return retDict, resp_status, headers
 
 class Scanlist_Resource(Resource):
     def get(self):
@@ -37,7 +37,12 @@ class Scanlist_Resource(Resource):
         retDict = {}
         headers = {"Content-type": "application/json; charset=UTF-8"}
         resp_status = status.HTTP_200_OK
-        retDict["scanned_devices"] = ['test1', 'test2', 'test3', 'test4']
+        retDict["scanned_devices"] = [
+            {"name": 'test1', "status": 'disconnected'},
+            {"name": 'test2', "status": 'disconnected'},
+            {"name": 'test3', "status": 'disconnected'},
+            {"name": 'test4', "status": 'disconnected'},
+        ]
 
         return retDict, resp_status, headers
 
@@ -122,40 +127,9 @@ class Device_Connection_Resource(Resource):
         for deviceName in devices["selectedDevices"]:
             print(f'Processing {deviceName}')
             try:
-                """
-                # check for connected status entry in db
-                status, connected_dev_from_db = Device_Model.find_by_status("connected")
-                if status == DB_RETURN_STATUS["HTTP_200_OK"] or status == DB_RETURN_STATUS["HTTP_515_NO_DEVICE_RETURNED"]:
-                    if status == DB_RETURN_STATUS["HTTP_200_OK"]:
-                        if connected_dev_from_db.name == deviceName:    # If device already connected, don't do anything
-                            resp_status = status.HTTP_202_ACCEPTED
-                            retDict["connected_device"] = connected_dev_from_db.json()
-                        else:       # If different device connected, we'll create a new entry and disconnect previous
-                            resp_status = status.HTTP_201_CREATED
-                            connected_dev_from_db.status = "disconnected"
-                            connected_dev_from_db.save_to_db()
-                            retDict["disconnected_device"] = connected_dev_from_db.json()
-                    elif status == DB_RETURN_STATUS["HTTP_515_NO_DEVICE_RETURNED"]:
-                        resp_status = status.HTTP_201_CREATED           # If no device connected, new entry is created
-                """
                 resp_status, retDict, error_str = self._disconnect_dev_from_db(deviceName)
-
                 if resp_status == status.HTTP_201_CREATED:  # Create a new db entry
                     resp_status, retDict, error_str = self._connect_dev_to_db(deviceName, retDict, resp_status)
-                    """
-                    new_status, new_device = Device_Model.find_by_name(deviceName)
-                    if new_status != DB_RETURN_STATUS["HTTP_512_DOUBLE_ENTRY_DB_ERROR"]:
-                        if new_device is not None:
-                            new_device.status = "connected"     # Change entry to connecting
-                        else:
-                            new_device = Device_Model(deviceName, "connected")  # Add a new device
-                        new_device.save_to_db()
-                    else:
-                        error_str = f"Found multiple entries in the database with device name: {new_device.name}"
-                        resp_status = status
-                        retDict["error_msg"] = error_str
-                    """
-
             except Exception as error:
                 resp_status = status.HTTP_503_SERVICE_UNAVAILABLE
                 error_str = f"Unexpected error occurred. {error}"
@@ -209,7 +183,6 @@ class Device_Disconnection_Resource(Resource):
                 retDict["error_msg"] = error_str
                 print(error_str)
                 return retDict, resp_status, headers
-
         if error_str:
             print(error_str)
 
