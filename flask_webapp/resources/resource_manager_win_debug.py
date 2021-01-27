@@ -25,6 +25,8 @@ class Previous_Connection_Resource(Resource):
         else:
             resp_status = status.HTTP_200_OK
 
+        print(retDict)
+
         return retDict, resp_status, headers
 
 class Scanlist_Resource(Resource):
@@ -41,8 +43,10 @@ class Scanlist_Resource(Resource):
             {"name": 'test1', "status": 'disconnected'},
             {"name": 'test2', "status": 'disconnected'},
             {"name": 'test3', "status": 'disconnected'},
-            {"name": 'test4', "status": 'connected'},
+            {"name": 'test4', "status": 'disconnected'},
         ]
+
+        print(retDict)
 
         return retDict, resp_status, headers
 
@@ -108,8 +112,7 @@ class Device_Connection_Resource(Resource):
         else:   # DB_RETURN_STATUS["HTTP_515_NO_DEVICE_RETURNED"]
             resp_status = status.HTTP_204_NO_CONTENT
 
-        if error_str:
-            print(error_str)
+        print(retDict)
 
         return retDict, resp_status, headers
 
@@ -134,10 +137,8 @@ class Device_Connection_Resource(Resource):
                 resp_status = status.HTTP_503_SERVICE_UNAVAILABLE
                 error_str = f"Unexpected error occurred. {error}"
                 retDict["error_msg"] = error_str
-                print(error_str)
-                return retDict, resp_status, headers
-        if error_str:
-            print(error_str)
+
+        print(retDict)
 
         return retDict, resp_status, headers
 
@@ -181,10 +182,8 @@ class Device_Disconnection_Resource(Resource):
                 resp_status = status.HTTP_503_SERVICE_UNAVAILABLE
                 error_str = f"Unexpected error occurred. {error}"
                 retDict["error_msg"] = error_str
-                print(error_str)
-                return retDict, resp_status, headers
-        if error_str:
-            print(error_str)
+
+        print(retDict)
 
         return retDict, resp_status, headers
 
