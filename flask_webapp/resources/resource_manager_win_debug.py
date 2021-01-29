@@ -2,7 +2,10 @@ import __init__
 from flask import request, jsonify, render_template, Response, make_response, json
 from flask_restful import Resource
 from flask_api import status
+from pprint import pprint
 from models.device_db_model import Device_Model, DB_RETURN_STATUS
+
+print = pprint
 
 class Home(Resource):
     def get(self):
@@ -134,7 +137,7 @@ class Device_Connection_Resource(Resource):
                 if resp_status == status.HTTP_201_CREATED:  # Create a new db entry
                     resp_status, retDict, error_str = self._connect_dev_to_db(deviceName, retDict, resp_status)
             except Exception as error:
-                resp_status = status.HTTP_503_SERVICE_UNAVAILABLE
+                resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
                 error_str = f"Unexpected error occurred. {error}"
                 retDict["error_msg"] = error_str
 
@@ -149,12 +152,12 @@ class Device_Disconnection_Resource(Resource):
         Param(s):
         Return:
         """
-        devices = request.get_json()
-        print(f'devices => {devices}')
         retDict = {}
         headers = {"Content-type": "application/json; charset=UTF-8"}
         resp_status = None
-        error_str = ""
+
+        devices = request.get_json()
+        print(f'devices => {devices}')
         for deviceName in devices["selectedDevices"]:
             try:
                 db_status, connected_dev_from_db = Device_Model.find_by_status("connected")
@@ -179,7 +182,7 @@ class Device_Disconnection_Resource(Resource):
                         retDict["error_msg"] = error_str
                         resp_status = db_status
             except Exception as error:
-                resp_status = status.HTTP_503_SERVICE_UNAVAILABLE
+                resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
                 error_str = f"Unexpected error occurred. {error}"
                 retDict["error_msg"] = error_str
 
@@ -189,7 +192,41 @@ class Device_Disconnection_Resource(Resource):
 
 class Functional_Test_Resource(Resource):
     def post(self):
-        pass
+        retDict = {}
+        retDict["function_tests"] = []
+        headers = {"Content-type": "application/json; charset=UTF-8"}
+        resp_status = None
+
+        test_suite = request.get_json()
+        print(f'{test_suite}')
+        try:
+            db_status, connected_dev_from_db = Device_Model.find_by_status("connected")
+            if db_status == DB_RETURN_STATUS["HTTP_200_OK"]:
+                if connected_dev_from_db.name == test_suite["device"]:
+                    resp_status = status.HTTP_200_OK
+                    for func_test in test_suite["function_tests"]:
+                        test_entry = {}
+                        test_entry["name"] = func_test["name"]
+                        test_entry["container_messages"] = []
+                        for container_msg in func_test["container_messages"]:
+                            msg = {}
+                            msg["name"] = container_msg
+                            msg["value"] = "Success"
+                            test_entry["container_messages"].append(msg)
+                        retDict["function_tests"].append(test_entry)
+                else:
+                    resp_status = DB_RETURN_STATUS["HTTP_514_WRONG_DEVICE_CONNECTED_DB_ERROR"]
+            else:
+                resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+
+        except Exception as error:
+            resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+            error_str = f"Unexpected error occurred. {error}"
+            retDict["error_msg"] = error_str
+
+        print(retDict)
+
+        return retDict, resp_status, headers
 
 class PID_Command_Resource(Resource):
     def get(self):

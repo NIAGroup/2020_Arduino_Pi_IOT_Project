@@ -221,7 +221,7 @@ function changeDeviceATagToConnectedStatus(devATag){
 
 function changeDeviceATagToDisconnectedStatus(devATag){
     if (devATag.classList.contains("connection_status_border")) {
-        devATag.classList.add("connection_status_border");
+        devATag.classList.remove("connection_status_border");
         devATag.style.removeProperty("border-color");
         devATag.style.removeProperty("border-width");
     }
@@ -351,48 +351,6 @@ function triggerConnection(connectBtn){
     else{
         sendDisconnect()
     }
-
-/*
-  d3.json(url, {method: "POST", body: JSON.stringify(deviceNames),
-    headers: {"Content-type": "application/json; charset=UTF-8"}}).then((returnVal)=>{
-    var error = "";
-
-    Object.entries(returnVal).forEach(([devName, connectionStatus]) => {
-      if(connectionStatus === true && deviceNames["selectedDevices"].includes(devName))
-      {
-        selectedDevices[devName][0].classList.toggle("active");
-        selectedDevices[devName][0].classList.add("connected");
-        isConnected = true;
-      }
-      else
-      {
-        error = error.concat(devName, " ");
-      }
-    })
-    console.log(error.length);
-    if (error.length > 0)
-    {
-      alert("These devices were not able to connect. Check server logs [log location here...] for details.\n".concat(error));
-    }
-    if(isConnected)
-    {
-      connectBtn.classList.add("btn-success");
-    }
-  });
-*/
-}
-
-function closeMenu(){
-  var i, x; 
-  /* var tablinks; */
-  x = document.getElementsByClassName("selection");     // Maybe change to element ID to target just Scan??
-  for (i = 0; i < x.length; i++) {
-    x[i].style.display = "none";
-  }
-/*   tablinks = document.getElementsByClassName("tablink");
-  for (i = 0; i < x.length; i++) {
-    tablinks[i].className = tablinks[i].className.replace(" w3-border-red", "");
-  } */
 }
 
 function changeRunButtonColor(){

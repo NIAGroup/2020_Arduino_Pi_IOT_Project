@@ -1,37 +1,99 @@
 /**
  * @file   This file is specific to the PID IOT project. It handles the Functional Testing section of the page.
- * @author Adonay Berhe, Felicia James
+ * @author Adonay Berhe
  * @since  01.11.2021
  */
 
+//import {baseUrl, HTTP_200_OK, getConnectedDeviceName} from './menu_list.js';
+
+// User defined macros
+var baseUrl = "";
+
+// HTTP response status codes
+var HTTP_200_OK = 200;
+
+function getConnectedDeviceName(){
+    var connected_device_collection = document.getElementsByClassName("connection_status_border"); // There should only be 1 elt
+    var connected_device_tag = connected_device_collection[0];
+    return connected_device_tag.nextSibling.innerText;
+}
+
+/*  Got the top from Menu list   */
+
+var FUNCTIONAL_TESTS_TO_CONTAINER_MESSAGES = {
+    "BT Connection": ["Sanity_BT_Echo"],
+    "Video Feed": ["NULL"],
+    "Sensor Detection": ["Sanity_Read_Sensor_Message"],
+    "Servo Motors": ["Sanity_Adjust_Servo_120", "Sanity_Adjust_Servo_90", "Sanity_Adjust_Servo_60", "Sanity_Adjust_Servo_90"]
+}
+
 function runFunctionTests() {
-    var function_test_names = {"function_tests": []}
-    var tests_row_elt = functional_test_elts = document.getElementById("function_tests_row");
-    var tests = tests_row_elt.getElementsByTagName("li");
+    //var request_payload = [];
+    var command_suite_payload = {};
 
-    for (test of tests)
+    //request_payload.push({"device": getConnectedDeviceName()});
+    command_suite_payload["device"] = getConnectedDeviceName();
+    command_suite_payload["function_tests"] = [];
+
+    var func_tests_row_elt = document.getElementById("function_tests_row");
+    var func_tests = func_tests_row_elt.getElementsByTagName("li");
+    for (test of func_tests)
     {
-        function_test_names["function_tests"].push(test.id);
+        var single_command = {};
+        single_command["name"] = test.id;
+        single_command["container_messages"] = FUNCTIONAL_TESTS_TO_CONTAINER_MESSAGES[test.id]
+        command_suite_payload ["function_tests"].push(single_command)
     }
+    //request_payload.push(command_suite_payload);
 
-    var url = "/send_function_tests";
-    d3.json(url, {method: "POST", body: JSON.stringify(function_test_names),
-    headers: {"Content-type": "application/json; charset=UTF-8"}}).then((returnVal)=>{
-        /*for (indx = 0; indx < returnVal.function_tests.length; indx++)
+    var url= baseUrl.concat("/send_function_tests");
+    fetch(url, {
+        method: "POST",
+        headers: {"Content-type": "application/json; charset=UTF-8"},
+        body: JSON.stringify(command_suite_payload)
+    })
+    .then(response => {
+        if (response.status === HTTP_200_OK){
+            return  response.json();
+        }
+        else {
+            throw new Error("An unexpected error occurred. \n" + response.status + ": " + response.statusText);
+        }
+    })
+    .then(data => {
+        for (tests of data.function_tests)
         {
-            update_function_test_elements(returnVal.function_tests[indx].test_name,
-            returnVal.function_tests[indx].test_value)
-        }*/
+            var func_test_val = true
+            console.log("Function test category: " + tests.name);
+            for (test of tests.container_messages)
+            {
+                console.log(test.name + ": " + test.value);
+                if (test.value != "Success"){
+                    func_test_val = false       // If one is test fails, the function test category fails.
+                    break
+                }
+            }
+            update_function_test_elements(tests.name, func_test_val);
+        }
+    })
+    .catch(err => console.error(err));
+}
+
+/*
+    var url = "/send_function_tests";
+    d3.json(url, {method: "POST", body: JSON.stringify(command_suite_payload),
+    headers: {"Content-type": "application/json; charset=UTF-8"}}).then((returnVal)=>{
+
         for (test of returnVal.function_tests)
         {
             update_function_test_elements(test.test_name, test.test_value);
         }
     });
-}
+*/
 
-function update_function_test_elements(test_name, test_val)
+function update_function_test_elements(func_test_name, func_test_val)
 {
-    test_element = document.getElementById(test_name);
+    test_element = document.getElementById(func_test_name);
     test_status_bars = test_element.getElementsByTagName("i");
     for (child of test_status_bars)
     {
@@ -43,7 +105,7 @@ function update_function_test_elements(test_name, test_val)
             child.classList.remove("failed");
             child.classList.remove("fa-times");
 
-            if(test_val === true)
+            if(func_test_val === true)
             {
                 child.classList.add("completed");
                 child.classList.add("fa-check");
