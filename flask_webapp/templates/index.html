@@ -16,9 +16,10 @@
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  <script type="text/javascript" src="..\static\js\menu_list.js"></script>
+  <script type="text/javascript" src="..\static\js\device_list.js"></script>
   <script type="text/javascript" src="..\static\js\function_test_list.js"></script>
-  <link rel="stylesheet" href="..\static\css\menu_list.css">
+  <script type="text/javascript" src="..\static\js\pid.js"></script>
+  <link rel="stylesheet" href="..\static\css\device_list.css">
 
   <title>NIA STEM Club | PID IOT Interface </title>
 </head>
@@ -146,7 +147,7 @@
 					<h5>Input Table</h5>
 				</div>
 				<p class="lead">
-				Enter in the constants that you want to program onto the arduino in the table below
+				Enter integer values for the PID variables K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>, and Angle to program the Arduino using the table below.
 				</p>
 				<table class="table table-hover table-dark" style="border-radius: .3rem">
 				  <thead>
@@ -154,43 +155,43 @@
 					  <th scope="col">Proportional Constant (K<sub>p</sub>)</th>
 					  <th scope="col">Integral Constant (K<sub>i</sub>)</th>
 					  <th scope="col">Derivative Constant (K<sub>d</sub>)</th>
-					  <th scope="col">Balance Beam Start Angle</th>
+					  <th scope="col">Balance Beam Start Angle <sup>0</sup></th>
 					</tr>
 				  </thead>
 				  <tbody>
 					<tr>
 					  <th scope="row">
-						<form>
+						<form id="kp">
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea1"> </input>
+							<input type="number" name="kp_input" class="form-control form-control-sm" placeholder="10" id="Textarea1"> </input>
 						  </div>
 						</form>
 					  </th>
 					  <td>
-						<form>
+						<form id="ki">
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea2"> </input>
+							<input type="number" name="ki_input" class="form-control form-control-sm" placeholder="10" id="Textarea2"> </input>
 						  </div>
 						</form>
 					  </td>
 					  <td>
-						<form>
+						<form id="kd">
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea3"> </input>
+							<input type="number" name="kd_input" class="form-control form-control-sm" placeholder="10" id="Textarea3"> </input>
 						  </div>
 						</form>
 					  </td>
 					  <td>
-						<form>
+						<form id="angle">
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="45" id="Textarea4"> </input>
+							<input type="number" name="angle_input" class="form-control form-control-sm" id="Textarea4"> </input>
 						  </div>
 						</form>
 					  </td>
 					</tr>
 				  </tbody>
 				</table>
-				<button id="runBtn" type="submit" class="btn btn-primary" onclick="changeRunButtonColor()"> Run Test </button>
+				<button id="submit_pid_btn" type="submit" class="btn btn-primary" onclick="sendPID()"> Run Test </button>
 			</div>
 		</div>
 	</section>

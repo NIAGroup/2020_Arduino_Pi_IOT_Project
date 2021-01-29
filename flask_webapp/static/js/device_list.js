@@ -353,21 +353,4 @@ function triggerConnection(connectBtn){
     }
 }
 
-function changeRunButtonColor(){
-  var btn;
-  btn = document.getElementById("runBtn");
-  
-  if(btn.classList.contains("btn-success")){
-    btn.classList.remove("btn-success");
-    btn.classList.add("btn-danger")
-  }
-  else if (btn.classList.contains("btn-danger")){
-    btn.classList.remove("btn-danger");
-    btn.classList.remove("btn-success");
-  }
-  else{
-    btn.classList.add("btn-success");
-  }
-  
-}
 

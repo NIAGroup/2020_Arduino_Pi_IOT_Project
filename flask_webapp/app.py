@@ -40,7 +40,7 @@ api.add_resource(Device_Disconnection_Resource, '/disconnect', endpoint='disconn
 api.add_resource(Scanlist_Resource, '/scan', endpoint='scan')
 api.add_resource(Previous_Connection_Resource, '/get_previously_paired', endpoint='get_previously_paired')
 api.add_resource(Functional_Test_Resource, '/send_function_tests', endpoint='send_function_tests')
-api.add_resource(PID_Command_Resource, '/send', endpoint='send')
+api.add_resource(PID_Command_Resource, '/send_pid', endpoint='send_pid')
 #api.add_resource(Video_Feed_Resource, '/get_video_feed')
 
 if __name__ == '__main__':

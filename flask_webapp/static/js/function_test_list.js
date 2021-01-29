@@ -4,7 +4,7 @@
  * @since  01.11.2021
  */
 
-//import {baseUrl, HTTP_200_OK, getConnectedDeviceName} from './menu_list.js';
+//import {baseUrl, HTTP_200_OK, getConnectedDeviceName} from './device_list.js';
 
 // User defined macros
 var baseUrl = "";
@@ -18,7 +18,7 @@ function getConnectedDeviceName(){
     return connected_device_tag.nextSibling.innerText;
 }
 
-/*  Got the top from Menu list   */
+/*  Got the top from device_list.js   */
 
 var FUNCTIONAL_TESTS_TO_CONTAINER_MESSAGES = {
     "BT Connection": ["Sanity_BT_Echo"],
@@ -28,10 +28,8 @@ var FUNCTIONAL_TESTS_TO_CONTAINER_MESSAGES = {
 }
 
 function runFunctionTests() {
-    //var request_payload = [];
     var command_suite_payload = {};
 
-    //request_payload.push({"device": getConnectedDeviceName()});
     command_suite_payload["device"] = getConnectedDeviceName();
     command_suite_payload["function_tests"] = [];
 
@@ -44,7 +42,6 @@ function runFunctionTests() {
         single_command["container_messages"] = FUNCTIONAL_TESTS_TO_CONTAINER_MESSAGES[test.id]
         command_suite_payload ["function_tests"].push(single_command)
     }
-    //request_payload.push(command_suite_payload);
 
     var url= baseUrl.concat("/send_function_tests");
     fetch(url, {
@@ -78,18 +75,6 @@ function runFunctionTests() {
     })
     .catch(err => console.error(err));
 }
-
-/*
-    var url = "/send_function_tests";
-    d3.json(url, {method: "POST", body: JSON.stringify(command_suite_payload),
-    headers: {"Content-type": "application/json; charset=UTF-8"}}).then((returnVal)=>{
-
-        for (test of returnVal.function_tests)
-        {
-            update_function_test_elements(test.test_name, test.test_value);
-        }
-    });
-*/
 
 function update_function_test_elements(func_test_name, func_test_val)
 {
