@@ -3,7 +3,9 @@ from flask import request, jsonify, render_template, Response, make_response, js
 from flask_restful import Resource
 from flask_api import status
 from pprint import pprint
+import time
 from models.device_db_model import Device_Model, DB_RETURN_STATUS
+from src.camera import VideoCamera, gen_frames
 
 print = pprint
 
@@ -229,11 +231,46 @@ class Functional_Test_Resource(Resource):
         return retDict, resp_status, headers
 
 class PID_Command_Resource(Resource):
-    def get(self):
-        pass
-
     def post(self):
-        pass
+        retDict = {}
+        headers = {"Content-type": "application/json; charset=UTF-8"}
+        resp_status = None
+
+        command_payload = request.get_json()
+        print(f'{command_payload}')
+        try:
+            db_status, connected_dev_from_db = Device_Model.find_by_status("connected")
+            if db_status == DB_RETURN_STATUS["HTTP_200_OK"]:
+                if connected_dev_from_db.name == command_payload["device"]:
+                    resp_status = status.HTTP_200_OK
+                    retDict["value"] = "Success"
+                    retDict["btime"] = 12
+                else:
+                    resp_status = DB_RETURN_STATUS["HTTP_514_WRONG_DEVICE_CONNECTED_DB_ERROR"]
+            else:
+                resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+                error_str = f"Unexpected error occurred."
+                retDict["error_msg"] = error_str
+        except Exception as error:
+            resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+            error_str = f"Unexpected error occurred. {error}"
+            retDict["error_msg"] = error_str
+
+        print(retDict)
+
+        return retDict, resp_status, headers
 
 class Video_Feed_Resource(Resource):
-    pass
+    def __init__(self):
+        self._cam = None
+
+    def get(self):
+        print('Turn on Webcam')
+        if self._cam == None:
+            self._cam = VideoCamera()
+        else:
+            time.sleep(0.1)
+            if self._cam.isCameraActive:
+                self._cam.isCameraActive = False
+        return Response(gen_frames(self._cam),
+                        mimetype='multipart/x-mixed-replace; boundary=frame')

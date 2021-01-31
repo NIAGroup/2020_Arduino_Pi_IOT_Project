@@ -23,7 +23,7 @@ function getConnectedDeviceName(){
 var FUNCTIONAL_TESTS_TO_CONTAINER_MESSAGES = {
     "BT Connection": ["Sanity_BT_Echo"],
     "Video Feed": ["NULL"],
-    "Sensor Detection": ["Sanity_Read_Sensor_Message"],
+    "Sensor Detection": ["Sanity_Read_Sensor"],
     "Servo Motors": ["Sanity_Adjust_Servo_120", "Sanity_Adjust_Servo_90", "Sanity_Adjust_Servo_60", "Sanity_Adjust_Servo_90"]
 }
 

@@ -1,9 +1,7 @@
 import __init__
 from ctypes import Structure, Union, c_uint8, sizeof, resize
 
-
 # -------------- Base Message Structures ---------------------#
-
 
 class Message_Struct(Structure):
     """
@@ -90,9 +88,7 @@ class Response_Message_Union(Message_Union):
         ("bytes",           sizeof(Response_Message) * c_uint8)
     ]
 
-
 #------------------ Derived Message Structures -----------------#
-
 
 class Sanity_BT_Echo_Message(Request_Message):
     """
@@ -300,7 +296,7 @@ class Sanity_Loop_Servo_180_Message_Union(Message_Union):
         """
         self.structure.command = 0x96
 
-class Sanity_Blink_Yellow_LED_Message(Request_Message):
+class Sanity_Read_Sensor_Message(Request_Message):
     """
 
     """
@@ -308,13 +304,13 @@ class Sanity_Blink_Yellow_LED_Message(Request_Message):
         ("reservedBytes",   c_uint8 * 7)
     ]
 
-class Sanity_Blink_Yellow_LED_Message_Union(Message_Union):
+class Sanity_Read_Sensor_Message_Union(Message_Union):
     """
 
     """
     _fields_ = [
-        ("structure",       Sanity_Blink_Yellow_LED_Message),
-        ("bytes",           sizeof(Sanity_Blink_Yellow_LED_Message) * c_uint8)
+        ("structure",       Sanity_Read_Sensor_Message),
+        ("bytes",           sizeof(Sanity_Read_Sensor_Message) * c_uint8)
     ]
 
     def __init__(self):
