@@ -17,6 +17,7 @@ CONTAINER_RETURN_STATUS = {
         "SUCCESS": 0x00,
         "ALREADY_CONNECTED": 0x01,
         "CONNECTION_FAILED": 0x02,
+        "DEVICE_NOT_AVAILABLE": 0x03,
     }
 
 class Bt_Dev_Container(object):
@@ -137,13 +138,11 @@ class Bt_Dev_Container(object):
                 dev = self.get_device(name)
             except KeyError as device_not_available_error:
                 print(f"Device not available after performing scan. Raising exception:\n{device_not_available_error}")
-                raise device_not_available_error
+                return CONTAINER_RETURN_STATUS["DEVICE_NOT_AVAILABLE"]
 
-
-        if dev.is_connected():
-            print("Device is already connected.")
-            self._connected_dev = name
-            return RETURN_STATUS["ALREADY_CONNECTED"]
+        if dev.is_connected() or self._connected_dev == name:
+            print("Device is already connected in the container.")
+            return CONTAINER_RETURN_STATUS["ALREADY_CONNECTED"]
         else:
             try:
                 if self._connected_dev:     # disconnect the previously connected device
@@ -151,10 +150,10 @@ class Bt_Dev_Container(object):
 
                 if dev.connect():           # connect the new device
                     self._connected_dev = name
-                    return RETURN_STATUS["SUCCESS"]
+                    return CONTAINER_RETURN_STATUS["SUCCESS"]
                 else:
                     print(f"Connect command failed for device {name}")
-                    return RETURN_STATUS["CONNECTION_FAILED"]
+                    return CONTAINER_RETURN_STATUS["CONNECTION_FAILED"]
             except Exception as error:
                 print(f"An unexpected error happened. \n{error}")
                 raise error

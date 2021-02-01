@@ -6,6 +6,9 @@ from pprint import pprint
 import time
 from models.device_db_model import Device_Model, DB_RETURN_STATUS
 from src.camera import VideoCamera, gen_frames
+from src.device_container import Bt_Dev_Container, CONTAINER_RETURN_STATUS
+
+Container = Bt_Dev_Container()
 
 # Customize print
 print = lambda x: pprint(f"***\n{x}\n***")
@@ -43,14 +46,22 @@ class Scanlist_Resource(Resource):
         Return:
         """
         retDict = {}
+        retDict["scanned_devices"] = []
         headers = {"Content-type": "application/json; charset=UTF-8"}
-        resp_status = status.HTTP_200_OK
-        retDict["scanned_devices"] = [
-            {"name": 'test1', "status": 'disconnected'},
-            {"name": 'test2', "status": 'disconnected'},
-            {"name": 'test3', "status": 'disconnected'},
-            {"name": 'test4', "status": 'disconnected'},
-        ]
+        resp_status = None
+        try:
+            devices = Container.scan()
+            if len(devices) == 0:
+                resp_status = status.HTTP_404_NOT_FOUND
+            else:
+                resp_status = status.HTTP_200_OK
+                for device in devices:
+                    retDict["scanned_devices"].append({"name": device, "status": "disconnected"})
+        except Exception as error:
+            error_str = f"Runtime error has occurred upon performing a scan.\n {error}"
+            print(error_str)
+            retDict["error_msg"] = error_str
+            resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
 
         print(retDict)
 
@@ -137,12 +148,30 @@ class Device_Connection_Resource(Resource):
             print(f'Processing {deviceName}')
             try:
                 resp_status, retDict, error_str = self._disconnect_dev_from_db(deviceName)
-                if resp_status == status.HTTP_201_CREATED:  # Create a new db entry
-                    resp_status, retDict, error_str = self._connect_dev_to_db(deviceName, retDict, resp_status)
+                if resp_status == status.HTTP_201_CREATED:  # Device was not previously logged as connected status
+                    print(f"Connecting device {deviceName}")
+                    container_status = Container.connect_device(deviceName)
+                    if container_status == CONTAINER_RETURN_STATUS["SUCCESS"]:
+                        resp_status, retDict, error_str = self._connect_dev_to_db(deviceName, retDict, resp_status)
+                    elif container_status == CONTAINER_RETURN_STATUS["ALREADY_CONNECTED"]:
+                        resp_status = DB_RETURN_STATUS["HTTP_513_DB_AND_CONTAINER_INCONSISTENT"]
+                        retDict["error_msg"] =f"DB reports {deviceName} is disconnected while Container is connected"
+                    elif container_status == CONTAINER_RETURN_STATUS["DEVICE_NOT_AVAILABLE"]:
+                        resp_status = status.HTTP_404_NOT_FOUND
+                        retDict["error_msg"] = f"{deviceName} is not available, even after performing a scan"
+                    elif container_status == CONTAINER_RETURN_STATUS["CONNECTION_FAILED"]:
+                        resp_status = status.HTTP_503_SERVICE_UNAVAILABLE
+                        retDict["error_msg"] = f"Could not connect to the device for some reason!"
+                    else:
+                        resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
+                        retDict["error_msg"] = f"Unexpected status was received from container."
+                elif resp_status == status.HTTP_202_ACCEPTED:   # Device is already logged in db as connected
+                    if deviceName != Container.get_connected_device():
+                        resp_status = DB_RETURN_STATUS["HTTP_513_DB_AND_CONTAINER_INCONSISTENT"]
+                        retDict["error_msg"] = f"DB reports {deviceName} is disconnected while Container is connected"
             except Exception as error:
                 resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
-                error_str = f"Unexpected error occurred. {error}"
-                retDict["error_msg"] = error_str
+                retDict["error_msg"] = f"Unexpected error occurred. {error}"
 
         print(retDict)
 
@@ -166,11 +195,17 @@ class Device_Disconnection_Resource(Resource):
                 db_status, connected_dev_from_db = Device_Model.find_by_status("connected")
                 if db_status == DB_RETURN_STATUS["HTTP_200_OK"]:
                     if connected_dev_from_db.name == deviceName:
-                        print(f"Disconnecting device {deviceName}")
-                        connected_dev_from_db.status = "disconnected"  # Update db to disconnected status
-                        connected_dev_from_db.save_to_db()
-                        retDict["disconnected_device"] = connected_dev_from_db.json()
-                        resp_status = status.HTTP_202_ACCEPTED
+                        if deviceName != Container.get_connected_device():
+                            resp_status = DB_RETURN_STATUS["HTTP_513_DB_AND_CONTAINER_INCONSISTENT"]
+                            retDict["error_msg"] = f"DB reports {deviceName} is connected while Container is connected " \
+                                                   f"to {Container.get_connected_device()}."
+                        else:
+                            print(f"Disconnecting device {deviceName}")
+                            Container.disconnect_device(deviceName)
+                            connected_dev_from_db.status = "disconnected"  # Update db to disconnected status
+                            connected_dev_from_db.save_to_db()
+                            retDict["disconnected_device"] = connected_dev_from_db.json()
+                            resp_status = status.HTTP_202_ACCEPTED
                     else:
                         error_str = f"DB reports {connected_dev_from_db.name} as the connected device instead of {deviceName}."
                         retDict["error_msg"] = error_str
@@ -205,7 +240,7 @@ class Functional_Test_Resource(Resource):
         try:
             db_status, connected_dev_from_db = Device_Model.find_by_status("connected")
             if db_status == DB_RETURN_STATUS["HTTP_200_OK"]:
-                if connected_dev_from_db.name == test_suite["device"]:
+                if (connected_dev_from_db.name == test_suite["device"]) and (Container.get_connected_device() == test_suite["device"]):
                     resp_status = status.HTTP_200_OK
                     for func_test in test_suite["function_tests"]:
                         test_entry = {}
@@ -214,7 +249,11 @@ class Functional_Test_Resource(Resource):
                         for container_msg in func_test["container_messages"]:
                             msg = {}
                             msg["name"] = container_msg
-                            msg["value"] = "Success"
+                            is_successful, cmd_time = Container.get_device(test_suite["device"]).send_message(container_msg)
+                            if is_successful:
+                                msg["value"] = "Success"
+                            else:
+                                msg["value"] = "Failed"
                             test_entry["container_messages"].append(msg)
                         retDict["function_tests"].append(test_entry)
                 else:
@@ -242,10 +281,21 @@ class PID_Command_Resource(Resource):
         try:
             db_status, connected_dev_from_db = Device_Model.find_by_status("connected")
             if db_status == DB_RETURN_STATUS["HTTP_200_OK"]:
-                if connected_dev_from_db.name == command_payload["device"]:
+                if (connected_dev_from_db.name == command_payload["device"]) and (Container.get_connected_device() == command_payload["device"]):
                     resp_status = status.HTTP_200_OK
-                    retDict["value"] = "Success"
-                    retDict["btime"] = 12
+
+                    is_successful, cmd_time = Container.get_device(command_payload["device"]).send_message(command_payload["command"],
+                                                                                                           kp=command_payload["args"]["kp"],
+                                                                                                           kd=command_payload["args"]["kd"],
+                                                                                                           ki=command_payload["args"]["ki"],
+                                                                                                           angle=command_payload["args"]["angle"])
+
+                    if is_successful:
+                        retDict["value"] = "Success"
+                        retDict["btime"] = cmd_time
+                    else:
+                        retDict["value"] = "Failed"
+
                 else:
                     resp_status = DB_RETURN_STATUS["HTTP_514_WRONG_DEVICE_CONNECTED_DB_ERROR"]
             else:

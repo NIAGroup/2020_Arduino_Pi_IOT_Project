@@ -9,10 +9,10 @@ from src.camera import VideoCamera, gen_frames
 if sys.platform == 'win32':
     print("Running on Windows OS. This is going to launch the debug version of this application.")
     from resources.resource_manager_win_debug import Home, Device_Connection_Resource, Device_Disconnection_Resource, \
-        Scanlist_Resource, Previous_Connection_Resource, Functional_Test_Resource, PID_Command_Resource, Video_Feed_Resource
+        Scanlist_Resource, Previous_Connection_Resource, Functional_Test_Resource, PID_Command_Resource
 else:
-    from resources.resource_manager import Home, Device_Connection_Resource, Device_Disconnection_Resource, \
-        Scanlist_Resource, Previous_Connection_Resource, Functional_Test_Resource, PID_Command_Resource, Video_Feed_Resource
+    from resources.resource_manager_linux import Home, Device_Connection_Resource, Device_Disconnection_Resource, \
+        Scanlist_Resource, Previous_Connection_Resource, Functional_Test_Resource, PID_Command_Resource
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///pid_app.db'
@@ -72,29 +72,3 @@ if __name__ == '__main__':
     # rights to run as a server.
     db.init_app(app)
     app.run(host="0.0.0.0", port=5000, debug=True)
-
-"""
-@app.route("/send", methods=['GET', 'POST'])
-def send():
-    \"""
-    Brief:
-        send():
-    POST:
-        JSON => {selected_device_name : [ {method_name : {param_name : param_value} ] } ] }
-    GET:
-       JSON => {selected_device_name : {method_name : method_result} }
-    \"""
-    devices = request.get_json()
-    retValue = {}
-    for device_name in devices["selectedDevices"]:
-        retValue[device_name] = {}
-        for msg_name in devices[device_name]:
-            print(f"Sending command: {msg_name} params: {devices[device_name][msg_name]}")
-            try:
-                retValue[device_name][msg_name] = Container.get_device(device_name).send_message(msg_name, **devices[device_name][msg_name])
-            except Exception:
-                print(f"Unexpected error occurred upon sending command: {msg_name}. Returning False.\n{Exception}")
-                retValue[device_name][msg_name] = False
-
-    return jsonify(retValue)
-"""
