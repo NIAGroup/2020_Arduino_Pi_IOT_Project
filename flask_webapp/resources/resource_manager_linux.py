@@ -8,10 +8,15 @@ from models.device_db_model import Device_Model, DB_RETURN_STATUS
 from src.camera import VideoCamera, gen_frames
 from src.device_container import Bt_Dev_Container, CONTAINER_RETURN_STATUS
 
-Container = Bt_Dev_Container()
-
 # Customize print
-print = lambda x: pprint(f"***\n{x}\n***")
+def custom_print(print_msg):
+    pprint("***************************************************************************************")
+    pprint(print_msg)
+    pprint("***************************************************************************************")
+
+print = custom_print
+
+Container = Bt_Dev_Container()
 
 class Home(Resource):
     def get(self):
