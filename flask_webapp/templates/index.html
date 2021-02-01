@@ -166,28 +166,28 @@
 					  <th scope="row">
 						<form id="kp">
 							<div class="form-group">
-							<input type="number" name="kp_input" class="form-control form-control-sm" placeholder="10" id="Textarea1"> </input>
+							<input type="number" name="kp_input" class="form-control form-control-sm" id="Textarea1" required> </input>
 						  </div>
 						</form>
 					  </th>
 					  <td>
 						<form id="ki">
 							<div class="form-group">
-							<input type="number" name="ki_input" class="form-control form-control-sm" placeholder="10" id="Textarea2"> </input>
+							<input type="number" name="ki_input" class="form-control form-control-sm" id="Textarea2" required> </input>
 						  </div>
 						</form>
 					  </td>
 					  <td>
 						<form id="kd">
 							<div class="form-group">
-							<input type="number" name="kd_input" class="form-control form-control-sm" placeholder="10" id="Textarea3"> </input>
+							<input type="number" name="kd_input" class="form-control form-control-sm" id="Textarea3" required> </input>
 						  </div>
 						</form>
 					  </td>
 					  <td>
 						<form id="angle">
 							<div class="form-group">
-							<input type="number" name="angle_input" class="form-control form-control-sm" id="Textarea4"> </input>
+							<input type="number" name="angle_input" class="form-control form-control-sm" id="Textarea4" required> </input>
 						  </div>
 						</form>
 					  </td>
@@ -258,36 +258,14 @@
 							<table class="table table-dark h-100" style="margin:0px;text-align:center;border-radius: .3rem">
 								<thead>
 								<tr>
-									<th scope="col">PID Values (K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>)</th>
+									<th scope="col">PID Values <br>(K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>)</th>
 									<th scope="col">Start Angle</th>
 									<th scope="col">Balance Time (s)</th>
 									<th scope="col">Date (mm/dd/yyyy)</th>
-									<th scope="col">Time (hh.mm.ss)</th>
+									<th scope="col">Time (hh:mm:ss)</th>
 								</tr>
 								</thead>
-								<tbody>
-								<tr>
-									<th scope="row">10,12,14</th>
-									<td>45&#176;</td>
-									<td>3.5</td>
-									<td>11/11/2020</td>
-									<td>13.54.06</td>
-								</tr>
-								<tr>
-									<th scope="row">10,13,20</th>
-									<td>50&#176;</td>
-									<td>4</td>
-									<td>11/11/2020</td>
-									<td>13.57.01</td>
-								</tr>
-								<tr>
-									<th scope="row">10,13,20</th>
-									<td>50&#176;</td>
-									<td>4</td>
-									<td>11/11/2020</td>
-									<td>13.57.01</td>
-								</tr>
-								</tbody>
+								<tbody id="output_body"> </tbody>
 							</table>
 						</div>
 					</div>

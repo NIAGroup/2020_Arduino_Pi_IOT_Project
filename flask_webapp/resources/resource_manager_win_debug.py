@@ -8,7 +8,12 @@ from models.device_db_model import Device_Model, DB_RETURN_STATUS
 from src.camera import VideoCamera, gen_frames
 
 # Customize print
-print = lambda x: pprint(f"***\n{x}\n***")
+def custom_print(print_msg):
+    pprint("***************************************************************************************")
+    pprint(print_msg)
+    pprint("***************************************************************************************")
+
+print = custom_print
 
 class Home(Resource):
     def get(self):

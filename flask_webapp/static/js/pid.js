@@ -84,7 +84,24 @@ function changePIDRunButtonToNeutral(btn){
 }
 
 function populateTable(kp, ki, kd, angle, btime){
-// Probably need to get timestamp here.
+    const table = document.getElementById("output_body");
+    let row = table.insertRow();
+    let pid_values = row.insertCell(0);
+    pid_values.innerHTML = kp + ", " + ki + ", " + kd;
+
+    let start_angle = row.insertCell(1);
+    start_angle.innerHTML = angle + "&#176";
+
+    let balance_time = row.insertCell(2);
+    balance_time.innerHTML = btime;
+
+    var d = new Date();
+    console.log(d);
+    let date = row.insertCell(3);
+    date.innerHTML = d.toLocaleDateString();
+
+   let time = row.insertCell(4);
+   time.innerHTML = d.toLocaleTimeString();
 }
 
 /*
