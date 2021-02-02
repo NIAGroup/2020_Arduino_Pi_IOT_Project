@@ -130,13 +130,11 @@ class Bt_Dev_Container(object):
         """
         dev = None
         try:
-            import pdb; pdb.set_trace()
             dev = self.get_device(name)
         except Exception:
             print(f"Device handle not found. Will be performing a scan.")
             self.scan()
             try:
-                import pdb; pdb.set_trace()
                 dev = self.get_device(name)
             except KeyError as device_not_available_error:
                 print(f"Device not available after performing scan. Raising exception:\n{device_not_available_error}")
