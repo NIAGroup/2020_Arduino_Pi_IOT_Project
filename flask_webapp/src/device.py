@@ -169,7 +169,7 @@ class Bt_Ble_Device(object):
                 for byte_idx in range(len(resp_msg_union.bytes)):
                     resp_msg_union.bytes[byte_idx] = ret_bytes[byte_idx]
                 print(f"Received Packet: \n{resp_msg_union.structure}")
-                return resp_msg_union.structure.status == STATUS_SUCCESS
+                return resp_msg_union.structure.status == STATUS_SUCCESS, resp_msg_union.structure.completionTime_ms
             else:
                 print(f"Received less bytes than expected for message: {msgName}.\n"
                       f"Expected: {sizeof(resp_msg_union)} Received: {len(ret_bytes)}. Returning False")
