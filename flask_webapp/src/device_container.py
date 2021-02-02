@@ -130,17 +130,19 @@ class Bt_Dev_Container(object):
         """
         dev = None
         try:
+            import pdb; pdb.set_trace()
             dev = self.get_device(name)
         except Exception:
             print(f"Device handle not found. Will be performing a scan.")
             self.scan()
             try:
+                import pdb; pdb.set_trace()
                 dev = self.get_device(name)
             except KeyError as device_not_available_error:
                 print(f"Device not available after performing scan. Raising exception:\n{device_not_available_error}")
                 return CONTAINER_RETURN_STATUS["DEVICE_NOT_AVAILABLE"]
 
-        if dev.is_connected() or self._connected_dev == name:
+        if self._connected_dev == name:
             print("Device is already connected in the container.")
             return CONTAINER_RETURN_STATUS["ALREADY_CONNECTED"]
         else:
