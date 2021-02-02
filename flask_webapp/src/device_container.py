@@ -39,7 +39,7 @@ class Bt_Dev_Container(object):
         """
         self._bt_name_dev_dict = {}     # name -> device
         self._connected_dev = None
-    @property
+    
     def get_connected_device(self):
         """
 
