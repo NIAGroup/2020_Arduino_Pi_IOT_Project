@@ -345,4 +345,4 @@ class PID_Controller_Message_Union(Message_Union):
         """
 
         """
-        self.command = 0x70
+        self.structure.command = 0x70
