@@ -97,8 +97,8 @@ class Bt_Ble_Device(object):
         Description:
             This API checks if a connection exists. If so it will disconnect, else it will return.
         """
-        if self.is_connected():
-            self._dev.disconnect()
+        #if self.is_connected():
+        self._dev.disconnect()
 
     def _write(self, msg):
         """
@@ -145,38 +145,38 @@ class Bt_Ble_Device(object):
         Return:
              Response message bytes, None on failure (NameError or any other type of Exception raised).
         """
-        if self.is_connected():
-            STATUS_SUCCESS = 0x00
-            try:
-                msg_type = eval(f"{msgName}_Message_Union")
-                msg_obj = msg_type()
-            except NameError as error:
-                print(f"Message object {msgName} not defined. Returning False.\n{error}")
-                return False
+        #if self.is_connected():
+        STATUS_SUCCESS = 0x00
+        try:
+            msg_type = eval(f"{msgName}_Message_Union")
+            msg_obj = msg_type()
+        except NameError as error:
+            print(f"Message object {msgName} not defined. Returning False.\n{error}")
+            return False
 
-            if kwargs:
-                for elt_name, elt_val in kwargs.items():
-                    if hasattr(msg_obj.structure, elt_name): # only overwrite value if field is present
-                        setattr(msg_obj.structure, elt_name, elt_val)
+        if kwargs:
+            for elt_name, elt_val in kwargs.items():
+                if hasattr(msg_obj.structure, elt_name): # only overwrite value if field is present
+                    setattr(msg_obj.structure, elt_name, elt_val)
 
-            print(f"Writing message: {msgName}. \n{msg_obj.structure}")
-            self._write(msg_obj)
+        print(f"Writing message: {msgName}. \n{msg_obj.structure}")
+        self._write(msg_obj)
 
-            ret_bytes = self._read()
-            if ret_bytes:
-                resp_msg_union = Response_Message_Union()
-                if len(ret_bytes) >= sizeof(resp_msg_union):
-                    for byte_idx in range(len(resp_msg_union.bytes)):
-                        resp_msg_union.bytes[byte_idx] = ret_bytes[byte_idx]
-                    print(f"Received Packet: \n{resp_msg_union.structure}")
-                    return resp_msg_union.structure.status == STATUS_SUCCESS
-                else:
-                    print(f"Received less bytes than expected for message: {msgName}.\n"
-                          f"Expected: {sizeof(resp_msg_union)} Received: {len(ret_bytes)}. Returning False")
+        ret_bytes = self._read()
+        if ret_bytes:
+            resp_msg_union = Response_Message_Union()
+            if len(ret_bytes) >= sizeof(resp_msg_union):
+                for byte_idx in range(len(resp_msg_union.bytes)):
+                    resp_msg_union.bytes[byte_idx] = ret_bytes[byte_idx]
+                print(f"Received Packet: \n{resp_msg_union.structure}")
+                return resp_msg_union.structure.status == STATUS_SUCCESS
             else:
-                print("Didn't receive any bytes from device. Returning False.")
+                print(f"Received less bytes than expected for message: {msgName}.\n"
+                      f"Expected: {sizeof(resp_msg_union)} Received: {len(ret_bytes)}. Returning False")
         else:
-            print(f"\nConnection to {self._name}:{self._addr} is disconnected. Returning False")
+            print("Didn't receive any bytes from device. Returning False.")
+        #else:
+        #    print(f"\nConnection to {self._name}:{self._addr} is disconnected. Returning False")
         return False
 
 class Bt_Device(object):
