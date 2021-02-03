@@ -4,7 +4,7 @@ File:
 Description:
     Describes bluetooth device container for managing device instances.
 Classes:
-    BtDevContainer
+    Bt_Dev_Container
 Author:
     Adoany Berhe
 """
@@ -13,10 +13,17 @@ import bluetooth
 from bluetooth.ble import DiscoveryService
 from device import Bt_Ble_Device, Bt_Device
 
-class BtDevContainer(object):
+CONTAINER_RETURN_STATUS = {
+        "SUCCESS": 0x00,
+        "ALREADY_CONNECTED": 0x01,
+        "CONNECTION_FAILED": 0x02,
+        "DEVICE_NOT_AVAILABLE": 0x03,
+    }
+
+class Bt_Dev_Container(object):
     """
     Brief:
-        BtDevContainer(): Container class for holding all bt device instances and apis
+        Bt_Dev_Container(): Container class for holding all bt device instances and apis
     Description:
         This class will discover all peripheral devices and provide APIs for sending and receiving
             commands.
@@ -31,6 +38,13 @@ class BtDevContainer(object):
 
         """
         self._bt_name_dev_dict = {}     # name -> device
+        self._connected_dev = None
+    
+    def get_connected_device(self):
+        """
+
+        """
+        return self._connected_dev
 
     def _scan_for_bt_regular_devices(self):
         """
@@ -103,10 +117,54 @@ class BtDevContainer(object):
         """
         try:
             return self._bt_name_dev_dict[name]
-        except KeyError:
-            print(f"Device name: {name} is not found. Raising exception.\n{KeyError}")
-            raise KeyError
+        except KeyError as error:
+            print(f"Device name: {name} is not found. Raising exception.\n{error}\nRe-raising exception")
+            raise error
+        except Exception as error:
+            print(f"An unexpected exception occurred down the stack. \n{error}\nRe-raising exception.")
+            raise error
+
+    def connect_device(self, name):
+        """
+
+        """
+        dev = None
+        try:
+            dev = self.get_device(name)
         except Exception:
-            print(f"An unexpected exception occurred down the stack. Re-raising exception.")
-            raise Exception
+            print(f"Device handle not found. Will be performing a scan.")
+            self.scan()
+            try:
+                dev = self.get_device(name)
+            except KeyError as device_not_available_error:
+                print(f"Device not available after performing scan. Raising exception:\n{device_not_available_error}")
+                return CONTAINER_RETURN_STATUS["DEVICE_NOT_AVAILABLE"]
+
+        if self._connected_dev == name:
+            print("Device is already connected in the container.")
+            return CONTAINER_RETURN_STATUS["ALREADY_CONNECTED"]
+        else:
+            try:
+                if self._connected_dev:     # disconnect the previously connected device
+                    self.disconnect_device(self._connected_dev)
+
+                if dev.connect():           # connect the new device
+                    self._connected_dev = name
+                    return CONTAINER_RETURN_STATUS["SUCCESS"]
+                else:
+                    print(f"Connect command failed for device {name}")
+                    return CONTAINER_RETURN_STATUS["CONNECTION_FAILED"]
+            except Exception as error:
+                print(f"An unexpected error happened. \n{error}")
+                raise error
+
+    def disconnect_device(self, name):
+        """
+
+        """
+        if name in self._bt_name_dev_dict.keys():
+            self.get_device(name).disconnect()
+            self._connected_dev = None      # reset connected_device to None
+        else:
+            print(f"Device handle for {name} not found. Returning without doing anything.")
 

@@ -8,24 +8,23 @@
   <meta name ="keywords" content ="IOT, Arduino, RaspberryPi, PID, STEM">
   <meta name ="author" content ="Adonay Berhe, Felicia James">
   <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-  <!--<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous"> -->
-  <!--<<link rel="stylesheet" href="..\static\css\table_style.css">-->
-  <!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"> -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"><!--this css style sheet has access spinners unlike one above-->
   <link rel="stylesheet" type="text/css" href="../static/css/IOT_project.css"> <!--link to css style sheet -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=PT%20Serif"> <!--link to google fonts -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-  <script src="static/js/d3.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.js"></script>
   <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-  <script src="..\static\js\menu_list.js"></script>
-  <link rel="stylesheet" href="..\static\css\menu_list.css">
+  <!--<script src="https://wzrd.in/standalone/mime@latest"></script>-->
+  <script type="text/javascript" src="..\static\js\device_list.js"></script>
+  <script type="text/javascript" src="..\static\js\function_test_list.js"></script>
+  <script type="text/javascript" src="..\static\js\pid.js"></script>
+  <link rel="stylesheet" href="..\static\css\device_list.css">
 
   <title>NIA STEM Club | PID IOT Interface </title>
 </head>
-<body>
+<body onload="getPreviouslyPairedDevices()">
     <!--Create responsive navigation bar that collapses at medium resolution i.e tablets-->
     <header>
         <nav class="navbar fixed-top navbar-expand-md navbar-light" style="background-color: #fffdfb;">
@@ -55,18 +54,19 @@
             </div>
         </nav>
     </header>
+
 	<section id="showcase">
 		<div class="container-fluid">
 			<div class="jumbotron img-shadow welcome_jumbotron" >
 			  <h1 class="display-4">PID Controller Project</h1>
 			  <p class="lead">
-<!-- 			  Welcome to the PID controller app! This is a remote access IOT project communicating via bluetooth between an Arduino & Raspberry Pi.<br>The objective of this project is to balance a ping-pong ball in the center of a beam using an arduino, which then communicates the results to a raspberry pi via a Bluetooth connection.
- -->			  Welcome to the PID-Controller web app!<br>This application is a remote access IoT controller that utilizes an Arduino & Raspberry Pi to balance a ping-pong ball in the center of a beam.</br>
+ 			    Welcome to the PID-Controller web app!<br>This application is a remote access IoT controller that utilizes an Arduino & Raspberry Pi to balance a ping-pong ball in the center of a beam.</br>
 			  </p>
 			  <p class="lead"><a class="btn btn-outline-dark btn-lg" href="#learnMore" role="button">Learn More</a></p>
 			</div>
 		</div>
 	</section>
+
 	<section id="bluetooth">
 		<div class="container-fluid">
 			<div class="jumbotron menu_bar img-shadow"  style="background-color: #fffdfb;">
@@ -75,8 +75,7 @@
 				</div>
 				<div class="bt_row" id="previouslypaired_bt_row">
 				  <div class="container-fluid">
-						<div id="ScanDB" class="selection" style="align-items: center; justify-content: center; margin-top: 20px; display:none;">
-						</div>
+						<div id="PreviousPaired" class="selection" style="align-items: center; justify-content: center; margin-top: 20px; display:none;"></div>
 				  </div>
 				</div>
 				<div class="w3-bottombar w3-padding w3-border-red w3-hover-light-grey" style ="margin-bottom: 20px">
@@ -89,18 +88,18 @@
 							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
 							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
 							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>
-						</div> 
+						</div>
 					</div>
 				</div>
-				
+
 				<div class="bt_row">
-					<button id="scanBtn" type="" class="btn btn-primary" onclick="scanBTDevice(event, 'Scan')" style ="margin-right:4px;"> Scan </button>
+					<button id="scanBtn" type="" class="btn btn-primary" onclick="getScanDevices()" style ="margin-right:4px;"> Scan </button>
 					<button id="connectBtn" type="submit" class="btn btn-primary" onclick="triggerConnection(this)" style ="margin-left:4px"> Connect </button>
 				</div>
 			</div>
 		</div>
     </section>
-	
+
 	<section id="Functional_Testing">
 		<div class="container-fluid">
 			<div class="jumbotron img-shadow" style="background-color: #fffdfb; font-family: PT Serif;">
@@ -111,31 +110,35 @@
 				Run sanity tests to check software functionality
 				</p>
 				<div class="progressbar">
-					<ul>
-						<li>
+					<ul id="function_tests_row">
+						<li name="function_test" id="BT Connection">
 							<i class="fa fa-bluetooth" aria-hidden="true"></i><br>
-							<i class="fa fa-check status_icon completed"></i>
+							<i class="fa status_icon"></i>
+						<!--<i class="fa fa-check status_icon completed"></i>-->
 							<p>BT Connection</p>
 						</li>
-						<li>
+						<li name="function_test" id="Video Feed">
 							<i class="fa fa-video-camera" aria-hidden="true"></i><br>
-							<i class="fa fa-times status_icon failed"></i>
+							<i class="fa status_icon"></i>
+						<!--<i class="fa fa-times status_icon failed"></i> -->
 							<p>Video Feed</p>
 						</li>
-						<li>
+						<li name="function_test" id="Sensor Detection">
 							<i class="fa fa-rss" aria-hidden="true"> </i><br>
-							<i class="fa fa-check status_icon "></i>
+							<i class="fa status_icon "></i>
+						<!--<i class="fa fa-check status_icon "></i> -->
 							<p>Sensor Detection</p>
 						</li>
 						</li>
-						<li>
+						<li name="function_test" id="Servo Motors">
 							<i class="fa fa-cogs" aria-hidden="true"></i><br>
-							<i class="fa fa-check status_icon"></i>
-							<p>Servo</p>
+							<i class="fa status_icon"></i>
+						<!--<i class="fa fa-check status_icon"></i> -->
+							<p>Servo Motors</p>
 						</li>
 					</ul>
 				</div>
-				<button id="runBtn" type="submit" class="btn btn-primary" onclick="runFunctionalTests()" style="display: block"> Run Tests </button>
+				<button id="runBtn" type="submit" class="btn btn-primary" onclick="runFunctionTests()" style="display: block"> Run Tests </button>
 			</div>
 		</div>
 	</section>
@@ -147,7 +150,7 @@
 					<h5>Input Table</h5>
 				</div>
 				<p class="lead">
-				Enter in the constants that you want to program onto the arduino in the table below
+				Enter integer values for the PID variables K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>, and Angle to program the Arduino using the table below.
 				</p>
 				<table class="table table-hover table-dark" style="border-radius: .3rem">
 				  <thead>
@@ -155,149 +158,123 @@
 					  <th scope="col">Proportional Constant (K<sub>p</sub>)</th>
 					  <th scope="col">Integral Constant (K<sub>i</sub>)</th>
 					  <th scope="col">Derivative Constant (K<sub>d</sub>)</th>
-					  <th scope="col">Balance Beam Start Angle</th>
+					  <th scope="col">Balance Beam Start Angle <sup>0</sup></th>
 					</tr>
 				  </thead>
 				  <tbody>
 					<tr>
 					  <th scope="row">
-						<form>
+						<form id="kp">
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea1"> </input>
+							<input type="number" name="kp_input" class="form-control form-control-sm" id="Textarea1" required> </input>
 						  </div>
 						</form>
 					  </th>
 					  <td>
-						<form>
+						<form id="ki">
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea2"> </input>
+							<input type="number" name="ki_input" class="form-control form-control-sm" id="Textarea2" required> </input>
 						  </div>
 						</form>
 					  </td>
 					  <td>
-						<form>
+						<form id="kd">
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="10" id="Textarea3"> </input>
+							<input type="number" name="kd_input" class="form-control form-control-sm" id="Textarea3" required> </input>
 						  </div>
 						</form>
 					  </td>
 					  <td>
-						<form>
+						<form id="angle">
 							<div class="form-group">
-							<input type="number" class="form-control form-control-sm" placeholder="45" id="Textarea4"> </input>
+							<input type="number" name="angle_input" class="form-control form-control-sm" id="Textarea4" required> </input>
 						  </div>
 						</form>
 					  </td>
 					</tr>
 				  </tbody>
 				</table>
-				<button id="runBtn" type="submit" class="btn btn-primary" onclick="changeRunButtonColor()"> Run Test </button>
+				<button id="submit_pid_btn" type="submit" class="btn btn-primary" onclick="sendPID()"> Run PID </button>
 			</div>
 		</div>
 	</section>
+
 	<section id="output_table">
 		<div class="container-fluid">
-		  <div class="jumbotron img-shadow"  style="background-color: #fffdfb;">
-			<div class="w3-bottombar w3-padding w3-border-red" style="margin-bottom:20px">
-				<h5>Output Feed</h5>
-			</div>
-			<div class="row" >
-				<div class="col" id="videofeed_col">
-				<!--<h5>Embedded Video</h5> -->
-				<!--<div class="embed-responsive embed-responsive-4by3">-->
-<!--                 <iframe style="height:100%" src="{{ url_for('video_feed') }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
-                <!-- <img src="{{ url_for('video_feed') }}" style="width:100%;height:100%;"> -->
-				<img src="..\static\img\no_video_icon.png" style="width:100px;height:125px;" id="stream_video"></img>
-				<script>
-					function streamVideo(){
-						var vf_row = document.getElementById("videofeed_col");
-						clearChildNodes("videofeed_col");
-						var vf_img = document.createElement("img");
-						vf_img.setAttribute("style", "width:100%;height:100%");
-						vf_img.setAttribute("src", "{{ url_for('video_feed') }}");
-						vf_img.setAttribute("alt","Video Feed Not Available");
-						vf_row.appendChild(vf_img);
-						
-						var vf_btn = document.getElementById("videoBtn");
-						vf_btn.onclick= function(){endVideo()};
-						vf_btn.setAttribute("data-toggle","popover");
-						vf_btn.setAttribute("data-container","body");
-						vf_btn.setAttribute("data-content","Click to turn off camera");
-						<!-- vf_btn.setAttribute("onClick",'endVideo'); -->
-						document.querySelector('#videoBtn').innerHTML = 'End Video';
-						
-
-					};
-				</script>
-				<script>
-					function endVideo(){
-						var vf_row = document.getElementById("videofeed_col");
-						clearChildNodes("videofeed_col");
-						var vf_img = document.createElement("img");
-						vf_img.setAttribute("style", "width:100px;height:125px");
-						vf_img.setAttribute("src", "..\\static\\img\\no_video_icon.png");
-						vf_img.setAttribute("id","stream_video");
-						vf_img.setAttribute("alt","Video Feed Not Available");
-						vf_row.appendChild(vf_img);
-						
-						var vf_btn = document.getElementById("videoBtn");
-						vf_btn.setAttribute("data-toggle","popover");
-						vf_btn.setAttribute("data-container","body");
-						vf_btn.setAttribute("data-content","Click to turn on camera");
-						vf_btn.onclick= function(){streamVideo()};
-						document.querySelector('#videoBtn').innerHTML = 'Start Video';
-
-					};
-				</script>
-
-						<!--<h6>Scanning for bluetooth devices ...</h6>  animated spinners 
-							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.2s infinite;" role="status"></div>
-							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.4s infinite;" role="status"></div>
-							<div class="spinner-grow spinner-grow-sm text-primary" style="animation: spinner-grow 1.10s ease-in-out 0.6s infinite;" role="status"></div>-->
+			<div class="jumbotron img-shadow"  style="background-color: #fffdfb;">
+				<div class="w3-bottombar w3-padding w3-border-red" style="margin-bottom:20px">
+					<h5>Output Feed</h5>
 				</div>
-				<div class="col">
-					<div class="table-responsive h-100">
-						<table class="table table-dark h-100" style="margin:0px;text-align:center;border-radius: .3rem">
-						  <thead>
-							<tr>
-							  <th scope="col">PID Values (K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>)</th>
-							  <th scope="col">Start Angle</th>
-							  <th scope="col">Balance Time (s)</th>
-							  <th scope="col">Date (mm/dd/yyyy)</th>
-							  <th scope="col">Time (hh.mm.ss)</th>
-							</tr>
-						  </thead>
-						  <tbody>
-							<tr>
-							  <th scope="row">10,12,14</th>
-							  <td>45&#176;</td>
-							  <td>3.5</td>
-							  <td>11/11/2020</td>
-							  <td>13.54.06</td>
-							</tr>
-							<tr>
-							  <th scope="row">10,13,20</th>
-							  <td>50&#176;</td>
-							  <td>4</td>
-							  <td>11/11/2020</td>
-							  <td>13.57.01</td>
-							</tr>
-							<tr>
-							  <th scope="row">10,13,20</th>
-							  <td>50&#176;</td>
-							  <td>4</td>
-							  <td>11/11/2020</td>
-							  <td>13.57.01</td>
-							</tr>
-						  </tbody>
-						</table>
+				<div class="row" >
+					<div class="col" id="videofeed_col">
+						<!--<h5>Embedded Video</h5> -->
+						<!--<div class="embed-responsive embed-responsive-4by3">-->
+						<!--                 <iframe style="height:100%" src="{{ url_for('video_feed') }}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe> -->
+						<!-- <img src="{{ url_for('video_feed') }}" style="width:100%;height:100%;"> -->
+						<img src="..\static\img\no_video_icon.png" style="width:100px;height:125px;" id="stream_video"></img>
+						<script>
+							function streamVideo(){
+								var vf_row = document.getElementById("videofeed_col");
+								clearChildNodes("videofeed_col");
+								var vf_img = document.createElement("img");
+								vf_img.setAttribute("style", "width:100%;height:100%");
+								vf_img.setAttribute("src", "{{ url_for('video_feed') }}");
+								vf_img.setAttribute("alt","Video Feed Not Available");
+								vf_row.appendChild(vf_img);
+
+								var vf_btn = document.getElementById("videoBtn");
+								vf_btn.onclick= function(){endVideo()};
+								vf_btn.setAttribute("data-toggle","popover");
+								vf_btn.setAttribute("data-container","body");
+								vf_btn.setAttribute("data-content","Click to turn off camera");
+								<!-- vf_btn.setAttribute("onClick",'endVideo'); -->
+								document.querySelector('#videoBtn').innerHTML = 'End Video';
+							};
+						</script>
+						<script>
+							function endVideo(){
+								var vf_row = document.getElementById("videofeed_col");
+								clearChildNodes("videofeed_col");
+								var vf_img = document.createElement("img");
+								vf_img.setAttribute("style", "width:100px;height:125px");
+								vf_img.setAttribute("src", "..\\static\\img\\no_video_icon.png");
+								vf_img.setAttribute("id","stream_video");
+								vf_img.setAttribute("alt","Video Feed Not Available");
+								vf_row.appendChild(vf_img);
+
+								var vf_btn = document.getElementById("videoBtn");
+								vf_btn.setAttribute("data-toggle","popover");
+								vf_btn.setAttribute("data-container","body");
+								vf_btn.setAttribute("data-content","Click to turn on camera");
+								vf_btn.onclick= function(){streamVideo()};
+								document.querySelector('#videoBtn').innerHTML = 'Start Video';
+
+							};
+						</script>
+					</div>
+
+					<div class="col">
+						<div class="table-responsive h-100">
+							<table class="table table-dark h-100" style="margin:0px;text-align:center;border-radius: .3rem">
+								<thead>
+								<tr>
+									<th scope="col">PID Values <br>(K<sub>p</sub>, K<sub>i</sub>, K<sub>d</sub>)</th>
+									<th scope="col">Start Angle</th>
+									<th scope="col">Balance Time (s)</th>
+									<th scope="col">Date (mm/dd/yyyy)</th>
+									<th scope="col">Time (hh:mm:ss)</th>
+								</tr>
+								</thead>
+								<tbody id="output_body"> </tbody>
+							</table>
+						</div>
 					</div>
 				</div>
+				<button id="videoBtn" type="submit" class="btn btn-primary" onclick="streamVideo()" style="margin-left:4px;margin-top:1rem" data-toggle="popover" data-container="body" data-content="Click to turn on camera"> Start Video </button>
 			</div>
-			<button id="videoBtn" type="submit" class="btn btn-primary" onclick="streamVideo()" style="margin-left:4px;margin-top:1rem" data-toggle="popover" data-container="body" data-content="Click to turn on camera"> Start Video </button>
-		  </div>
 		</div>
-    </section>
+	</section>
+
 	<section id="learnMore">
 		<script>
 		$(document).ready(function(){
@@ -385,7 +362,5 @@
     </footer>
 
 <!-- Footer -->
-
-
 </body>
 </html>

@@ -1,12 +1,4 @@
 import cv2, threading
-#from imutils.video import WebcamVideoStream
-#import threading
-#import time
-
-# initialize the output frame and create a Lock to allow mutiple connections to the stream
-# outputFrame = None
-# lock = threading.Lock()
-
 
 class VideoCamera(object):
     def __init__(self):
@@ -16,19 +8,19 @@ class VideoCamera(object):
         self.frame = cv2.flip(self.frame,flipCode=-1)
         # Adding threading to reduce demand on resources
         threading.Thread(target=self.update, args=()).start()
-    
+
     def __del__(self):
         self.video.release()
-    
+
     def get_frame(self):
-        image = cv2.flip(self.frame,flipCode=-1)
+        image = cv2.flip(self.frame, flipCode=-1)
         ret, jpeg = cv2.imencode('.jpg',image)
         return jpeg.tobytes()
-        
+
     def update(self):
         while self.isCameraActive:
             (self.grabbed, self.frame) = self.video.read()
-            
+
 def gen_frames(camera):
     while True:
         frame = camera.get_frame()
