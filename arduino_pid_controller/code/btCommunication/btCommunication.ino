@@ -33,6 +33,7 @@
 #include <Servo.h>
 #include <SharpIR.h>
 #include "BT_Communication_Standard.h"
+#include "PID_Controller.h"
 
 // Every arduino's main sketch should contain a clear boot-up message.
 const String startMsg = "################################\n" \
@@ -51,37 +52,24 @@ SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX
 SoftwareSerial BT_ClassicModule(12, 13); // RX, TX
 byte bt_raw_request[8], bt_response[8];
 
-// PID variables
-char x;
-unsigned long eventInterval = 250;
-unsigned int previousDistance;
-unsigned int currentDistance;
-unsigned long previousTime = 0;
-unsigned long currentTime = millis();
-// When the ball is too far left, the lower the error 
-// When the ball is too far right, the greater the error           
-double Kp, Ki, Kd; // PID controller constants
-double previousError, currentError;
-double P, I, D, PID_out; 
-const byte setpoint = 16;
-// Variables to use for calculating the min & max values
-const int max_distance = 20; 
-const int min_distance = 9; 
-const int min_error = setpoint - max_distance;
-const int max_error = setpoint - min_distance;
-double min_P, min_I, min_D, min_PID;
-double max_P, max_I, max_D, max_PID;
-
 // Sensor variables
 SharpIR SharpIR( SharpIR::GP2Y0A21YK0F, A0 );
+unsigned long startTime = 0;
+unsigned long previousTime = 0;
+unsigned long currentTime = millis();
 
 // Servo variables
 const byte servoPin = 5;    // Servo pin assigned as pin 6 [servos require a PWM pin].
 Servo servo;                // To create a servo instance, we use the Servo class from Servo.h.
+
 const int max_angle = 110; 
 const int min_angle = 80; 
 int currentServoPosition = 90; // sets the balance beam parallel to the surface
 int targetServoPosition;
+
+
+// PID Cotnroller object
+PID_Controller pid = PID_Controller();
 
 // LED Indicator variables
 const byte redLED_pin = 9;   // The red led for error/failure assigned to pin 9.
@@ -99,6 +87,7 @@ void setup()
  pinMode(redLED_pin, OUTPUT); 
  pinMode(yellowLED_pin, OUTPUT);
  servo.attach(servoPin);
+ pid.servo = servo;
  Serial.println(startMsg);
  runStartUpLEDSequence();
  //servo.write(currentServoPosition);
@@ -270,6 +259,7 @@ void handleIncomingRequest(boolean isDeviceBLE){
        // Sensor Read Sanity Check : Hex - 0xA
        case 10:
          Serial.println("Sensor Read Sanity Check");
+         bt_response[2] = getPosition();
          bt_response[7] = 0x80;
          break;
        
@@ -288,6 +278,16 @@ void handleIncomingRequest(boolean isDeviceBLE){
    }
    else{
      Serial.println("This is not a sanity check");
+     // checking for PID command
+     unsigned long pid_StartTime = millis();
+     if (request.specBytes.command_byte.nibbles.upper == 0b0100){
+      // ttry to balance ffor 30 seconds (temporary limit)
+      while(millis() - pid_StartTime < 30000){
+        digitalWrite(blueLED_pin, HIGH);
+        pid.currentBallPosition = getPosition();
+        pid.runPID_control();
+      }
+     }
    }
    
    for(byte i = 0;i<8;i++){
@@ -323,4 +323,17 @@ void setServoPosition(byte pos){
     servo.write(pos);
     delay(50); 
   }
+}
+
+unsigned int getPosition(){
+ uint16_t  i = 0;
+ int8_t distance = 0;
+ startTime = millis();
+ currentTime = startTime;
+ while (currentTime - startTime < 100){
+   distance += SharpIR.getDistance();
+   i+=1;
+   currentTime = millis();
+ }
+ return (unsigned int)distance/i;
 }
