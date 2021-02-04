@@ -13,16 +13,15 @@ FullBtMsg BTComm_Standard::Process_Request(byte pi_request[], byte length){
   return request;
 }
 
-boolean BTComm_Standard::checkRequestType(byte command_byte){
+boolean BTComm_Standard::isSanityCheck(byte command_byte){
   byte upper_nibble = command_byte & 0b10000000;
   upper_nibble = upper_nibble >> 7;
   byte return_bit = 0;
   if (upper_nibble == 0){
-    return_bit = 0;
+    return_bit = false;
   }
   else{
-    return_bit = 1;
+    return_bit = true;
   }
   return return_bit;
 }
-

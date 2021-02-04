@@ -31,11 +31,17 @@
  
 #include <SoftwareSerial.h> 
 #include <Servo.h>
+#include <SharpIR.h>
 #include "BT_Communication_Standard.h"
 
+// Every arduino's main sketch should contain a clear boot-up message.
+const String startMsg = "################################\n" \
+                        "      Starting up to run        \n" \
+                        "    Full PID controller code    \n" \
+                        "################################";
+
+// Bluetooth variables
 BTComm_Standard btcs; 
-const byte servoPin = 5;    // Servo pin assigned as pin 6 [servos require a PWM pin].
-Servo servo;                // To create a servo instance, we use the Servo class from Servo.h.
 boolean isDeviceBLE = false;
 // Using the SoftwareSerial Library, the Digital IO pins 2 & 3 are repurposed as Soft Serial Pins
 // NOTE : For wiring the TX pin of the target device/module is connected to the assigned RX pin of the
@@ -44,8 +50,43 @@ boolean isDeviceBLE = false;
 SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX 
 SoftwareSerial BT_ClassicModule(12, 13); // RX, TX
 byte bt_raw_request[8], bt_response[8];
-const byte blueLED_pin = 10;   // The led1_pin assigned to pin 10.
-const byte yellowLED_pin = 11;   // The led2_pin assigned to pin 11.
+
+// PID variables
+char x;
+unsigned long eventInterval = 250;
+unsigned int previousDistance;
+unsigned int currentDistance;
+unsigned long previousTime = 0;
+unsigned long currentTime = millis();
+// When the ball is too far left, the lower the error 
+// When the ball is too far right, the greater the error           
+double Kp, Ki, Kd; // PID controller constants
+double previousError, currentError;
+double P, I, D, PID_out; 
+const byte setpoint = 16;
+// Variables to use for calculating the min & max values
+const int max_distance = 20; 
+const int min_distance = 9; 
+const int min_error = setpoint - max_distance;
+const int max_error = setpoint - min_distance;
+double min_P, min_I, min_D, min_PID;
+double max_P, max_I, max_D, max_PID;
+
+// Sensor variables
+SharpIR SharpIR( SharpIR::GP2Y0A21YK0F, A0 );
+
+// Servo variables
+const byte servoPin = 5;    // Servo pin assigned as pin 6 [servos require a PWM pin].
+Servo servo;                // To create a servo instance, we use the Servo class from Servo.h.
+const int max_angle = 110; 
+const int min_angle = 80; 
+int currentServoPosition = 90; // sets the balance beam parallel to the surface
+int targetServoPosition;
+
+// LED Indicator variables
+const byte redLED_pin = 9;   // The red led for error/failure assigned to pin 9.
+const byte blueLED_pin = 10;   // The blue led as 1 indicator assigned to pin 10.
+const byte yellowLED_pin = 11;   // The yellow led as 1 indicator assigned to pin 11.
 
 // Every Arduino sketch requires at least a setup loop for initializing I/O pins and serial ports
 // and a main function called "loop" that will loop indefinitely while the board is powered.
@@ -54,14 +95,13 @@ void setup()
  Serial.begin(9600);       // The default baudrate for the HC-05 is 38400, and 9600 for the HM-10 
  BT_Module.begin(9600);       // If the baudrate is incorrect the messages will not be read/displayed correctly.
  //BT_ClassicModule.begin(9600);
- pinMode(blueLED_pin, OUTPUT);      // The led pin gets setup as an output pin. 
+ pinMode(blueLED_pin, OUTPUT);      // The led pin gets setup as an output pin.
+ pinMode(redLED_pin, OUTPUT); 
  pinMode(yellowLED_pin, OUTPUT);
  servo.attach(servoPin);
- Serial.println("#########################################");
- Serial.println("Ready to connect with a bluetooth device."); 
- Serial.println("#########################################");
- delay(250);
- servo.write(90);
+ Serial.println(startMsg);
+ runStartUpLEDSequence();
+ //servo.write(currentServoPosition);
 } 
 void loop() 
 { 
@@ -81,10 +121,63 @@ void loop()
  else
  {
    digitalWrite(blueLED_pin, LOW);
+   digitalWrite(redLED_pin, LOW);
    digitalWrite(yellowLED_pin, LOW); 
  }
 
 }  
+
+void runStartUpLEDSequence(){
+  for (byte i = 0; i < 8; i++)
+ {
+  switch(i)
+  {
+    case 0:
+      digitalWrite(blueLED_pin, HIGH);
+      delay(500);
+      break;
+    case 1:
+      digitalWrite(redLED_pin, HIGH);
+      delay(500);
+      break;
+    case 2:
+      digitalWrite(yellowLED_pin, HIGH);
+      delay(500);
+      break;
+    case 3:
+      digitalWrite(blueLED_pin, LOW);
+      digitalWrite(redLED_pin, LOW);
+      digitalWrite(yellowLED_pin, LOW);
+      delay(500);
+      break;
+    case 4:
+      digitalWrite(blueLED_pin, HIGH);
+      digitalWrite(redLED_pin, HIGH);
+      digitalWrite(yellowLED_pin, HIGH);
+      delay(250);
+      break;
+    case 5:
+      digitalWrite(blueLED_pin, LOW);
+      digitalWrite(redLED_pin, LOW);
+      digitalWrite(yellowLED_pin, LOW);
+      delay(250);
+      break;
+    case 6:
+      digitalWrite(blueLED_pin, HIGH);
+      digitalWrite(redLED_pin, HIGH);
+      digitalWrite(yellowLED_pin, HIGH);
+      delay(250);
+      break;
+    case 7:
+      digitalWrite(blueLED_pin, LOW);
+      digitalWrite(redLED_pin, LOW);
+      digitalWrite(yellowLED_pin, LOW);
+      delay(250);
+      break;
+  }
+ }
+}
+
 void handleIncomingRequest(boolean isDeviceBLE){
   Serial.println("-------------------------------------------------");
      // I believe the way the messages are being sent with the ble code, the messages
@@ -119,105 +212,115 @@ void handleIncomingRequest(boolean isDeviceBLE){
        }
      }
    }
+
+   for(byte i = 0;i<8;i++){
+     bt_response[i] = bt_raw_request[i];
+   }
+   Serial.println("");
+   Serial.print("command_byte: ");
+   const FullBtMsg request = btcs.Process_Request(bt_raw_request,sizeof(bt_raw_request));
+   Serial.println(request.specBytes.command_byte.full_byte, HEX);
+   // Serial.print("status_byte: ");
+   // Serial.println(request.specBytes.status_byte.full_byte, HEX);
    
-     Serial.println("");
-     Serial.print("command_byte: ");
-     const FullBtMsg request = btcs.Process_Request(bt_raw_request,sizeof(bt_raw_request));
-     Serial.println(request.specBytes.command_byte.full_byte, HEX);
-     // Serial.print("status_byte: ");
-     // Serial.println(request.specBytes.status_byte.full_byte, HEX);
-     
-     if(btcs.checkRequestType(request.specBytes.command_byte.full_byte)){
-       Serial.println("This is a sanity check");
-       /* // Test Lines
-       Serial.print("full_byte: ");
-       Serial.print(request.command_byte.full_byte, HEX);
-       Serial.print(", upper: ");
-       Serial.print(request.command_byte.nibbles.upper, HEX);
-       Serial.print(", lower: ");
-       Serial.println(request.command_byte.nibbles.lower,HEX);
-       */
-       switch(request.specBytes.command_byte.nibbles.upper){
-         // BT Echo Sanity Check : Hex - 0x8
-         case 8:
-           Serial.println("Running BT echo Sanity Check");
-           break;
-         
-         // Servo Position Sanity Check : Hex - 0x9
-         case 9:
-         // NOTE: When declaring variables in case instructions
-         // you have to enclose all the instructions in curly braces.
-         // This is because the variable has no scope without the curly braces.
-         {
+   if(btcs.isSanityCheck(request.specBytes.command_byte.full_byte)){
+     Serial.println("This is a sanity check");
+     /* // Test Lines
+     Serial.print("full_byte: ");
+     Serial.print(request.command_byte.full_byte, HEX);
+     Serial.print(", upper: ");
+     Serial.print(request.command_byte.nibbles.upper, HEX);
+     Serial.print(", lower: ");
+     Serial.println(request.command_byte.nibbles.lower,HEX);
+     */
+     switch(request.specBytes.command_byte.nibbles.upper){
+       // BT Echo Sanity Check : Hex - 0x8
+       case 8:
+         Serial.println("Running BT echo Sanity Check");
+         digitalWrite(blueLED_pin,HIGH);
+         bt_response[7] = 0x80;
+         break;
+       
+       // Servo Position Sanity Check : Hex - 0x9
+       case 9:
+       // NOTE: When declaring variables in case instructions
+       // you have to enclose all the instructions in curly braces.
+       // This is because the variable has no scope without the curly braces.
+       {
+         Serial.println("Servo Position Sanity Check");
+         byte n = 0;
+         //btcs.isValidServoCommand(request.specBytes.command_byte.nibbles.lower);
+         const int16_t arrayIndex = btcs.isValidServoCommand(request.specBytes.command_byte.nibbles.lower);
+         if(arrayIndex != -1){
+           Serial.print(btcs.ServoLookupTbl[arrayIndex].cmd, BIN);
+           Serial.print(":");
+           Serial.println(btcs.ServoLookupTbl[arrayIndex].pos);
            digitalWrite(yellowLED_pin,HIGH);
-           Serial.println("Servo Position Sanity Check");
-           byte n = 0;
-           while(request.specBytes.command_byte.nibbles.lower != btcs.ServoLookupTbl[n].cmd){
-            n++; 
-           }
-           if(n < 8){
-             Serial.print(btcs.ServoLookupTbl[n].cmd);
-             Serial.print(":");
-             Serial.println(btcs.ServoLookupTbl[n].pos);
-             //setServoPosition(btcs.ServoLookupTbl[n].pos);
-           }
-           break;
+           runServoSanitySet(arrayIndex);
+           bt_response[7] = 0x80;
          }
-         
-         // Sensor Read Sanity Check : Hex - 0xA
-         case 10:
-           Serial.println("Sensor Read Sanity Check");
-           break;
-         
-         // Tilt & Measure Sanity Check : Hex - 0xB
-         case 11:
-           Serial.println("Running Tilt & Measure Sanity Check");
-           break;
-           
-         default:
-           Serial.println("Invalid Servo Command.");
-           break;
+         else{
+          digitalWrite(redLED_pin, HIGH);
+          bt_response[7] = 0x60;
+          Serial.println("Error : invalid servo saanity check position.");
+         }
+         break;
        }
        
+       // Sensor Read Sanity Check : Hex - 0xA
+       case 10:
+         Serial.println("Sensor Read Sanity Check");
+         bt_response[7] = 0x80;
+         break;
+       
+       // Tilt & Measure Sanity Check : Hex - 0xB
+       case 11:
+         Serial.println("Running Tilt & Measure Sanity Check");
+         bt_response[7] = 0x80;
+         break;
+         
+       default:
+         Serial.println("Invalid Servo Command.");
+         bt_response[7] = 0xff;
+         break;
+     }
+     
+   }
+   else{
+     Serial.println("This is not a sanity check");
+   }
+   
+   for(byte i = 0;i<8;i++){
+     if(isDeviceBLE){
+       BT_Module.write(bt_response[i]);
      }
      else{
-       Serial.println("This is not a sanity check");
+       BT_ClassicModule.write(bt_response[i]);
      }
-     byte response[8];
-     for(byte i = 0;i<8;i++){
-       response[i] = bt_raw_request[i];
-     }
-     response[7] = 0x80;
-     digitalWrite(blueLED_pin, HIGH);
-     for(byte i = 0;i<8;i++){
-       if(isDeviceBLE){
-         BT_Module.write(response[i]);
-       }
-       else{
-         BT_ClassicModule.write(response[i]);
-       }
-     }
-     delay(1500);
+   }
+   delay(1500);
+}
+
+void runServoSanitySet(int16_t setting){
+  const byte arrLen = sizeof(btcs.ServoLookupTbl)/sizeof(btcs.ServoLookupTbl[0]);
+  if (setting == arrLen-1){
+    for (byte i = 0; i < 2; i++){
+      for (byte n = 0; n < arrLen-1; n++){
+        setServoPosition(btcs.ServoLookupTbl[n].pos);
+        delay(500);
+      }
+    }
+  } else {
+    Serial.print("setting: ");
+    Serial.println(setting);
+    setServoPosition(btcs.ServoLookupTbl[setting].pos);
+  }
 }
 
 void setServoPosition(byte pos){
-  // This first condition is for setting the servo position
-  if(pos < 181){
+  Serial.println(pos);
+  if(pos <= max_angle && pos >= min_angle){
     servo.write(pos);
-    delay(100); 
-  }
-  // This next condition is for running a full servo position sweepa
-  else{
-    for(byte t = 0; t<2; t++){
-      for(byte r = 0; r<180; r+=30){
-        servo.write(r);
-        delay(1000); 
-      }
-      
-      for(byte r = 180; r>0; r-=30){
-        servo.write(r);
-        delay(1000); 
-      }
-    }
+    delay(50); 
   }
 }

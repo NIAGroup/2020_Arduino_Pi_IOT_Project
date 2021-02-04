@@ -44,18 +44,13 @@ struct ServoCommand {
     
 class BTComm_Standard {
   public:
-    ServoCommand ServoLookupTbl[8] = {
-       {0b0011,0},    //  Hex: 0x3; degrees : 0
-       {0b0010,30},   //  Hex: 0x2; degrees : 30
-       {0b0001,60},   //  Hex: 0x1; degrees : 60
-       {0b0000,90},   //  Hex: 0x0; degrees : 90, center position on servo
-       {0b0100,120},  //  Hex: 0x4; degrees : 120
-       {0b1000,150},  //  Hex: 0x8; degrees : 150
-       {0b1100,180},  //  Hex: 0xC; degrees : 180
-       {0b0110,200}   //  Hex: 0x6; sweep : moves the servo from 0 to 180 degrees & back twice
+    ServoCommand ServoLookupTbl[4] = {
+       {0b0011,80},    //  Hex: 0x3; degrees : tilt right
+       {0b0110,90},   //  Hex: 0x0; degrees : 90, center position on servo
+       {0b1100,110},  //  Hex: 0xC; degrees : tilt left
+       {0b1001,200}   //  Hex: 0x6; sweep : moves the servo from 0 to 180 degrees & back twice
       };
     BTComm_Standard();
-    boolean isSanityCheck;
     FullBtMsg request;
     FullBtMsg response;
     
@@ -67,7 +62,25 @@ class BTComm_Standard {
     // references or values. Passing in the array is only a reference
     // so the length of the array must be passed in as a value.
     FullBtMsg Process_Request(byte pi_request[], byte length);
-    boolean checkRequestType(byte command_byte);
+    boolean isSanityCheck(byte command_byte);
+
+    int16_t isValidServoCommand(byte nibble){
+      // The length is calculated by finding size of array using sizeof 
+      // and then dividing it by size of one element of the array.
+      const byte arrayLen = sizeof(ServoLookupTbl)/sizeof(ServoLookupTbl[0]);
+      for (int16_t i = 0; i < arrayLen; i++){
+        if (int(ServoLookupTbl[i].cmd) == int(nibble)){
+          Serial.print("key: ");
+          Serial.print(ServoLookupTbl[i].cmd, BIN);
+          Serial.print(", nibble: ");
+          Serial.print(nibble, BIN);
+          Serial.print(", index: ");
+          Serial.println(i);
+          return i;
+        }
+      }
+      return -1;
+    }
     
   private:
 };
