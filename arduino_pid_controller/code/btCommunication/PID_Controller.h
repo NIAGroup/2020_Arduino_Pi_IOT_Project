@@ -15,6 +15,9 @@ class PID_Controller {
     // When the ball is too far right, the greater the error           
     
     double Kp, Ki, Kd; // PID controller constants
+    Kp = 0.85;
+    Ki = 0.25;
+    Kd = 0.65;
     double previousError, currentError;
     double P, I, D, PID_out; 
     const byte setpoint = 16;
