@@ -293,12 +293,23 @@ void handleIncomingRequest(boolean isDeviceBLE){
      ///<  checking for PID command
      unsigned long pid_StartTime = millis();
      if (request.specBytes.command_byte.nibbles.upper == 0b0100){
+      pid.Kp = double(request.specBytes.Kp_byte.full_byte)/100.00;
+      pid.Ki = double(request.specBytes.Ki_byte.full_byte)/100.00;
+      pid.Kd = double(request.specBytes.Kd_byte.full_byte)/100.00;
+      Serial.println("This is a PID control request.");
+      Serial.print("Kp: ");
+      Serial.print(pid.Kp);
+      Serial.print(", Ki: ");
+      Serial.print(pid.Ki);
+      Serial.print(", Kd: ");
+      Serial.println(pid.Kd);
       ///<  ttry to balance ffor 30 seconds (temporary limit)
       while(millis() - pid_StartTime < 30000){
         digitalWrite(blueLED_pin, HIGH);
         pid.currentBallPosition = getPosition();
         pid.runPID_control();
       }
+      Serial.println("PID control loop ended.");
      }
    }
    
@@ -355,7 +366,7 @@ void setServoPosition(byte pos){
  */
 unsigned int getPosition(){
  uint16_t  i = 0;
- int8_t distance = 0;
+ int16_t distance = 0;
  startTime = millis();
  currentTime = startTime;
  while (currentTime - startTime < 100){

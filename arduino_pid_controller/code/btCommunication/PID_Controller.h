@@ -8,16 +8,17 @@
 #endif
 
 #include <Servo.h>
+#include "BT_Communication_Standard.h"
 
 class PID_Controller {
   public:
     // When the ball is too far left, the lower the error 
     // When the ball is too far right, the greater the error           
     
-    double Kp, Ki, Kd; // PID controller constants
-    Kp = 0.85;
-    Ki = 0.25;
-    Kd = 0.65;
+    double Kp = 0.85; // PID controller constants
+    double Ki = 0.25;
+    double Kd = 0.65;
+    
     double previousError, currentError;
     double P, I, D, PID_out; 
     const byte setpoint = 16;
