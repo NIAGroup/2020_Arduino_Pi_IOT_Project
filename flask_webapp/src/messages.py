@@ -254,7 +254,7 @@ class PID_Controller_Message_Union(Message_Union):
         """
 
         """
-        self.structure.command = 0x70
+        self.structure.command = 0x40
 
 
 # ----------- Not used ---------------

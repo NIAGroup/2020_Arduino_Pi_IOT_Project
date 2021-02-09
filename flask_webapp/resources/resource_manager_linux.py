@@ -293,10 +293,10 @@ class PID_Command_Resource(Resource):
                     resp_status = status.HTTP_200_OK
 
                     is_successful, cmd_time = Container.get_device(command_payload["device"]).send_message(command_payload["command"],
-                                                                                                           kp=command_payload["args"]["kp"],
-                                                                                                           kd=command_payload["args"]["kd"],
-                                                                                                           ki=command_payload["args"]["ki"],
-                                                                                                           angle=command_payload["args"]["angle"])
+                                                                                                           kp=int(float(command_payload["args"]["kp"]) * 100),
+                                                                                                           kd=int(float(command_payload["args"]["kd"]) * 100),
+                                                                                                           ki=int(float(command_payload["args"]["ki"]) * 100),
+                                                                                                           angle=int(command_payload["args"]["angle"]))
 
                     if is_successful:
                         retDict["value"] = "Success"
