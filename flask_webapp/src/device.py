@@ -157,7 +157,7 @@ class Bt_Ble_Device(object):
         if kwargs:
             for elt_name, elt_val in kwargs.items():
                 if hasattr(msg_obj.structure, elt_name): # only overwrite value if field is present
-                    setattr(msg_obj.structure, elt_name, int(elt_val))
+                    setattr(msg_obj.structure, elt_name, elt_val)
 
         print(f"Writing message: {msgName}. \n{msg_obj.structure}")
         self._write(msg_obj)
