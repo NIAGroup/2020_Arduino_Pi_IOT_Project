@@ -34,7 +34,7 @@ class PID_Controller {
 
     // Variables to use for calculating the min & max values
     const int max_angle = 110; 
-    const int min_angle = 80; 
+    const int min_angle = 78; 
     const int max_distance = 20; 
     const int min_distance = 9; 
     const int min_error = setpoint - max_distance;

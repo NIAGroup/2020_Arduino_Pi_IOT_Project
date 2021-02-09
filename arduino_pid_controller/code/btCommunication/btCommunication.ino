@@ -1,4 +1,4 @@
-/*
+ /*
  * Author :  Princton Brennan
  * Purpose : Beginner's Example for Bluetooth Communication 
  * Requirements : 1 LED, Bluetooh Module Hc-05 or newer), an Arduino, &   
