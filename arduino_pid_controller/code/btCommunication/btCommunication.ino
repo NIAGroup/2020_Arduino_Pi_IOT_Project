@@ -211,8 +211,9 @@ void handleIncomingRequest(boolean isDeviceBLE){
    }
 
    for(byte i = 0;i<8;i++){
-     bt_response[i] = bt_raw_request[i];
+     bt_response[i] = 0x00;
    }
+   bt_response[0] = bt_raw_request[0];
    Serial.println("");
    Serial.print("command_byte: ");
    const FullBtMsg request = btcs.Process_Request(bt_raw_request,sizeof(bt_raw_request));
@@ -235,7 +236,7 @@ void handleIncomingRequest(boolean isDeviceBLE){
        case 8:
          Serial.println("Running BT echo Sanity Check");
          digitalWrite(blueLED_pin,HIGH);
-         bt_response[7] = 0x80;
+         bt_response[1] = 0x00;
          break;
        
        ////<  Servo Position Sanity Check : Hex - 0x9
@@ -255,11 +256,11 @@ void handleIncomingRequest(boolean isDeviceBLE){
            digitalWrite(yellowLED_pin,HIGH);
            digitalWrite(blueLED_pin, HIGH);
            runServoSanitySet(arrayIndex);
-           bt_response[7] = 0x80;
+           bt_response[1] = 0x00;
          }
          else{
           digitalWrite(redLED_pin, HIGH);
-          bt_response[7] = 0x60;
+          bt_response[1] = 0x60;
           Serial.println("Error : invalid servo saanity check position.");
          }
          break;
@@ -268,25 +269,24 @@ void handleIncomingRequest(boolean isDeviceBLE){
        ////<  Sensor Read Sanity Check : Hex - 0xA
        case 10:
          Serial.println("Sensor Read Sanity Check");
-         bt_response[2] = getPosition();
+         bt_response[4] = getPosition();
          Serial.print("currentBallPosition: ");
          Serial.print(bt_response[2]);
          Serial.println("cm");
-         bt_response[7] = 0x80;
+         bt_response[1] = 0x00;
          break;
        
        ////<  Tilt & Measure Sanity Check : Hex - 0xB
        case 11:
          Serial.println("Running Tilt & Measure Sanity Check");
-         bt_response[7] = 0x80;
+         bt_response[1] = 0x00;
          break;
          
        default:
          Serial.println("Invalid Servo Command.");
-         bt_response[7] = 0xff;
+         bt_response[1] = 0xff;
          break;
      }
-     
    }
    else{
      Serial.println("This is not a sanity check");
@@ -310,6 +310,8 @@ void handleIncomingRequest(boolean isDeviceBLE){
         pid.runPID_control();
       }
       Serial.println("PID control loop ended.");
+      bt_response[1] = 0x00;  // Sets the status byte value
+      bt_response[3] = 0x1e;  // Sets the completion time byte in seconds
      }
    }
    
@@ -339,6 +341,7 @@ void runServoSanitySet(int16_t servoAngleIndex){
         delay(500);
       }
     }
+    setServoPosition(btcs.ServoLookupTbl[1].pos); // Sets the servo back to the centered position.
   } else {
     Serial.print("servo predefined angle index value: ");
     Serial.println(servoAngleIndex);
