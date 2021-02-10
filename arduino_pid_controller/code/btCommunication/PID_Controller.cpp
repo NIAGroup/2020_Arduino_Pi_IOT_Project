@@ -2,6 +2,10 @@
 
 PID_Controller::PID_Controller(){
  // default code
+ previousTime = 0;
+ eventInterval = 250;
+ currentTime = millis();
+ currentServoPosition = 90;
 } 
 
 int PID_Controller::getError(){
@@ -21,7 +25,9 @@ void  PID_Controller::runPID_control(){
   PID_out = P + I + D;
   currentServoPosition = (int)map(PID_out,min_error,max_error,min_angle,max_angle);
   servo.write(currentServoPosition);
-  Serial.println("****************************************************");
+
+  // Testing lines below:
+  /*Serial.println("****************************************************");
   Serial.print("currentDistance: ");
   Serial.print(currentDistance);
   Serial.print(", previousDistance: ");
@@ -39,5 +45,5 @@ void  PID_Controller::runPID_control(){
   Serial.print("];\t PID_out: "); 
   Serial.println(PID_out);
   Serial.print("servoPosition: ");
-  Serial.println(currentServoPosition);
+  Serial.println(currentServoPosition);*/
 }

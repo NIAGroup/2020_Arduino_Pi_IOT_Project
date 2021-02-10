@@ -15,21 +15,21 @@ class PID_Controller {
     // When the ball is too far left, the lower the error 
     // When the ball is too far right, the greater the error           
     
-    double Kp = 0.85; // PID controller constants
-    double Ki = 0.25;
-    double Kd = 0.65;
+    double Kp; // PID controller constants
+    double Ki;
+    double Kd;
     
     double previousError, currentError;
     double P, I, D, PID_out; 
     const byte setpoint = 16;
     unsigned int currentBallPosition;
   
-    unsigned long eventInterval = 250;
+    unsigned long eventInterval;
     unsigned int previousDistance;
     unsigned int currentDistance;
-    unsigned long previousTime = 0;
-    unsigned long currentTime = millis();
-    int currentServoPosition = 90; // sets the balance beam parallel to the surface
+    unsigned long previousTime;
+    unsigned long currentTime;
+    int currentServoPosition; // sets the balance beam parallel to the surface
     int targetServoPosition;
 
     // Variables to use for calculating the min & max values
