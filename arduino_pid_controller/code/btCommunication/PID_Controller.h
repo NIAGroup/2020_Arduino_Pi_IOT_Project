@@ -21,7 +21,7 @@ class PID_Controller {
     
     double previousError, currentError;
     double P, I, D, PID_out; 
-    const byte setpoint = 16;
+    byte setpoint;
     unsigned int currentBallPosition;
   
     unsigned long eventInterval;

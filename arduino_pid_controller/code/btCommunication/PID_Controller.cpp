@@ -6,6 +6,7 @@ PID_Controller::PID_Controller(){
  eventInterval = 250;
  currentTime = millis();
  currentServoPosition = 90;
+ setpoint = 16;
 } 
 
 int PID_Controller::getError(){
