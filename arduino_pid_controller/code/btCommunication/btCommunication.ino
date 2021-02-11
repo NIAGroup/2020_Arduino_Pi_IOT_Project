@@ -1,4 +1,4 @@
-/*
+ /*
  * Author :  Princton Brennan
  * Purpose : Beginner's Example for Bluetooth Communication 
  * Requirements : 1 LED, Bluetooh Module Hc-05 or newer), an Arduino, &   
@@ -31,43 +31,75 @@
  
 #include <SoftwareSerial.h> 
 #include <Servo.h>
+#include <SharpIR.h>
 #include "BT_Communication_Standard.h"
+#include "PID_Controller.h"
 
-BTComm_Standard btcs; 
-const byte servoPin = 5;    // Servo pin assigned as pin 6 [servos require a PWM pin].
-Servo servo;                // To create a servo instance, we use the Servo class from Servo.h.
-boolean isDeviceBLE = false;
-// Using the SoftwareSerial Library, the Digital IO pins 2 & 3 are repurposed as Soft Serial Pins
-// NOTE : For wiring the TX pin of the target device/module is connected to the assigned RX pin of the
-// Microcontroller, and the RX pin of the target device/module is connected to the assigned TX pin of
-// the Microcontroller.  
-SoftwareSerial BT_Module(2, 3); // assigned RX , assigned TX 
-SoftwareSerial BT_ClassicModule(12, 13); // RX, TX
-byte bt_raw_request[8], bt_response[8];
-const byte blueLED_pin = 10;   // The led1_pin assigned to pin 10.
-const byte yellowLED_pin = 11;   // The led2_pin assigned to pin 11.
+////<  Every arduino's main sketch should contain a clear boot-up message.
+const String startMsg = "################################\n" \
+                        "      Starting up to run        \n" \
+                        "    Full PID controller code    \n" \
+                        "################################";
 
-// Every Arduino sketch requires at least a setup loop for initializing I/O pins and serial ports
-// and a main function called "loop" that will loop indefinitely while the board is powered.
+////<  Bluetooth variables
+BTComm_Standard btcs; ///< BT_Communication Standard object for referencing message related conversions & bit parsing. 
+boolean isDeviceBLE = false; ///< Used as flag to determine current BT device type in use.
+
+
+/**  
+ *   Using the SoftwareSerial Library, the Digital IO pins 2 & 3 are repurposed as Soft Serial Pins
+ *   NOTE : For wiring the TX pin of the target device/module is connected to the assigned RX pin of the
+ *   Microcontroller, and the RX pin of the target device/module is connected to the assigned TX pin of
+ *   the Microcontroller.  
+*/
+SoftwareSerial BT_Module(2, 3); ///< assigned RX , assigned TX 
+SoftwareSerial BT_ClassicModule(12, 13); ///< RX, TX
+byte bt_raw_request[8], bt_response[8]; ///< 
+
+////<  Sensor variables
+SharpIR SharpIR( SharpIR::GP2Y0A21YK0F, A0 );
+unsigned long startTime = 0;
+unsigned long previousTime = 0;
+unsigned long currentTime = millis();
+
+////<  Servo variables
+const byte servoPin = 5;    ////<  Servo pin assigned as pin 6 [servos require a PWM pin].
+Servo servo;                ////<  To create a servo instance, we use the Servo class from Servo.h.
+
+////<  PID Cotnroller object
+PID_Controller pid = PID_Controller();
+
+////<  LED Indicator variables
+const byte redLED_pin = 9;   ////<  The red led for error/failure assigned to pin 9.
+const byte blueLED_pin = 10;   ////<  The blue led as 1 indicator assigned to pin 10.
+const byte yellowLED_pin = 11;   ////<  The yellow led as 1 indicator assigned to pin 11.
+
+////<  Every Arduino sketch requires at least a setup loop for initializing I/O pins and serial ports
+////<  and a main function called "loop" that will loop indefinitely while the board is powered.
 void setup() 
 {   
- Serial.begin(9600);       // The default baudrate for the HC-05 is 38400, and 9600 for the HM-10 
- BT_Module.begin(9600);       // If the baudrate is incorrect the messages will not be read/displayed correctly.
+ Serial.begin(9600);       ////<  The default baudrate for the HC-05 is 38400, and 9600 for the HM-10 
+ BT_Module.begin(9600);       ////<  If the baudrate is incorrect the messages will not be read/displayed correctly.
  //BT_ClassicModule.begin(9600);
- pinMode(blueLED_pin, OUTPUT);      // The led pin gets setup as an output pin. 
+ pinMode(blueLED_pin, OUTPUT);      ////<  The led pin gets setup as an output pin.
+ pinMode(redLED_pin, OUTPUT); 
  pinMode(yellowLED_pin, OUTPUT);
  servo.attach(servoPin);
- Serial.println("#########################################");
- Serial.println("Ready to connect with a bluetooth device."); 
- Serial.println("#########################################");
- delay(250);
- servo.write(90);
+ pid.servo = servo;
+ Serial.println(startMsg);
+ runStartUpLEDSequence();
+ //servo.write(currentServoPosition);
 } 
+
+/**
+ * brief Main Loop - Will wait until BT messages have been received
+ * 
+ */
 void loop() 
 { 
- // While there is no incoming data, the Serial available function will return a 0,
- // but when it is receiving data it will no longer be 0. So we wait to read the
- // incoming message before we handle any actions. 
+ ////<  While there is no incoming data, the Serial available function will return a 0,
+ ////<  but when it is receiving data it will no longer be 0. So we wait to read the
+ ////<  incoming message before we handle any actions. 
  if (BT_Module.available() > 0)
  { 
    Serial.println("----\tBT BLE Msg\t----");
@@ -81,15 +113,73 @@ void loop()
  else
  {
    digitalWrite(blueLED_pin, LOW);
+   digitalWrite(redLED_pin, LOW);
    digitalWrite(yellowLED_pin, LOW); 
  }
 
 }  
+
+void runStartUpLEDSequence(){
+  for (byte i = 0; i < 8; i++)
+ {
+  switch(i)
+  {
+    case 0:
+      digitalWrite(blueLED_pin, HIGH);
+      delay(500);
+      break;
+    case 1:
+      digitalWrite(redLED_pin, HIGH);
+      delay(500);
+      break;
+    case 2:
+      digitalWrite(yellowLED_pin, HIGH);
+      delay(500);
+      break;
+    case 3:
+      digitalWrite(blueLED_pin, LOW);
+      digitalWrite(redLED_pin, LOW);
+      digitalWrite(yellowLED_pin, LOW);
+      delay(500);
+      break;
+    case 4:
+      digitalWrite(blueLED_pin, HIGH);
+      digitalWrite(redLED_pin, HIGH);
+      digitalWrite(yellowLED_pin, HIGH);
+      delay(250);
+      break;
+    case 5:
+      digitalWrite(blueLED_pin, LOW);
+      digitalWrite(redLED_pin, LOW);
+      digitalWrite(yellowLED_pin, LOW);
+      delay(250);
+      break;
+    case 6:
+      digitalWrite(blueLED_pin, HIGH);
+      digitalWrite(redLED_pin, HIGH);
+      digitalWrite(yellowLED_pin, HIGH);
+      delay(250);
+      break;
+    case 7:
+      digitalWrite(blueLED_pin, LOW);
+      digitalWrite(redLED_pin, LOW);
+      digitalWrite(yellowLED_pin, LOW);
+      delay(250);
+      break;
+  }
+ }
+}
+
+/**
+ * @brief Parses the incoming BT message received
+ * 
+ * @param isDeviceBLE : true or false depending on the BT device type that received an incoming message
+ */
 void handleIncomingRequest(boolean isDeviceBLE){
   Serial.println("-------------------------------------------------");
-     // I believe the way the messages are being sent with the ble code, the messages
-     // are being received in 4 byte array lengths. So a second loop is added to ensure
-     // no dummy bytes ("0xFF") are processed.
+     ////<  I believe the way the messages are being sent with the ble code, the messages
+     ////<  are being received in 4 byte array lengths. So a second loop is added to ensure
+     ////<  no dummy bytes ("0xFF") are processed.
    if(isDeviceBLE){
      for(byte i = 0;i<4;i++){
        bt_raw_request[i] = BT_Module.read();
@@ -119,105 +209,173 @@ void handleIncomingRequest(boolean isDeviceBLE){
        }
      }
    }
+
+   for(byte i = 0;i<8;i++){
+     bt_response[i] = 0x00;
+   }
+   bt_response[0] = bt_raw_request[0];
+   Serial.println("");
+   Serial.print("command_byte: ");
+   const FullBtMsg request = btcs.Process_Request(bt_raw_request,sizeof(bt_raw_request));
+   Serial.println(request.specBytes.command_byte.full_byte, HEX);
+   ////<  Serial.print("status_byte: ");
+   ////<  Serial.println(request.specBytes.status_byte.full_byte, HEX);
    
-     Serial.println("");
-     Serial.print("command_byte: ");
-     const FullBtMsg request = btcs.Process_Request(bt_raw_request,sizeof(bt_raw_request));
-     Serial.println(request.specBytes.command_byte.full_byte, HEX);
-     // Serial.print("status_byte: ");
-     // Serial.println(request.specBytes.status_byte.full_byte, HEX);
-     
-     if(btcs.checkRequestType(request.specBytes.command_byte.full_byte)){
-       Serial.println("This is a sanity check");
-       /* // Test Lines
-       Serial.print("full_byte: ");
-       Serial.print(request.command_byte.full_byte, HEX);
-       Serial.print(", upper: ");
-       Serial.print(request.command_byte.nibbles.upper, HEX);
-       Serial.print(", lower: ");
-       Serial.println(request.command_byte.nibbles.lower,HEX);
-       */
-       switch(request.specBytes.command_byte.nibbles.upper){
-         // BT Echo Sanity Check : Hex - 0x8
-         case 8:
-           Serial.println("Running BT echo Sanity Check");
-           break;
-         
-         // Servo Position Sanity Check : Hex - 0x9
-         case 9:
-         // NOTE: When declaring variables in case instructions
-         // you have to enclose all the instructions in curly braces.
-         // This is because the variable has no scope without the curly braces.
-         {
+   if(btcs.isSanityCheck(request.specBytes.command_byte.full_byte)){
+     Serial.println("This is a sanity check");
+     /* ////<  Test Lines
+     Serial.print("full_byte: ");
+     Serial.print(request.command_byte.full_byte, HEX);
+     Serial.print(", upper: ");
+     Serial.print(request.command_byte.nibbles.upper, HEX);
+     Serial.print(", lower: ");
+     Serial.println(request.command_byte.nibbles.lower,HEX);
+     */
+     switch(request.specBytes.command_byte.nibbles.upper){
+       ////<  BT Echo Sanity Check : Hex - 0x8
+       case 8:
+         Serial.println("Running BT echo Sanity Check");
+         digitalWrite(blueLED_pin,HIGH);
+         bt_response[1] = 0x00;
+         break;
+       
+       ////<  Servo Position Sanity Check : Hex - 0x9
+       case 9:
+       ////<  NOTE: When declaring variables in case instructions
+       ////<  you have to enclose all the instructions in curly braces.
+       ////<  This is because the variable has no scope without the curly braces.
+       {
+         Serial.println("Servo Position Sanity Check");
+         byte n = 0;
+         //btcs.isValidServoCommand(request.specBytes.command_byte.nibbles.lower);
+         const int16_t arrayIndex = btcs.isValidServoCommand(request.specBytes.command_byte.nibbles.lower);
+         if(arrayIndex != -1){
+           Serial.print(btcs.ServoLookupTbl[arrayIndex].cmd, BIN);
+           Serial.print(":");
+           Serial.println(btcs.ServoLookupTbl[arrayIndex].pos);
            digitalWrite(yellowLED_pin,HIGH);
-           Serial.println("Servo Position Sanity Check");
-           byte n = 0;
-           while(request.specBytes.command_byte.nibbles.lower != btcs.ServoLookupTbl[n].cmd){
-            n++; 
-           }
-           if(n < 8){
-             Serial.print(btcs.ServoLookupTbl[n].cmd);
-             Serial.print(":");
-             Serial.println(btcs.ServoLookupTbl[n].pos);
-             //setServoPosition(btcs.ServoLookupTbl[n].pos);
-           }
-           break;
+           digitalWrite(blueLED_pin, HIGH);
+           runServoSanitySet(arrayIndex);
+           bt_response[1] = 0x00;
          }
-         
-         // Sensor Read Sanity Check : Hex - 0xA
-         case 10:
-           Serial.println("Sensor Read Sanity Check");
-           break;
-         
-         // Tilt & Measure Sanity Check : Hex - 0xB
-         case 11:
-           Serial.println("Running Tilt & Measure Sanity Check");
-           break;
-           
-         default:
-           Serial.println("Invalid Servo Command.");
-           break;
+         else{
+          digitalWrite(redLED_pin, HIGH);
+          bt_response[1] = 0x60;
+          Serial.println("Error : invalid servo saanity check position.");
+         }
+         break;
        }
        
+       ////<  Sensor Read Sanity Check : Hex - 0xA
+       case 10:
+         Serial.println("Sensor Read Sanity Check");
+         bt_response[4] = getPosition();
+         Serial.print("currentBallPosition: ");
+         Serial.print(bt_response[2]);
+         Serial.println("cm");
+         bt_response[1] = 0x00;
+         break;
+       
+       ////<  Tilt & Measure Sanity Check : Hex - 0xB
+       case 11:
+         Serial.println("Running Tilt & Measure Sanity Check");
+         bt_response[1] = 0x00;
+         break;
+         
+       default:
+         Serial.println("Invalid Servo Command.");
+         bt_response[1] = 0xff;
+         break;
+     }
+   }
+   else{
+     Serial.println("This is not a sanity check");
+     ///<  checking for PID command
+     unsigned long pid_StartTime = millis();
+     if (request.specBytes.command_byte.nibbles.upper == 0b0100){
+      pid.Kp = double(request.specBytes.Kp_byte.full_byte)/100.00;
+      pid.Ki = double(request.specBytes.Ki_byte.full_byte)/100.00;
+      pid.Kd = double(request.specBytes.Kd_byte.full_byte)/100.00;
+      Serial.println("This is a PID control request.");
+      Serial.print("Kp: ");
+      Serial.print(pid.Kp);
+      Serial.print(", Ki: ");
+      Serial.print(pid.Ki);
+      Serial.print(", Kd: ");
+      Serial.println(pid.Kd);
+      ///<  ttry to balance ffor 30 seconds (temporary limit)
+      while(millis() - pid_StartTime < 30000){
+        digitalWrite(blueLED_pin, HIGH);
+        pid.currentBallPosition = getPosition();
+        pid.runPID_control();
+      }
+      Serial.println("PID control loop ended.");
+      bt_response[1] = 0x00;  // Sets the status byte value
+      bt_response[3] = 0x1e;  // Sets the completion time byte in seconds
+     }
+   }
+   
+   for(byte i = 0;i<8;i++){
+     if(isDeviceBLE){
+       BT_Module.write(bt_response[i]);
      }
      else{
-       Serial.println("This is not a sanity check");
+       BT_ClassicModule.write(bt_response[i]);
      }
-     byte response[8];
-     for(byte i = 0;i<8;i++){
-       response[i] = bt_raw_request[i];
-     }
-     response[7] = 0x80;
-     digitalWrite(blueLED_pin, HIGH);
-     for(byte i = 0;i<8;i++){
-       if(isDeviceBLE){
-         BT_Module.write(response[i]);
-       }
-       else{
-         BT_ClassicModule.write(response[i]);
-       }
-     }
-     delay(1500);
+   }
+   delay(1500);
 }
 
-void setServoPosition(byte pos){
-  // This first condition is for setting the servo position
-  if(pos < 181){
-    servo.write(pos);
-    delay(100); 
-  }
-  // This next condition is for running a full servo position sweepa
-  else{
-    for(byte t = 0; t<2; t++){
-      for(byte r = 0; r<180; r+=30){
-        servo.write(r);
-        delay(1000); 
-      }
-      
-      for(byte r = 180; r>0; r-=30){
-        servo.write(r);
-        delay(1000); 
+/**
+ * @brief Runs the servo sanity test; the servo is either set to a 
+ *        specific angle or loops through a range of predefined positions.
+ *        
+ * @param servoAngleIndex : Index of the ServoLookupTbl array to use to set the servo position(s)
+ */
+void runServoSanitySet(int16_t servoAngleIndex){
+  const byte arrLen = sizeof(btcs.ServoLookupTbl)/sizeof(btcs.ServoLookupTbl[0]);
+  if (servoAngleIndex == arrLen-1){
+    for (byte i = 0; i < 2; i++){
+      for (byte n = 0; n < arrLen-1; n++){
+        setServoPosition(btcs.ServoLookupTbl[n].pos);
+        delay(500);
       }
     }
+    setServoPosition(btcs.ServoLookupTbl[1].pos); // Sets the servo back to the centered position.
+  } else {
+    Serial.print("servo predefined angle index value: ");
+    Serial.println(servoAngleIndex);
+    setServoPosition(btcs.ServoLookupTbl[servoAngleIndex].pos);
   }
+}
+
+/**
+ * @brief Adjusts the servo to a desired position.
+ * 
+ * @param pos : position to set for the servo 
+ */
+void setServoPosition(byte pos){
+  Serial.println(pos);
+  if(pos <= pid.max_angle && pos >= pid.min_angle){
+    servo.write(pos);
+    delay(50); 
+  }
+}
+
+/**
+ * @brief Averages the distance measurements taken of the ping pong ball over 100ms
+ * 
+ * @return current position of the ping pong ball 
+ */
+unsigned int getPosition(){
+ uint16_t  i = 0;
+ int16_t distance = 0;
+ startTime = millis();
+ currentTime = startTime;
+ while (currentTime - startTime < 100){
+   distance += SharpIR.getDistance();
+   i+=1;
+   currentTime = millis();
+ }
+ return (unsigned int)distance/i;
 }

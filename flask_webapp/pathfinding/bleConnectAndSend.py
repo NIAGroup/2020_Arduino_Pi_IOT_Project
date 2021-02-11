@@ -23,7 +23,7 @@ class BtleDelegate(btle.DefaultDelegate):
         #print(list(data))
         self.response = list(data)
 
-def sendMsg(bdaddr,msg_byte):
+def sendMsg(bdaddr,msg_byte, Kp, Ki, Kd):
     print("Connecting...")
     
     """
@@ -67,7 +67,10 @@ def sendMsg(bdaddr,msg_byte):
 
         # Below we actually write the message, and convert it to a byte to be sent.
         #print("sending message:",msg_byte)
-        full_msg = [msg_byte,"f1","f2","f3","f4","f5","f6","f7"]
+        if msg_byte.find("4") != -1:
+            print(f"Kp : {int(Kp,16)/100}, Ki : {int(Ki,16)/100}, Kd : {int(Kd,16)/100}")
+            
+        full_msg = [msg_byte,"f1","f2",Kp,Ki,Kd,"f6","f7"]
         dev_name = services[0].getCharacteristics()[0].read().decode("utf-8")
         print("request:", ":".join(full_msg))
         #characteristic.write(bytes([int(full_msg,16)]))
@@ -109,16 +112,34 @@ def getArguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--bdaddr',type=str,help='Please provide an address for your bluetooth device')
     parser.add_argument('--msg',type=str,help='Please provide a byte message to be sent')
+    parser.add_argument('--Kp',type=str,help='Please provide a byte message to be sent')
+    parser.add_argument('--Ki',type=str,help='Please provide a byte message to be sent')
+    parser.add_argument('--Kd',type=str,help='Please provide a byte message to be sent')
     args = parser.parse_args()
     bdaddr = args.bdaddr
     msg_byte = args.msg
+    Kp_byte = args.Kp
+    Ki_byte = args.Ki
+    Kd_byte = args.Kd
     if bdaddr == None:
         bdaddr = "00:35:FF:0D:41:9B"
+    if Kp_byte == None:
+        Kp_byte = hex(int("00",16))
+    else:
+        Kp_byte = hex(int(Kp_byte,16))
+    if Ki_byte == None:
+        Ki_byte = hex(int("00",16))
+    else:
+        Ki_byte = hex(int(Ki_byte,16))
+    if Kd_byte == None:
+        Kd_byte = hex(int("00",16))
+    else:
+        Kd_byte = hex(int(Kd_byte,16))
     if msg_byte == None:
         msg_byte = hex(int("90",16))   # sets the servo to 90 degrees
     else:
         msg_byte = hex(int(msg_byte,16))
-    return bdaddr,msg_byte
+    return bdaddr,msg_byte, Kp_byte, Ki_byte, Kd_byte
 
 """
 The Bluetooth address is usually found during the scanning process
@@ -129,14 +150,14 @@ The arguments passed in will be checked for the correct formatting as well,
 but this will have to be updated later to match the communication standard
 for an array of bytes.
 """
-bdaddr, msg_byte = getArguments()
+bdaddr, msg_byte, Kp, Ki, Kd = getArguments()
 print(msg_byte)
 
 if (int(msg_byte,16) > 0 and int(msg_byte,16) < 256):
     if bdaddr.count(":") == 5 and len(bdaddr) == 17:
         print(f"bdaddr : {bdaddr}")
         print(f"msg_byte : {msg_byte}")
-        status = sendMsg(bdaddr,msg_byte)
+        status = sendMsg(bdaddr,msg_byte, Kp, Ki, Kd)
         print(status)
     else:
         print("The bluetooth address is not formatted correctly.\nPlease try again following syntax 'xx:xx:xx:xx:xx:xx'")
