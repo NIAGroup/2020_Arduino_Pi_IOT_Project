@@ -132,7 +132,7 @@ class Bt_Dev_Container(object):
         try:
             dev = self.get_device(name)
         except Exception:
-            print(f"Device handle not found. Will be performing a scan.")
+            print("Device handle not found. Will be performing a scan.")
             self.scan()
             try:
                 dev = self.get_device(name)
