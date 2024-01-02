@@ -7,8 +7,7 @@ while True:
     frame = cv2.flip(frame,flipCode=-1)
     cv2.imshow('Frame', frame)
     
-    key = cv2.waitKey(1)
-    if key == 115:
+    if (key := cv2.waitKey(1)) == 115:
         break
     
 cap.release()

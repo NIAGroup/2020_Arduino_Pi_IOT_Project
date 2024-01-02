@@ -162,8 +162,7 @@ class Bt_Ble_Device(object):
         print(f"Writing message: {msgName}. \n{msg_obj.structure}")
         self._write(msg_obj)
 
-        ret_bytes = self._read()
-        if ret_bytes:
+        if ret_bytes := self._read():
             resp_msg_union = Response_Message_Union()
             if len(ret_bytes) >= sizeof(resp_msg_union):
                 for byte_idx in range(len(resp_msg_union.bytes)):
