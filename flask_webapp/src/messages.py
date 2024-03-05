@@ -50,7 +50,7 @@ class Message_Union(Union):
         try:
             return str(self.structure)
         except AttributeError:
-            print(f"'Structure' field not implemented in message payload union.\n")
+            print("'Structure' field not implemented in message payload union.\n")
 
 class Request_Message(Message_Struct):
     """

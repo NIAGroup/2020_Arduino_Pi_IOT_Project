@@ -255,7 +255,7 @@ class PID_Command_Resource(Resource):
                     resp_status = DB_RETURN_STATUS["HTTP_514_WRONG_DEVICE_CONNECTED_DB_ERROR"]
             else:
                 resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
-                error_str = f"Unexpected error occurred."
+                error_str = "Unexpected error occurred."
                 retDict["error_msg"] = error_str
         except Exception as error:
             resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
