@@ -166,10 +166,10 @@ class Device_Connection_Resource(Resource):
                         retDict["error_msg"] = f"{deviceName} is not available, even after performing a scan"
                     elif container_status == CONTAINER_RETURN_STATUS["CONNECTION_FAILED"]:
                         resp_status = status.HTTP_503_SERVICE_UNAVAILABLE
-                        retDict["error_msg"] = f"Could not connect to the device for some reason!"
+                        retDict["error_msg"] = "Could not connect to the device for some reason!"
                     else:
                         resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
-                        retDict["error_msg"] = f"Unexpected status was received from container."
+                        retDict["error_msg"] = "Unexpected status was received from container."
                 elif resp_status == status.HTTP_202_ACCEPTED:   # Device is already logged in db as connected
                     if deviceName != Container.get_connected_device():
                         resp_status = DB_RETURN_STATUS["HTTP_513_DB_AND_CONTAINER_INCONSISTENT"]
@@ -308,7 +308,7 @@ class PID_Command_Resource(Resource):
                     resp_status = DB_RETURN_STATUS["HTTP_514_WRONG_DEVICE_CONNECTED_DB_ERROR"]
             else:
                 resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR
-                error_str = f"Unexpected error occurred."
+                error_str = "Unexpected error occurred."
                 retDict["error_msg"] = error_str
         except Exception as error:
             resp_status = status.HTTP_500_INTERNAL_SERVER_ERROR

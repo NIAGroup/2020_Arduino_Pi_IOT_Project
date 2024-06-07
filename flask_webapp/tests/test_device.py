@@ -168,15 +168,15 @@ def test_varying_return_bytes_from_read(monkeypatch):
     bt_dev.is_connected = MagicMock(return_value=True)  # Mocking device to be connected state
     bt_dev._read = mock_method
 
-    print(f"Mocking '_read' function to return None. Expecting False to be returned")
+    print("Mocking '_read' function to return None. Expecting False to be returned")
     assert ble_dev.send_message(correct_message_name) == False, "Expected a False returned after receiving an incomplete packet size."
     assert bt_dev.send_message(correct_message_name) == False, "Expected a False returned after receiving an incomplete packet size."
 
-    print(f"Mocking '_read' function to return 7 bytes (Incomplete). Expecting False to be returned")
+    print("Mocking '_read' function to return 7 bytes (Incomplete). Expecting False to be returned")
     assert ble_dev.send_message(correct_message_name) == False, "Expected a False returned after receiving an incomplete packet size."
     assert bt_dev.send_message(correct_message_name) == False, "Expected a False returned after receiving an incomplete packet size."
 
-    print(f"Mocking '_read' function to return a complete return packet with a failed status; i.e. status != 0. Expecting False to be returned")
+    print("Mocking '_read' function to return a complete return packet with a failed status; i.e. status != 0. Expecting False to be returned")
     assert ble_dev.send_message(correct_message_name) == False, "Expected a False returned after receiving a non-zero status."
     assert bt_dev.send_message(correct_message_name) == False, "Expected a False returned after receiving a non-zero status."
 
